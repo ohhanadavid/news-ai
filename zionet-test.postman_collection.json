@@ -1,0 +1,682 @@
+{
+	"info": {
+		"_postman_id": "dc6e5a77-e8de-4931-9ce1-5e2e71709113",
+		"name": "zionet-test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "34712602"
+	},
+	"item": [
+		{
+			"name": "user controller",
+			"item": [
+				{
+					"name": "delete user",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:7001/deleteUser?email=sustujbv12269@gmail.com",
+							"host": [
+								"localhost"
+							],
+							"port": "7001",
+							"path": [
+								"deleteUser"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "sustujbv12269@gmail.com"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "createUser",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"sustujbv18791@gmail.com\",\r\n    \"name\": \"david ohhana\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:7001/saveUser",
+							"host": [
+								"localhost"
+							],
+							"port": "7001",
+							"path": [
+								"saveUser"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getUser",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:7001/getUser/sustujbv169@gmail.com",
+							"host": [
+								"localhost"
+							],
+							"port": "7001",
+							"path": [
+								"getUser",
+								"sustujbv169@gmail.com"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update name",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"sustujbv18791@gmail.com\",\r\n    \"name\": \"n89na\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:7001/updateName",
+							"host": [
+								"localhost"
+							],
+							"port": "7001",
+							"path": [
+								"updateName"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update email",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "localhost:7001/updateMail/sustujbv122g69@gmail.com?newEmail=sustujbv167@gmail.com",
+							"host": [
+								"localhost"
+							],
+							"port": "7001",
+							"path": [
+								"updateMail",
+								"sustujbv122g69@gmail.com"
+							],
+							"query": [
+								{
+									"key": "newEmail",
+									"value": "sustujbv167@gmail.com"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "language",
+			"item": [
+				{
+					"name": "saveLanguage",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"sustujbv167@gmail.com\",\r\n    \"language\": \"Czech\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:7001/saveLanguege",
+							"host": [
+								"localhost"
+							],
+							"port": "7001",
+							"path": [
+								"saveLanguege"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get languages",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:7001/getLangueges?email=sustujbv167@gmail.com",
+							"host": [
+								"localhost"
+							],
+							"port": "7001",
+							"path": [
+								"getLangueges"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "sustujbv167@gmail.com"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getLanguageCode",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:7001/getLanguegesCode?email=sustujbv167@gmail.com",
+							"host": [
+								"localhost"
+							],
+							"port": "7001",
+							"path": [
+								"getLanguegesCode"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "sustujbv167@gmail.com"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete language",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n   \"languageKey\":{\r\n    \"email\":\"sustujbv167@gmail.com\",\r\n    \"language\": \"Czech\"},\r\n   \"language_code\":\"cs\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:7001/deleteLanguege",
+							"host": [
+								"localhost"
+							],
+							"port": "7001",
+							"path": [
+								"deleteLanguege"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update language",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"oldLanguage\":{\r\n        \"email\":\"sustujbv167@gmail.com\",\r\n        \"language\":\"Gujarati\"\r\n    },\r\n    \"newLanguage\":{\r\n        \"email\":\"sustujbv167@gmail.com\",\r\n        \"language\":\"Bambara\"\r\n\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:7001/updateLanguege",
+							"host": [
+								"localhost"
+							],
+							"port": "7001",
+							"path": [
+								"updateLanguege"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "news",
+			"item": [
+				{
+					"name": "get latest news",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:7000/getLatestNews?email=sustujbv167@gmail.com",
+							"host": [
+								"localhost"
+							],
+							"port": "7000",
+							"path": [
+								"getLatestNews"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "sustujbv167@gmail.com"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getLatestNewsByCategory",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:7000?email&caregory",
+							"host": [
+								"localhost"
+							],
+							"port": "7000",
+							"query": [
+								{
+									"key": "email",
+									"value": null
+								},
+								{
+									"key": "caregory",
+									"value": null
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getLatestListNewsByCategories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:7000?email",
+							"host": [
+								"localhost"
+							],
+							"port": "7000",
+							"query": [
+								{
+									"key": "email",
+									"value": null
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getCategories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:7000/getCategories",
+							"host": [
+								"localhost"
+							],
+							"port": "7000",
+							"path": [
+								"getCategories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getLanguages",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:7000/getLanguages",
+							"host": [
+								"localhost"
+							],
+							"port": "7000",
+							"path": [
+								"getLanguages"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "checkCategory",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:7000/checkCategory?category=sports",
+							"host": [
+								"localhost"
+							],
+							"port": "7000",
+							"path": [
+								"checkCategory"
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "sports"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getLanguageCode",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:7000/getLanguageCode?language=English",
+							"host": [
+								"localhost"
+							],
+							"port": "7000",
+							"path": [
+								"getLanguageCode"
+							],
+							"query": [
+								{
+									"key": "language",
+									"value": "English"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "maximumLanguage",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:7000/maximumLanguage",
+							"host": [
+								"localhost"
+							],
+							"port": "7000",
+							"path": [
+								"maximumLanguage"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "category",
+			"item": [
+				{
+					"name": "saveCategory",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"category\":{\r\n        \"email\":\"sustujbv167@gmail.com\",\r\n        \"preferencec\":\"d\",\r\n        \"category\":\"food\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:7001/saveCategory",
+							"host": [
+								"localhost"
+							],
+							"port": "7001",
+							"path": [
+								"saveCategory"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getPreferencecByCategory",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:7001/getPreferencecByCategory?email=sustujbv122g69@gmail.com&category=sports",
+							"host": [
+								"localhost"
+							],
+							"port": "7001",
+							"path": [
+								"getPreferencecByCategory"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "sustujbv122g69@gmail.com"
+								},
+								{
+									"key": "category",
+									"value": "sports"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "myCategories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:7001/myCategories?email=sustujbv167@gmail.com",
+							"host": [
+								"localhost"
+							],
+							"port": "7001",
+							"path": [
+								"myCategories"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "sustujbv167@gmail.com"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deletePreferencec",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"category\":{\r\n        \"email\":\"sustujbv167@gmail.com\",\r\n        \"preferencec\":\"mause\",\r\n        \"category\":\"technology\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:7001/deletePreferencec",
+							"host": [
+								"localhost"
+							],
+							"port": "7001",
+							"path": [
+								"deletePreferencec"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteCategory",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:7001/deleteCategory?email=sustujbv167@gmail.com&category=food",
+							"host": [
+								"localhost"
+							],
+							"port": "7001",
+							"path": [
+								"deleteCategory"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "sustujbv167@gmail.com"
+								},
+								{
+									"key": "category",
+									"value": "food"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateCategory",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "localhost:7001/updateCategory?oldCategory=food&newCategory=top&email=sustujbv167@gmail.com",
+							"host": [
+								"localhost"
+							],
+							"port": "7001",
+							"path": [
+								"updateCategory"
+							],
+							"query": [
+								{
+									"key": "oldCategory",
+									"value": "food"
+								},
+								{
+									"key": "newCategory",
+									"value": "top"
+								},
+								{
+									"key": "email",
+									"value": "sustujbv167@gmail.com"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updatePreferencec",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "localhost:7001/updatePreferencec?oldPreferencec=c&newPreferencec=123&email=sustujbv122g69@gmail.com&category=sports",
+							"host": [
+								"localhost"
+							],
+							"port": "7001",
+							"path": [
+								"updatePreferencec"
+							],
+							"query": [
+								{
+									"key": "oldPreferencec",
+									"value": "c"
+								},
+								{
+									"key": "newPreferencec",
+									"value": "123"
+								},
+								{
+									"key": "email",
+									"value": "sustujbv122g69@gmail.com"
+								},
+								{
+									"key": "category",
+									"value": "sports"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateAll",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"oldCategory\":{  \"category\":{\r\n        \"email\":\"sustujbv167@gmail.com\",\r\n        \"preferencec\":\"d\",\r\n        \"category\":\"top\"\r\n    }},\r\n    \"newCategory\":{  \"category\":{\r\n        \"email\":\"sustujbv167@gmail.com\",\r\n        \"preferencec\":\"c\",\r\n        \"category\":\"sports\"\r\n    }}\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:7001/updateAll",
+							"host": [
+								"localhost"
+							],
+							"port": "7001",
+							"path": [
+								"updateAll"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

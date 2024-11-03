@@ -1,0 +1,25 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: api.deleteLanguege
+spec:
+  type: bindings.kafka
+  version: v1
+  metadata:
+  # Kafka broker connection setting
+  - name: brokers
+    value: kafka:9092
+  # consumer configuration: topic and consumer group
+  - name: topics
+    value: deleteLanguege
+  - name: consumerGroup
+    value: group1
+  # publisher configuration: topic
+  - name: publishTopic
+    value: deleteLanguege
+  - name: AuthType
+    value: none
+  - name: direction
+    value: output
+  - name: maxMessageBytes # Optional.
+    value: 65536

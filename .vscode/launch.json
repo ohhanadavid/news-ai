@@ -1,0 +1,113 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Debug user accssor",
+            "request": "attach",
+            "hostName": "localhost",
+            "port": 5005
+        },
+        {
+            "type": "java",
+            "name": "Debug manger",
+            "request": "attach",
+            "hostName": "localhost",
+            "port": 5006
+        },
+        {
+            "type": "java",
+            "name": "Debug Spring Boot in Docker 2",
+            "request": "attach",
+            "hostName": "localhost",
+            "port": 5007
+        },
+        {
+            "type": "java",
+            "name": "Debug newsdata_io_accessor",
+            "request": "attach",
+            "hostName": "localhost",
+            "port": 5008
+        },
+        {
+            "type": "java",
+            "name": "Debug mail send erengine",
+            "request": "attach",
+            "hostName": "localhost",
+            "port": 5009
+        },
+        {
+            "type": "java",
+            "name": "new service",
+            "request": "attach",
+            "hostName": "localhost",
+            "port": 5000
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-NewsdataIoEngineApplication<newsdata_io_engine>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.newsdata.io_engine.newsdata_io_engine.NewsdataIoEngineApplication",
+            "projectName": "newsdata_io_engine",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-UserAccessorApplication<user_accessor>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.user_accessor.user_accessor.UserAccessorApplication",
+            "projectName": "user_accessor",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-NewsDataIoAccessorApplication<newsdata_io_accessor>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.newsdata.io_accessor.newsdata_io_accessor.NewsDataIoAccessorApplication",
+            "projectName": "newsdata_io_accessor",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        
+        {
+            "name": "Python: Remote Attach",
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5678
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}/app",
+                    "remoteRoot": "/app"
+                }
+            ]
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-MailSenderEngineApplication<mail_sender_engine>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.mail_sender_engine.mail_sender_engine.MailSenderEngineApplication",
+            "projectName": "mail_sender_engine",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=3799 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=mail_sender_engine"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-NewsAiManagrApplication<news_ai_managr>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.news_ai_manager.news_ai_managr.NewsAiManagrApplication",
+            "projectName": "news_ai_managr",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

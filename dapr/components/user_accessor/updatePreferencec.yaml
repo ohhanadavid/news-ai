@@ -1,0 +1,31 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: api.updatePreferencec
+spec:
+  type: bindings.kafka
+  version: v1
+  metadata:
+  # Kafka broker connection setting
+  - name: brokers
+    value: kafka:9092
+  # consumer configuration: topic and consumer group
+  - name: topics
+    value: updatePreferencec
+  - name: consumerGroup
+    value: group1
+  # publisher configuration: topic
+  - name: publishTopic
+    value: updatePreferencec
+  - name: AuthType
+    value: none
+  - name: direction
+    value: input
+  - name: consumerID # Optional. If not supplied, runtime will create one.
+    value: "manager"
+  - name: clientID # Optional. Used as client tracing ID by Kafka brokers.
+    value: "update-user-name"
+  - name: maxMessageBytes # Optional.
+    value: 65536
+  - name: consumeRetryInterval # Optional.
+    value: 200ms
