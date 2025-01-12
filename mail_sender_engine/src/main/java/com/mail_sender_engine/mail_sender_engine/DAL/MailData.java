@@ -10,7 +10,9 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 @NoArgsConstructor
 @Accessors(chain = true)
-public class ClientMail {
+public class MailData {
     private String email;
     private String name;
+    private String subject;
+    private String text;
 }

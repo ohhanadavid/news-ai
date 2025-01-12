@@ -1,6 +1,7 @@
 package com.mail_sender_engine.mail_sender_engine.BL;
 import java.util.Map;
 
+import com.mail_sender_engine.mail_sender_engine.DAL.MailData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,20 +17,23 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class MailController {
     @Autowired
-    MailService mailService;
+    EmailService mailService;
 
 
     @PostMapping("api.sendMail")
-    public ResponseEntity<?> sendEmail(@RequestBody Map<String,Object> data){
+    public ResponseEntity<?> sendEmail(@RequestBody MailData data){
         log.info("api.sendMail");
         try{
-            
-            
-            return mailService.sendArticlsMessage(data);
+            if(mailService.sentEmail(data)) {
+                log.info("email to {} send", data.getEmail());
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
         }catch(Exception e){
             log.error(e.getMessage());
             return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        log.error("email to {} fail", data.getEmail());
+        return new ResponseEntity<>(HttpStatus.OK);
     }
     @GetMapping()
     public Boolean healthCheck(){

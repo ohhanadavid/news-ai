@@ -16,7 +16,7 @@ public class CheckingData implements IChecking {
 
     @Autowired
     private  DaprClient daprClient;
-     @Value("${UserAccessorUrl}")
+    @Value("${UserAccessorUrl}")
     String userAccessorUrl;
     @Override
     public <T> ResponseEntity<?> checkResponse(ResponseEntity<?> response,Class<T> expectedType ){
