@@ -31,7 +31,7 @@ public class EmailService {
         if (api_key == null || api_key.trim().isEmpty()) {
             throw new IllegalStateException("SendGrid API key not configured!");
         }
-        System.out.println(api_key);
+        log.info(api_key);
         SendGrid sg = new SendGrid(api_key);
         Request request = new Request();
         try {
