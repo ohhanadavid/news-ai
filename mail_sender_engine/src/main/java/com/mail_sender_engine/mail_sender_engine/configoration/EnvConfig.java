@@ -20,18 +20,13 @@ public class EnvConfig {
         PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
         configurer.setIgnoreResourceNotFound(true);
         File envFile = new File(".env");
-
         log.info("Does .env exist? " + envFile.exists());
         if (envFile.exists()) {
             try (FileInputStream fis = new FileInputStream(envFile)) {
                 Properties properties = new Properties();
                // properties.setProperty("EMAIL_API_KEY","1234");
-
                 properties.load(fis);
-                properties.forEach((x,y)-> log.info(x+ " "+ y));
                 log.info(  properties.isEmpty());
-                String testKey = properties.getProperty("EMAIL_API_KEY");
-                log.info("EMAIL_API_KEY: " + testKey);
                 configurer.setProperties(properties);
             } catch (Exception e) {
                 log.error("Failed to load .env file", e);
