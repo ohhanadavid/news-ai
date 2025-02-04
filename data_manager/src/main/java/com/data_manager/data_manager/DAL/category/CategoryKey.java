@@ -19,7 +19,7 @@ public class CategoryKey {
     
     private String email;
     
-    private String preferencec;
+    private String preference;
    
     private String category;
 }

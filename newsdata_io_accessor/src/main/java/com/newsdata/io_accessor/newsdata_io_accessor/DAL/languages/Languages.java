@@ -13,7 +13,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Configuration
-public class Langueges {
+public class Languages {
 
     @Value("classpath:languages.json")
     private org.springframework.core.io.Resource resource;

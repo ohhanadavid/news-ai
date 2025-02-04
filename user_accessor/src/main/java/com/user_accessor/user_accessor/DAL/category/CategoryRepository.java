@@ -17,28 +17,29 @@ public interface CategoryRepository extends JpaRepository<Category,CategoryKey> 
         @Transactional
         @Query
         (value="""
-                SELECT c.preferencec As preferencec
+                SELECT c.preference As preference
                 FROM category c
                 WHERE c.email= :email AND c.category= :category;
                 """,nativeQuery=true)
-        public List<String> getPreferencecByCategory(@Param("email") String email, @Param("category") String category);
+        public List<String> getPreferenceByCategory(@Param("email") String email, @Param("category") String category);
 
         @Modifying
         @Transactional
         @Query
         (value="""
-                SELECT c.category AS category,c.preferencec AS preferencec 
+                SELECT c.category AS category,c.preference AS preference
                 FROM category c
                 WHERE c.email= :email;
                 """,nativeQuery=true)
-        public List<Object[]> getMyPreferencec(@Param("email") String email);
+        public List<Object[]> getMyPreference(@Param("email") String email);
 
         @Modifying
         @Transactional
         @Query
         (value="""
-                DELETE FROM category c
-                WHERE c.email= :email AND c.category = :category;
+                DELETE FROM category
+                WHERE email= :email
+                        AND category = :category;
                 """,nativeQuery=true)
         public void deleteCategory(@Param("email") String email, @Param("category") String category);
 
@@ -46,8 +47,8 @@ public interface CategoryRepository extends JpaRepository<Category,CategoryKey> 
         @Transactional
         @Query
         (value="""
-                DELETE FROM category c
-                WHERE c.email= :email;
+                DELETE FROM category
+                WHERE email= :email;
                 """,nativeQuery=true)
         public void deleteUser(@Param("email") String email);
 
@@ -55,9 +56,9 @@ public interface CategoryRepository extends JpaRepository<Category,CategoryKey> 
         @Transactional
         @Query
         (value="""
-                UPDATE category c
-                SET c.email= :newEmail
-                WHERE c.email= :oldEmail;
+                UPDATE category
+                SET email= :newEmail
+                WHERE email= :oldEmail;
                 """,nativeQuery=true)
         public void updateMail(@Param("oldEmail") String oldEmail,@Param("newEmail") String newEmail);
 
@@ -65,38 +66,41 @@ public interface CategoryRepository extends JpaRepository<Category,CategoryKey> 
         @Transactional
         @Query
         (value="""
-                UPDATE category c
-                SET c.category= :newCategory
-                WHERE c.category= :oldCategory AND c.email = :email;
+                UPDATE category
+                SET category= :newCategory
+                WHERE category= :oldCategory
+                        AND email = :myEmail;
                 """,nativeQuery=true)
-        public void updateCategory(@Param("oldCategory") String oldCategory,@Param("newCategory") String newCategory,@Param("email")String email);
+        public void updateCategory(@Param("oldCategory") String oldCategory,@Param("newCategory") String newCategory,@Param("myEmail")String email);
 
         @Modifying
         @Transactional
         @Query
         (value="""
-                UPDATE category c
-                SET c.preferencec= :newPreferencec
-                WHERE c.preferencec= :oldPreferencec AND c.email = :email AND c.category = :category;
+                UPDATE category
+                SET preference= :newPreference
+                WHERE preference= :oldPreference
+                        AND email = :email
+                        AND category = :category;
                 """,nativeQuery=true)
-        public void updatePreferencec(@Param("oldPreferencec") String oldPreferencec,@Param("newPreferencec") String newPreferencec,@Param("email")String email,@Param("category") String category);
+        public void updatePreference(@Param("oldPreference") String oldPreference,@Param("newPreference") String newPreference,@Param("email")String email,@Param("category") String category);
 
         @Modifying
         @Transactional
         @Query(value = """
-        UPDATE category c
-        SET     c.category = :newCategory,
-                c.preferencec = :newPreferencec
-        WHERE   c.email = :oldEmail AND
-                c.category = :oldCategory AND
-                c.preferencec = :oldPreferencec
+        UPDATE category
+        SET     category = :newCategory,
+                preference = :newPreference
+        WHERE   email = :oldEmail AND
+                category = :oldCategory AND
+                preference = :oldPreference
         """, nativeQuery = true)
         public void updateAll(
         @Param("oldEmail") String oldEmail,
         @Param("oldCategory") String oldCategory,
-        @Param("oldPreferencec") String oldPreferencec,
+        @Param("oldPreference") String oldPreference,
         @Param("newCategory") String newCategory,
-        @Param("newPreferencec") String newPreferencec
+        @Param("newPreference") String newPreference
         );
 
 

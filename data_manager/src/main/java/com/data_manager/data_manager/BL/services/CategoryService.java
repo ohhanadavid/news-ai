@@ -1,22 +1,22 @@
 package com.data_manager.data_manager.BL.services;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.data_manager.data_manager.DAL.category.*;
+import com.data_manager.data_manager.DAL.languege.LanguageKey;
+import com.data_manager.data_manager.Exception.ItemNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 
-import com.data_manager.data_manager.DAL.category.Category;
-import com.data_manager.data_manager.DAL.category.CategoryForChange;
-import com.data_manager.data_manager.DAL.category.CategoryKey;
 
-import io.dapr.client.DaprClient;
-import io.dapr.client.domain.HttpExtension;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 @Log4j2
@@ -24,230 +24,185 @@ public class CategoryService implements ICategoryService {
     @Autowired
     private IChecking checking;
     @Autowired
-    private DaprClient daprClient;
+    RestTemplate restTemplate;
     @Value("${NewsAiAccessor}")
     private String newsAiAccessorUrl;
     @Value("${UserAccessorUrl}")
     private String userAccessorUrl;
     
-    private final String  operation="create";
-    String url;
+
+
     public ResponseEntity<?> saveCategory (Category category){
         log.info("Save Category");
-        try{
-            String email=category.getCategory().getEmail();
-            String categoryString=category.getCategory().getCategory();
-            String preferencec=category.getCategory().getPreferencec();
-            ResponseEntity<?> check=checking.checkUser(category.getCategory().getEmail());
-            if(check.getStatusCode()!= HttpStatus.OK ||!(boolean)check.getBody() )
-                return  check;
-            
-            url=String.format("api.checkPreferencec/%s/%s/%s",email,preferencec,categoryString);
-            Boolean res=daprClient.invokeMethod(userAccessorUrl,url,null,HttpExtension.GET,Boolean.class).block();
+        String email=category.getCategory().getEmail();
+        String categoryString=category.getCategory().getCategory();
+        String preference=category.getCategory().getPreference();
+        Boolean check=checking.checkUser(category.getCategory().getEmail());
+        if(check)
+            throw new ItemNotFoundException("user not found");
+        checkPreference(email,preference,categoryString);
+        checkCategory(category.getCategory().getCategory());
+        UriComponents url = UriComponentsBuilder.fromHttpUrl(userAccessorUrl).
+                path("api.saveCategory").build();
 
-            if(res == null)
-                return new ResponseEntity<>("we have problem",HttpStatus.INTERNAL_SERVER_ERROR);
-            if(res)
-                return new ResponseEntity<>("you have this Preferencec!",HttpStatus.BAD_REQUEST);
-            url=String.format("api.checkCategory/%s", category.getCategory().getCategory()); 
-            res=daprClient.invokeMethod(newsAiAccessorUrl,url,null,HttpExtension.GET,Boolean.class).block();
-            if(res == null)
-                return new ResponseEntity<>("we have problem",HttpStatus.INTERNAL_SERVER_ERROR);
-            if(!res)
-                return new ResponseEntity<>("this category not allow!",HttpStatus.BAD_REQUEST);  
+        restTemplate.postForObject(url.toUriString(),category,Category.class);
+        return new ResponseEntity<>("Category Saved!",HttpStatus.OK);
 
-           daprClient.invokeBinding("api.saveCategory", operation,category).block();  
-       
-            
-            return new ResponseEntity<>("category saved!",HttpStatus.OK);
-           
-            
-        }catch(Exception e){
-            log.error(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+   }
 
     @Override
     public ResponseEntity<?> getPreferencecByCategory (String email,String category){
-        log.info("getPreferencecByCategory");
-        try{  
-            
-            url=String.format("api.getPreferencecByCategory/%s/%s",email,category);
-            List<String> response = daprClient.invokeMethod(userAccessorUrl, url,null,HttpExtension.GET,List.class).block();
-            if (response == null)
+        log.info("getPreferenceByCategory");
+
+            UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl).
+                    path("api.getPreferenceByCategory"+"/").
+                    path(email+"/").
+                    path(category).
+                    build();
+            List<String> response = restTemplate.getForObject(url.toUriString(), List.class);
+            if (response == null  )
                 return new ResponseEntity<>("we have problem",HttpStatus.INTERNAL_SERVER_ERROR);
             return new ResponseEntity<>( response,HttpStatus.OK);
-        }catch(Exception e){
-            log.error(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+
     }
     
     @Override
     public ResponseEntity<?> myCategories (String email){
         log.info("get Category");
-        try{  
-            url=String.format("api.myCategories/%s",email); 
-            Map<String,List<String>> response = daprClient.invokeMethod(userAccessorUrl, url,null,HttpExtension.GET,Map.class).block();
-            if (response == null)
+
+            UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl).
+                    path("api.myCategories"+"/").
+                    path(email).
+                    build();
+            Map<String,List<String>> response = restTemplate.getForObject(url.toUriString(), Map.class);
+           if (response == null)
                 return new ResponseEntity<>("we have problem",HttpStatus.INTERNAL_SERVER_ERROR);
             return new ResponseEntity<>( response,HttpStatus.OK);
-        }catch(Exception e){
-            log.error(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+
     }
 
-    public ResponseEntity<?> deletePreferencec (Category category){
-        log.info("delete Preferencec");
-        try {
+    public ResponseEntity<?> deletePreference(Category category){
+        log.info("delete Preference");
 
-            daprClient.invokeBinding("api.deletePreferencec", operation,category).block();  
-       
+            UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl)
+                    .path("api.deletePreference")
+                    .build();
+
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<Category> requestEntity = new HttpEntity<>(category, headers);
+        restTemplate.exchange(url.toUriString(), HttpMethod.DELETE,requestEntity,ResponseEntity.class);
+
             
-            return new ResponseEntity<>("preferencec deleted!",HttpStatus.OK);
-            
-            
-        }catch(Exception e){
-            log.error(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return new ResponseEntity<>("preference deleted!",HttpStatus.OK);
+
     }
     
     public ResponseEntity<?> deleteCategory (String email,String category){
-        log.info("delete Preferencec");
-        
-        try {
-            Map<String,String> data = new HashMap<>();
-            data.put("email",email);
-            data.put("category",category);
-            daprClient.invokeBinding("api.deleteCategory", operation,data).block();  
-       
+        log.info("delete Category");
+
+            UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl)
+                    .path("api.deleteCategory"+"/")
+                    .path(email)
+                    .queryParam("category",category)
+                    .build();
+            restTemplate.delete(url.toUriString());
             
-            return new ResponseEntity<>("category deleted!",HttpStatus.INTERNAL_SERVER_ERROR);
-            
-            
-        }catch(Exception e){
-            log.error(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+            return new ResponseEntity<>("category deleted!",HttpStatus.OK);
+
     }
 
-    public ResponseEntity<?> updateCategory( String oldCategory, String newCategory,String email){
+    public ResponseEntity<?> updateCategory( CategoryForChange category,String email){
         log.info("updateCategory");
-        
-        try {
-            url=String.format("api.checkCategory/%s",newCategory); 
-            Boolean res=daprClient.invokeMethod(newsAiAccessorUrl,url,null,HttpExtension.GET,Boolean.class).block();
-            ///
-            
-            if(res == null)
-                return new ResponseEntity<>("we have problem",HttpStatus.INTERNAL_SERVER_ERROR);
-            if(!res)
-                return new ResponseEntity<>("this category no allowe",HttpStatus.BAD_REQUEST);
-            ///           
-            url=String.format("api.myCategories/%s",email); 
-            Map<String,List<String>> response = daprClient.invokeMethod(userAccessorUrl, url,null,HttpExtension.GET,Map.class).block();
-            if (response == null)
-                return new ResponseEntity<>("we have problem",HttpStatus.INTERNAL_SERVER_ERROR);
-            
-            if(!response.containsKey(oldCategory))
-                return new ResponseEntity<>(String.format("this category %s not exists",oldCategory),HttpStatus.BAD_REQUEST);
-            if(response.containsKey(newCategory)){
-                List<String> newCategoryList=response.get(oldCategory);
-                List<String> toUpdate=response.get(oldCategory);
-                toUpdate.forEach(
-                    x->{
-                        if(newCategoryList.contains(x)){
-                            deletePreferencec(new Category(new CategoryKey(email, x, oldCategory)));
-                        }
-                    }
-                );
-            }    
 
-            Map<String,String> data = new HashMap<>();
-            data.put("oldCategory",oldCategory);
-            data.put("newCategory",newCategory);
-            data.put("email",email);
-            daprClient.invokeBinding("api.updateCategory", operation,data).block();  
-       
-            return new ResponseEntity<>("category updated!",HttpStatus.OK);
+        checkCategory(category.getNewCategory());
+        UriComponents url;
+
+        url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl).
+                    path("api.myCategories"+"/").
+                    path(email).
+                    build();
+        Map<String,List<String>> response = restTemplate.getForObject(url.toUriString(), Map.class);
+        if (response == null)
+            return new ResponseEntity<>("we have problem",HttpStatus.INTERNAL_SERVER_ERROR);
             
-            
-        }catch(Exception e){
-            log.error(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+        if(!response.containsKey(category.getOldCategory()))
+            return new ResponseEntity<>(String.format("this category %s not exists",category.getOldCategory()),HttpStatus.BAD_REQUEST);
+
+        if(response.containsKey(category.getNewCategory())){
+            List<String> newCategoryList=response.get(category.getNewCategory());
+            List<String> toUpdate=response.get(category.getOldCategory());
+            toUpdate.forEach(x->{
+                if(newCategoryList.contains(x)){
+                    deletePreference(new Category(new CategoryKey(email, x, category.getOldCategory())));
+                }
+            }
+            );
         }
+        url=UriComponentsBuilder.fromHttpUrl(userAccessorUrl).path("/api.updateCategory/").path(email).build();
+        restTemplate.put(url.toUriString(),category);
+        return new ResponseEntity<>("category updated!",HttpStatus.OK);
     }
-   
-    public ResponseEntity<?> updatePreferencec( String oldPreferencec, String newPreferencec,String email,String category){
-        log.info("updatePreferencec");
+
+    private void checkCategory(String category) {
+        UriComponents url= UriComponentsBuilder.fromHttpUrl(newsAiAccessorUrl).
+                path("api.checkCategory"+"/").
+                path(category).
+                build();
+        Boolean res= restTemplate.getForObject(url.toUriString(), Boolean.class);
+        if(res == null)
+            throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+        if(!res)
+            throw new HttpServerErrorException(HttpStatus.BAD_REQUEST);
         
-        try {
-            
-           
-            
-            url=String.format("api.checkPreferencec/%s/%s/%s",email,newPreferencec,category);
-            Boolean res=daprClient.invokeMethod(userAccessorUrl,url,null,HttpExtension.GET,Boolean.class).block();
-    
-            if(res == null)
-                return new ResponseEntity<>("we have problem",HttpStatus.INTERNAL_SERVER_ERROR);
-            if(res)
-                return new ResponseEntity<>("you have this Preferencec!",HttpStatus.BAD_REQUEST);
-            
-            Map<String,String> data = new HashMap<>();
-            data.put("oldPreferencec",oldPreferencec);
-            data.put("newPreferencec",newPreferencec);
-            data.put("email",email);
-            data.put("category",category);
-            daprClient.invokeBinding("api.updatePreferencec", operation,data).block();  
-       
-           
-            return new ResponseEntity<>("Preferencec update",HttpStatus.OK);
-            
-            
-        }catch(Exception e){
-            log.error(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    }
+
+    public ResponseEntity<?> updatePreference(PreferenceForChange preference, String email){
+        log.info("updatePreference");
+        checkPreference(email,preference.getNewPreference(),preference.getCategory());
+        UriComponents url = UriComponentsBuilder.fromHttpUrl(userAccessorUrl)
+                .path("api.updatePreference" + "/")
+                .path(email)
+                .build();
+            restTemplate.put(url.toUriString(),preference);
+            return new ResponseEntity<>("Preference update",HttpStatus.OK);
+
     }
     
-    public ResponseEntity<?> updateAll( CategoryForChange categories){
+    public ResponseEntity<?> updateAll( CategoryForChangingAll categories){
         log.info("updateAll");
-        if(!categories.getOldCategory().getCategory().getEmail().equals(categories.getNewCategory().getCategory().getEmail())){
-            log.error("email must be equals!");
-            return new ResponseEntity<>(new IllegalArgumentException("email must be equals!"),HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        try {
-            String newCategory=categories.getNewCategory().getCategory().getCategory();
-            url=String.format("api.checkCategory/%s",newCategory);
-            Boolean res=daprClient.invokeMethod(newsAiAccessorUrl,url,null,HttpExtension.GET,Boolean.class).block();
-            if(res == null)
-                return new ResponseEntity<>("we have problem",HttpStatus.INTERNAL_SERVER_ERROR);
-            if(!res) 
-                return new ResponseEntity<>("this category no allowe",HttpStatus.BAD_REQUEST);
-            String email=categories.getNewCategory().getCategory().getEmail();
-            String categoryString=categories.getNewCategory().getCategory().getCategory();
-            String preferencec=categories.getNewCategory().getCategory().getPreferencec();
-            url=String.format("api.checkPreferencec/%s/%s/%s",email,preferencec,categoryString);
-            res=daprClient.invokeMethod(userAccessorUrl,url,null,HttpExtension.GET,Boolean.class).block();
-    
-            if(res == null)
-                return new ResponseEntity<>("we have problem",HttpStatus.INTERNAL_SERVER_ERROR);
-            if(res)
-                return new ResponseEntity<>("you have this Preferencec!",HttpStatus.BAD_REQUEST);
-            
-            daprClient.invokeBinding("api.updateAll", operation,categories).block();  
-       
-            
-            return new ResponseEntity<>("category update!",HttpStatus.OK);
-            
 
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+
+        String newCategory=categories.getNewCategory();
+
+        checkCategory(newCategory);
+        checkPreference(categories.getEmail(),categories.getNewPreference(),categories.getNewCategory());
+        UriComponents url = UriComponentsBuilder
+                .fromHttpUrl(userAccessorUrl)
+                .path("api.updateAll")
+                .build();
+            restTemplate.put(url.toUriString(),categories);
+            return new ResponseEntity<>("category update!",HttpStatus.OK);
     }
-   
+
+    private void checkPreference( String email,String preference,String category) {
+        Boolean res;
+        UriComponents url;
+        url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl).
+                path("api.checkPreference/").
+                path(email).
+                queryParam("preference", preference).
+                queryParam("category", category).
+                build();
+        res = restTemplate.getForObject(url.toUriString(), Boolean.class);
+        if(res == null) {
+            throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        if(res) {
+            throw new HttpServerErrorException(HttpStatus.CONFLICT);
+        }
+
+    }
+
 }

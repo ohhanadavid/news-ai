@@ -8,8 +8,9 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class LanguageForChange {
-    private Language oldLanguage;
-    private Language newLanguage;
+    private String oldLanguage;
+    private String newLanguage;
+    private String newLanguageCode;
 
 
 }

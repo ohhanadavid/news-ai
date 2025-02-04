@@ -16,14 +16,13 @@ import lombok.experimental.Accessors;
 public class Language {
     
     LanguageKey languageKey;
-    
     private String languageCode;
 
-    public Language(LangaugeUser fromUser,String code){
+    public Language(LanguageUser fromUser, String code){
         this.languageCode=code;
         this.languageKey=new LanguageKey(fromUser.getEmail(), fromUser.getLanguage());
     }
-    public Language(LangaugeUser fromUser){
+    public Language(LanguageUser fromUser){
         this.languageCode="";
         this.languageKey=new LanguageKey(fromUser.getEmail(), fromUser.getLanguage());
     }

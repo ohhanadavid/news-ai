@@ -36,8 +36,8 @@ public interface LanguageRepository extends JpaRepository<Language, LanguageKey>
         @Transactional
         @Query
         (value="""
-                DELETE FROM language l
-                WHERE l.email= :email;
+                DELETE FROM language
+                WHERE email= :email;
                 """,nativeQuery=true)
         public void deleteUser(@Param("email") String email);
 
@@ -45,22 +45,21 @@ public interface LanguageRepository extends JpaRepository<Language, LanguageKey>
         @Transactional
         @Query
         (value="""
-                UPDATE language l
-                SET l.email= :newEmail
-                WHERE l.email= :oldEmail;
+                UPDATE language
+                SET email= :newEmail
+                WHERE email= :oldEmail;
                 """,nativeQuery=true)
         public void updateMail(@Param("oldEmail") String oldEmail,@Param("newEmail") String newEmail);
 
         @Modifying
         @Transactional
         @Query(value = """
-        UPDATE language l
-        SET     l.language = :newLanguage,
-                l.language_code = :newLanguageCode
-        WHERE   l.email = :oldEmail AND
-                l.language = :oldLanguage 
-                
-        """, nativeQuery = true)
+                UPDATE language
+                SET     language = :newLanguage,
+                        language_code = :newLanguageCode
+                WHERE   email = :oldEmail AND
+                        language = :oldLanguage
+                """, nativeQuery = true)
         public void updateAll(
         @Param("oldEmail") String oldEmail,
         @Param("oldLanguage") String oldLanguage,

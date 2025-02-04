@@ -1,383 +1,230 @@
 version: '3.8'
 services:
-########################################
-# datamanager MANAGER SERVICE
-#######################################
+# ########################################
+# # datamanager MANAGER SERVICE
+# #######################################
   
-  ############## SERVICE #################
-  datamanager:
-        image: davidohhana/datamanager
-        build:
-          context: .
-          dockerfile: data_manager/Dockerfile
-        ports:
-           - '7001:7001'
-           - "5006:5005"
-        environment:
-          UserAccessorUrl: useraccessor 
-          NewsAiAccessor: newsdataioaccessor
-          GeminiAccessorUrl: geminiaccessor
-          MailSenderEngine: mailsenderengine
-          JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
-           #USER_ACCESSOR_URL: http://useraccessor:1006/accessor/api/users
-        networks:
-             - News_app_network
-        restart: unless-stopped
-        healthcheck:
-          test: ["CMD", "curl", "-f", "http://localhost:7001"]
-          interval: 30s
-          timeout: 10s
-          retries: 5
+#   ############## SERVICE #################
+#   datamanager:
+#         image: davidohhana/datamanager
+#         build:
+#           context: .
+#           dockerfile: data_manager/Dockerfile
+#         ports:
+#            - '7001:7001'
+#            - "5006:5005"
+#         environment:
+#           UserAccessorUrl: useraccessor 
+#           NewsAiAccessor: newsdataioaccessor
+#           GeminiAccessorUrl: geminiaccessor
+#           MailSenderEngine: mailsenderengine
+#           JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+#            #USER_ACCESSOR_URL: http://useraccessor:1006/accessor/api/users
+#         networks:
+#              - News_app_network
+#         restart: unless-stopped
+#         healthcheck:
+#           test: ["CMD", "curl", "-f", "http://localhost:7001"]
+#           interval: 30s
+#           timeout: 10s
+#           retries: 5
 
-  ############ DAPR #################           
-  datamanager.dapr:
-    image: "daprio/daprd:edge"
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 15s
-        max_attempts: 15
-        window: 120s
-    command: ["./daprd",
-        "-app-port", "7001",
-        "-app-id", "datamanager",
-        "-app-protocol", "http",
-        "-dapr-http-port", "3500",
-        "-resources-path", "./dapr/components/manager",
-        "-components-path", "./dapr/components/manager",
-        "-config", "./dapr/config.yaml",
-        
-        ]
-    volumes:
-      - "./dapr:/dapr"
-    depends_on:
-      - datamanager
-      - kafka
-    network_mode: "service:datamanager"
+ 
 
-########################################
-# news manager MANAGER SERVICE
-#######################################
+# ########################################
+# # news manager MANAGER SERVICE
+# #######################################
   
-  ############## SERVICE #################
-  newsmanager:
-        image: davidohhana/newsmanager
-        build:
-          context: .
-          dockerfile: news_manager/Dockerfile
-        ports:
-           - '7000:7000'
-           - "5000:5005"
-        environment:
-          UserAccessorUrl: useraccessor 
-          NewsAiAccessor: newsdataioaccessor
-          GeminiAccessorUrl: geminiaccessor
-          MailSenderEngine: mailsenderengine
-          JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+#   ############## SERVICE #################
+#   newsmanager:
+#         image: davidohhana/newsmanager
+#         build:
+#           context: .
+#           dockerfile: news_manager/Dockerfile
+#         ports:
+#            - '7000:7000'
+#            - "5000:5005"
+#         environment:
+#           UserAccessorUrl: useraccessor 
+#           NewsAiAccessor: newsdataioaccessor
+#           GeminiAccessorUrl: geminiaccessor
+#           MailSenderEngine: mailsenderengine
+#           JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
           
-        networks:
-             - News_app_network
-        restart: unless-stopped
-        healthcheck:
-          test: ["CMD", "curl", "-f", "http://localhost:7000"]
-          interval: 30s
-          timeout: 10s
-          retries: 5
+#         networks:
+#              - News_app_network
+#         restart: unless-stopped
+#         healthcheck:
+#           test: ["CMD", "curl", "-f", "http://localhost:7000"]
+#           interval: 30s
+#           timeout: 10s
+#           retries: 5
 
-  ############ DAPR #################           
-  newsmanager.dapr:
-    image: "daprio/daprd:edge"
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 15s
-        max_attempts: 15
-        window: 120s
-    command: ["./daprd",
-        "-app-port", "7000",
-        "-app-id", "newsmanager",
-        "-app-protocol", "http",
-        "-dapr-http-port", "3500",
-        "-resources-path", "./dapr/components/news_manager",
-        "-components-path", "./dapr/components/news_manager",
-        "-config", "./dapr/config.yaml",
+
+
+# ########################################
+# # USER ACCESSOR SERVICE
+# #######################################
+  
+# ########## SERVICE ################
+#   useraccessor:
+#         image: davidohhana/useraccessornewsai
+#         container_name: user_accessor_newsAi
+#         build:
+#           context: .
+#           dockerfile: user_accessor/Dockerfile
         
-        ]
-    volumes:
-      - "./dapr:/dapr"
-    depends_on:
-      - newsmanager
-      - kafka
-    network_mode: "service:newsmanager"
+#         ports:
+#           - '7002:7002'
+#           - "5005:5005"
+#         depends_on:
+#           - users_accessor_mysql
+#         environment:
+#           JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+#           SPRING_DATASOURCE_URL: jdbc:mysql://users_accessor_mysql:3306/user_account?allowPublicKeyRetrieval=true&autoReconnect=true&useSSL=false
+#           SPRING_DATASOURCE_USERNAME: root
+#           SPRING_DATASOURCE_PASSWORD: 1234
+#         networks:
+#           - News_app_network
+#         restart: unless-stopped
+#         healthcheck:
+#           test: ["CMD", "curl", "-f", "http://localhost:7002"]
+#           interval: 30s
+#           timeout: 20s
+#           retries: 10
 
-########################################
-# USER ACCESSOR SERVICE
-#######################################
-  
-  ########## MYSQL ################
-  users_accessor_mysql:
-    image: mysql:latest
-    container_name: user_accessor_mysql
-    environment:
-      MYSQL_DATABASE: 'user_account'
-      MYSQL_ROOT_PASSWORD: '1234'    
-    volumes:
-        - mySqlData:/var/lib/mysql
-    ports:
-      - '3308:3306'
-    networks:
-      - News_app_network
-########## SERVICE ################
-  useraccessor:
-        image: davidohhana/useraccessornewsai
-        container_name: user_accessor_newsAi
-        build:
-          context: .
-          dockerfile: user_accessor/Dockerfile
-        
-        ports:
-          - '7002:7002'
-          - "5005:5005"
-        depends_on:
-          - users_accessor_mysql
-        environment:
-          JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
-          SPRING_DATASOURCE_URL: jdbc:mysql://users_accessor_mysql:3306/user_account?allowPublicKeyRetrieval=true&autoReconnect=true&useSSL=false
-          SPRING_DATASOURCE_USERNAME: root
-          SPRING_DATASOURCE_PASSWORD: 1234
-        networks:
-          - News_app_network
-        restart: unless-stopped
-        healthcheck:
-          test: ["CMD", "curl", "-f", "http://localhost:7002"]
-          interval: 30s
-          timeout: 20s
-          retries: 10
-    ########## DAPR ################
-  useraccessor.dapr:
-    image: "daprio/daprd:edge"
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 15s
-        max_attempts: 15
-        window: 120s
-    command: ["./daprd",
-        "-app-port", "7002",
-        "-app-id", "useraccessor",
-        "-app-protocol", "http",
-        "-dapr-http-port", "3500",
-        #"-placement-host-address", "placement:50006",
-        "-resources-path", "./dapr/components/user_accessor",
-        "-components-path", "./dapr/components/user_accessor",
-        "-config", "./dapr/config.yaml",
-        # "-log-level", "debug"
-        ]
-    volumes:
-      - "./dapr:/dapr"
-    depends_on:
-      - useraccessor
-      - kafka
-    network_mode: "service:useraccessor"
 
-#######################################
-# newsdata_io_accessor  SERVICE
-######################################
+# #######################################
+# # newsdata_io_accessor  SERVICE
+# ######################################
   
-  ########## SERVICE ###################
-  newsdataioaccessor:
-        image: davidohhana/newsdataioaccessor
-        container_name:  newsdata_io_accessor_newsAi
-        build:
-          context: .
-          dockerfile:  ./newsdata_io_accessor/Dockerfile
-        ports:
-          - '7003:7003'
-          - "5008:5005"
-        environment:
-          JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
-          NEWS_DATA_apiKEY: pub_480901f644b6acbeb4d21bd595d2e44550302
-        networks:
-          - News_app_network
-        restart: unless-stopped
-        healthcheck:
-          test: ["CMD", "curl", "-f", "http://localhost:7003"]
-          interval: 30s
-          timeout: 10s
-          retries: 5
+#   ########## SERVICE ###################
+#   newsdataioaccessor:
+#         image: davidohhana/newsdataioaccessor
+#         container_name:  newsdata_io_accessor_newsAi
+#         build:
+#           context: .
+#           dockerfile:  ./newsdata_io_accessor/Dockerfile
+#         ports:
+#           - '7003:7003'
+#           - "5008:5005"
+#         environment:
+#           JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+#           NEWS_DATA_apiKEY: pub_480901f644b6acbeb4d21bd595d2e44550302
+#         networks:
+#           - News_app_network
+#         restart: unless-stopped
+#         healthcheck:
+#           test: ["CMD", "curl", "-f", "http://localhost:7003"]
+#           interval: 30s
+#           timeout: 10s
+#           retries: 5
   
-  ########### DAPR ###################
-  newsdataioaccessor.dapr:
-    image: "daprio/daprd:edge"
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 15s
-        max_attempts: 15
-        window: 120s
-    command: ["./daprd",
-        "-app-port", "7003",
-        "-app-id", "newsdataioaccessor",
-        "-app-protocol", "http",
-        "-dapr-http-port", "3500",
-        #"-placement-host-address", "placement:50006",
-        
-        "-resources-path", "./dapr/components/news",
-        "-components-path", "./dapr/components/news",
-        "-config", "./dapr/config.yaml",
-        # "-log-level", "debug"
-        ]
-    volumes:
-      - "./dapr:/dapr"
-    depends_on:
-      - newsdataioaccessor
-      - kafka
-    network_mode: "service:newsdataioaccessor"
+ 
 
-########################################
-# gemini_accessor SERVICE
-#######################################
+# ########################################
+# # gemini_accessor SERVICE
+# #######################################
   
-  ########## SERVICE ###################
-  geminiaccessor:
-        image: davidohhana/gemini_accessor_newsai
-        container_name:  gemini_accessor_newsAi
-        build:
-          context: .
-          dockerfile:  ./gemini_accessor/Dockerfile
-        ports:
-          - '7004:7004'
-          - '5678:5678'
+#   ########## SERVICE ###################
+#   geminiaccessor:
+#         image: davidohhana/gemini_accessor_newsai
+#         container_name:  gemini_accessor_newsAi
+#         build:
+#           context: .
+#           dockerfile:  ./gemini_accessor/Dockerfile
+#         ports:
+#           - '7004:7004'
+#           - '5678:5678'
           
-        environment:
-          - GEMINI_apiKEY=<api key her>
-        volumes:
-          - .gemini_accessor/app:/gimini/app
-        networks:
-          - News_app_network
-        restart: unless-stopped
-        healthcheck:
-          test: ["CMD", "curl", "-f", "http://localhost:7004"]
-          interval: 30s
-          timeout: 10s
-          retries: 5
-  ########### DAPR ###################
-  geminiaccessor.dapr:
-    image: "daprio/daprd:edge"
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 15s
-        max_attempts: 15
-        window: 120s
-    command: ["./daprd",
-        "-app-port", "7004",
-        "-app-id", "geminiaccessor",
-        "-app-protocol", "http",
-        "-dapr-http-port", "3500",
-        #"-placement-host-address", "placement:50006",
-        
-        "-resources-path", "./dapr/components/gimeni",
-        "-components-path", "./dapr/components/gimeni",
-        "-config", "./dapr/config.yaml",
-        # "-log-level", "debug"
-        ]
-    volumes:
-      - "./dapr:/dapr"
-    depends_on:
-      - geminiaccessor
-      - kafka
-    network_mode: "service:geminiaccessor"
+#         environment:
+#           - GEMINI_apiKEY=<api key her>
+#         volumes:
+#           - .gemini_accessor/app:/gimini/app
+#         networks:
+#           - News_app_network
+#         restart: unless-stopped
+#         healthcheck:
+#           test: ["CMD", "curl", "-f", "http://localhost:7004"]
+#           interval: 30s
+#           timeout: 10s
+#           retries: 5
 
-
+# ########################################
+# # MAIL SENDER SERVICE
+# #######################################
+  
+#   ########## SERVICE ###################
+#   mailsenderengine:
+#         image: davidohhana/mailsenderengine
+#         container_name:  mailsenderengine_newsAi
+#         build:
+#           context: .
+#           dockerfile:  ./mail_sender_engine/Dockerfile
+#         ports:
+#           - '7005:7005'
+#           - "5009:5005"
+#         environment:
+#           JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+#         networks:
+#           - News_app_network
+#         restart: unless-stopped
+#         healthcheck:
+#           test: ["CMD", "curl", "-f", "http://localhost:7005"]
+#           interval: 30s
+#           timeout: 10s
+#           retries: 5
 ########################################
-# MAIL SENDER SERVICE
-#######################################
-  
-  ########## SERVICE ###################
-  mailsenderengine:
-        image: davidohhana/mailsenderengine
-        container_name:  mailsenderengine_newsAi
-        build:
-          context: .
-          dockerfile:  ./mail_sender_engine/Dockerfile
-        ports:
-          - '7005:7005'
-          - "5009:5005"
-        environment:
-          JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
-        networks:
-          - News_app_network
-        restart: unless-stopped
-        healthcheck:
-          test: ["CMD", "curl", "-f", "http://localhost:7005"]
-          interval: 30s
-          timeout: 10s
-          retries: 5
-  
-  ########### DAPR ###################
-  mailsenderengine.dapr:
-    image: "daprio/daprd:edge"
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 15s
-        max_attempts: 15
-        window: 120s
-    command: ["./daprd",
-        "-app-port", "7005",
-        "-app-id", "mailsenderengine",
-        "-app-protocol", "http",
-        "-dapr-http-port", "3500",
-        #"-placement-host-address", "placement:50006",
-       
-        "-resources-path", "./dapr/components/mail",
-        "-components-path", "./dapr/components/mail",
-        "-config", "./dapr/config.yaml",
-        # "-log-level", "debug"
-        ]
-    volumes:
-      - "./dapr:/dapr"
-    depends_on:
-      - mailsenderengine
-      - kafka
-    network_mode: "service:mailsenderengine"
-
-
+# DATA BASES
+########################################
+##########################
+# USER DB
+##########################
+  db:
+      image: postgres
+      environment:
+        POSTGRES_PASSWORD: postgres
+      ports:
+        - 5432:5432
+      volumes:
+        - ./userData:/var/lib/postgresql/data
+      privileged: true
 ########################################
 # ZOOKEEPER
 #######################################
-  zookeeper_2:
+  zookeeper:
     image: confluentinc/cp-zookeeper:latest
-    container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     ports:
-      - '2181:2181'
+      - 2181:2181
     networks:
       - News_app_network
 ########################################
 # KAFKA
-#######################################
+#######################################   
   kafka:
     image: confluentinc/cp-kafka:latest
     container_name: kafka
     depends_on:
-      - zookeeper_2
+      - zookeeper
+    ports:
+      - 9092:9092
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper_2:2181
-      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9092,OUTSIDE://localhost:29092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
-      KAFKA_LISTENERS: INSIDE://0.0.0.0:9092,OUTSIDE://0.0.0.0:29092
     restart: on-failure
-    ports:
-      - '9092:9092'
     networks:
       - News_app_network
+
+#########################################
+# DOCKER-COMPOSE CONFIGURATIONS
+#########################################
 volumes:
     mySqlData:
     dapr:

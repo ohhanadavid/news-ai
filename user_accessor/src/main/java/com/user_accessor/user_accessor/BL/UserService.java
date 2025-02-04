@@ -1,5 +1,9 @@
 package com.user_accessor.user_accessor.BL;
 
+import com.user_accessor.user_accessor.DAL.user.LoginUser;
+import com.user_accessor.user_accessor.DAL.user.UserOut;
+import com.user_accessor.user_accessor.Exception.ItemNotFoundException;
+import com.user_accessor.user_accessor.Exception.WrongPasswordException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -8,6 +12,10 @@ import com.user_accessor.user_accessor.DAL.user.User;
 import com.user_accessor.user_accessor.DAL.user.UserRepository;
 
 import lombok.extern.log4j.Log4j2;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Optional;
 
 @Service
 @Log4j2
@@ -18,77 +26,89 @@ public class UserService {
 
     public User creteUser(User user){
         log.info("func: createUser.  UserService");
-        try {
-            if(user.getName().equals(""))
-                user.setName(user.getEmail());
-             userRepository.save(user);
-             log.info("user saved!");
-        }
-         catch (Exception e) {
-            log.error(e.getMessage());
-            throw e;
-        }
 
-        return user;
+            if(user.getName().isEmpty())
+                user.setName(user.getEmail());
+            //  String password= getSHA256Hash(user.getPassword());
+           // user.setPassword(password);
+            userRepository.save(user);
+            log.info("user saved!");
+
+        return new User().setEmail(user.getEmail()).setName(user.getName());
     }
 
-    public User getUser(String email){
-        log.info("func: getUser.  UserService");
-       User user;
-        try {
-             user =userRepository.findById(email).get();
-             if(user==null)
-                log.info("user not found!");
+    public User loginUser(String email){
+        log.info("func: loginUser.  UserService");
+
+            Optional<User> dbUser = userRepository.findById(email);
+            if(dbUser.isEmpty()){
+                log.info("user {} no found!", email);
+                throw new ItemNotFoundException("user "+"email"+" no found!");
+            }
+            log.info("user {} found!",email);
+            return dbUser.get();
+    }
+
+    public UserOut getUserOut(String email){
+        log.info("func: getUserOut. UserOut UserService");
+       Optional<User> user;
+
+             user =userRepository.findById(email);
+             if(user.isEmpty()) {
+                 log.info("getUserOut user not found!");
+                 return null;
+             }
             else
                 log.info("user found!");
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            throw e;
-        }
 
-        return user;
+
+        return new UserOut(user.get());
+    }
+
+    public Optional<User> getUser(String email){
+        log.info("func: getUser. UserOut UserService");
+        Optional<User> user;
+
+            user =userRepository.findById(email);
+            if(user.isEmpty()) {
+                log.info("user not found!");
+                return Optional.empty();
+            }
+            return user;
+
+
+
     }
 
     @Async
     public void deleteUser(String email){
         log.info("func: deleteUser.  UserService");
-        try {
+
              userRepository.deleteById(email);
              
             log.info("user deleted!");
            
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            throw e;
-        }
+
     }
 
-
-    public User updateUserName(User user){
+    public UserOut updateUserName(UserOut user){
         log.info("func: updateUserName.  UserService");
         
-        try {
-            userRepository.delete(user);            
-            log.info("user deleted!");
-             userRepository.save(user);
-             log.info("user update!");
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            throw e;
-        }
+
+            userRepository.updateName(user.getEmail(), user.getName());
+            log.info("func: updateUserName. user update!");
+
 
         return user;
     }
+
     @Async
-    public void updateUserMail(String oldeEmail,String newEmail){
+    public void updateUserMail(String oldEmail,String newEmail){
         log.info("func: updateUserMail.  UserService");
-        try {
-             userRepository.updateEmail(newEmail, oldeEmail);
+
+             userRepository.updateEmail(newEmail, oldEmail);
              log.info("user update!");
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            throw e;
-        }
+
 
         
     }
@@ -97,8 +117,14 @@ public class UserService {
         log.info("userExists func");
         return userRepository.existsById(email);
     }
-  
 
- 
+    public Boolean changePassword(LoginUser user,String password){
+        log.info("func: changePassword.  UserService");
+        userRepository.updatePassword(user.getEmail(), password);
+        return true;
+
+
+    }
+
 
 }

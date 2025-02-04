@@ -5,7 +5,11 @@ import java.util.Base64;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.newsdata.io_accessor.newsdata_io_accessor.DAL.languages.LanguageWithCode;
+import com.newsdata.io_accessor.newsdata_io_accessor.kafka.Producer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -17,9 +21,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.newsdata.io_accessor.newsdata_io_accessor.DAL.DataLists;
 import com.newsdata.io_accessor.newsdata_io_accessor.DAL.categories.CategoriesList;
-import com.newsdata.io_accessor.newsdata_io_accessor.DAL.languages.Langueges;
+import com.newsdata.io_accessor.newsdata_io_accessor.DAL.languages.Languages;
 
-import io.dapr.client.DaprClient;
 import lombok.extern.log4j.Log4j2;
 
 
@@ -36,11 +39,12 @@ public class NewsDataService {
     @Autowired
     private CategoriesList categoriesList;
     @Autowired
-    private Langueges langueges;
-    @Autowired
-    DaprClient daprClient;
+    private Languages languages;
     @Autowired
     ObjectMapper objectMapper;
+    @Autowired
+    Producer producer;
+
 
     public void getLatestNews(Map<String,Object> data){
         try{
@@ -51,15 +55,18 @@ public class NewsDataService {
 
         String results = restTemplate.getForObject(url.toUriString(), String.class);
         if (results == null)
-            daprClient.invokeBinding("getNews", "create","error").block();
+            //daprClient.invokeBinding("getNews", "create","error").block();
+            producer.send("error",Producer.GET_NEWS_TOPIC);
         log.info("getLatestNews-seccess");
         data.put("artical",Base64.getEncoder().encodeToString(results.getBytes()));
-        daprClient.invokeBinding("getNews", "create",data).block();
-        
+        //daprClient.invokeBinding("getNews", "create",data).block();
+        producer.send(data,Producer.GET_NEWS_TOPIC);
         }catch(RestClientException e)
         {
             log.error(e.getMessage());
             throw e;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
 
     }
@@ -74,20 +81,24 @@ public class NewsDataService {
 
         String results = restTemplate.getForObject(url.toUriString(), String.class);
         if (results == null)
-            daprClient.invokeBinding("getNews", "create","error").block();
+            //daprClient.invokeBinding("getNews", "create","error").block();
+            producer.send("error",Producer.GET_NEWS_TOPIC);
         log.info("getLatestNews-seccess");
         data.put("artical",Base64.getEncoder().encodeToString(results.getBytes()));
-        daprClient.invokeBinding("getNews", "create",data).block();
+        //daprClient.invokeBinding("getNews", "create",data).block();
+        producer.send(data,Producer.GET_NEWS_TOPIC);
         
         }catch(RestClientException e)
         {
             throw e;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
 
     }
 
-    public List<String> getLatestListNewsFromCategories(Map<String,Object> data){
-        List<String> resultses=new LinkedList<>();
+    public void getLatestListNewsFromCategories(Map<String,Object> data){
+        List<String> results=new LinkedList<>();
         try{
             DataLists dataLists=objectMapper.convertValue(data.get("dataForNews"),DataLists.class);
             List<String> listOfCategories= dataLists.getCategories();
@@ -103,22 +114,21 @@ public class NewsDataService {
                 queryParam("language", langugesString).
                 build();
             
-                String results = restTemplate.getForObject(url.toUriString(), String.class);
-            if(results != null){
-                resultses.add(results);
-            }});  
+                String result = restTemplate.getForObject(url.toUriString(), String.class);
+                    results.add(result);
+                });
             
-            data.put("artical",resultses);    
-        daprClient.invokeBinding("getListNews", "create",data).block();
-            return resultses;
+            data.put("article",results);
+
+        producer.send(data,Producer.GET_LIST_NEWS_TOPIC);
         }catch(RestClientException e)
         {
             log.error(e.getMessage());
             throw e;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
     }
-
-  
 
     public List<String> getCategories() {
         log.info("getCategories");
@@ -132,17 +142,28 @@ public class NewsDataService {
         
     }
 
-    public Map<String, String> getLangueges() throws Exception {
-        log.info("getCategories");
+    public List<LanguageWithCode> getLanguagesAsList() throws Exception {
+        log.info("getLanguages");
         try{
-            return langueges.languageMap();
+            return languages.languageMap().entrySet().stream()
+                    .map(entry -> new LanguageWithCode(entry.getKey(), entry.getValue()))
+                    .collect(Collectors.toList());
         }
         catch(IOException e){
             log.error(e.getMessage());
             throw  e ;
             
         }
-        
-        
+    }
+    public Map<String,String> getLanguagesAsMap() throws Exception {
+        log.info("getLanguagesAsMap");
+        try{
+            return languages.languageMap();
+        }
+        catch(IOException e){
+            log.error(e.getMessage());
+            throw  e ;
+
+        }
     }
 }

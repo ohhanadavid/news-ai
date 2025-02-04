@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.user_accessor.user_accessor.BL.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,64 +16,110 @@ import com.user_accessor.user_accessor.DAL.user.User;
 
 import lombok.extern.log4j.Log4j2;
 
+
+import static org.mockito.Mockito.*;
+        import static org.junit.jupiter.api.Assertions.*;
+
+        import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import com.user_accessor.user_accessor.DAL.user.LoginUser;
+import com.user_accessor.user_accessor.DAL.user.User;
+import com.user_accessor.user_accessor.DAL.user.UserOut;
+import com.user_accessor.user_accessor.DAL.user.UserRepository;
 @Log4j2
 @SpringBootTest
-public class UserTest {
-    // @Autowired
-    // UserController userController;
-    // User u1=new User("sustujbv167@gmail.com", "david");
-    // User u2=new User("sustujbv168@gmail.com", "ori");
-    // User u3=new User("sustujbv169@gmail.com", "shalom");
-    // User u4=new User("sustujbv170@gmail.com", "moshe");
-    // User u5=new User("sustujbv1788@gmail.com", "");
-    // User u7=new User("nanaBanna", "");
-    // @Test
-    // public void creatUser( ) throws JsonProcessingException{
-    //     log.info("creatUser request");
-    //     // assertEquals(userController.creatUser(u1).getStatusCode(),HttpStatus.valueOf(200));
-    //     // assertEquals(userController.creatUser(u2).getStatusCode(),HttpStatus.valueOf(200));
-    //     // assertEquals(userController.creatUser(u3).getStatusCode(),HttpStatus.valueOf(200));
-    //     // assertEquals(userController.creatUser(u4).getStatusCode(),HttpStatus.valueOf(200));
-        
-    //     User a=(User) userController.creatUser(u5).getBody();
-    //     log.info("return result "+a);
-    //     log.debug("return result "+a);
-    //     //User u6 =objectMapper.readValue(a,User.class);
-    //     assertEquals(a.getName(),a.getEmail());
+class UserServiceTest {
 
-       
-        
-    
+    @Mock
+    private UserRepository userRepository;
 
-    // }
+    @InjectMocks
+    private UserService userService;
 
-    // @Test
-    // public void getUser( ) {
-    //     log.info("getUser request");
-    //     Optional<User> user= (Optional<User>) userController.getUser(u2.getEmail()).getBody();
-    //     assertEquals(user.get(), u2);
-    //     assertEquals(userController.getUser("eee").getStatusCode(), HttpStatus.valueOf(400));
-    // }
-        
+    private User testUser;
+    private LoginUser testLoginUser;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        testUser = new User()
+                .setEmail("test@test.com")
+                .setName("Test User")
+                .setPassword("password");
+        testLoginUser = new LoginUser("test@test.com", "password");
+    }
+
+    @Test
+    void testCreateUser_WithName() {
+        when(userRepository.save(any(User.class))).thenReturn(testUser);
+
+        User result = userService.creteUser(testUser);
+
+        assertNotNull(result);
+        assertEquals(testUser.getEmail(), result.getEmail());
+        assertEquals(testUser.getName(), result.getName());
+        assertNull(result.getPassword()); // Password should not be returned
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    void testCreateUser_WithoutName() {
+        User userWithoutName = new User()
+                .setEmail("test@test.com")
+                .setPassword("password");
+
+        when(userRepository.save(any(User.class))).thenReturn(userWithoutName);
+
+        User result = userService.creteUser(userWithoutName);
+
+        assertEquals(userWithoutName.getEmail(), result.getName());
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    void testLoginUser_Success() {
+        User dbUser = new User()
+                .setEmail("test@test.com")
+                .setPassword(UserService.getSHA256Hash("password"))
+                .setName("Test User");
+
+        when(userRepository.findById(testLoginUser.getEmail())).thenReturn(Optional.of(dbUser));
+
+        User result = userService.loginUser(testLoginUser.getEmail());
+
+        assertNotNull(result);
+        assertEquals(dbUser.getEmail(), result.getEmail());
+        assertEquals(dbUser.getName(), result.getName());
+    }
+
+    @Test
+    void testUpdateUserName() {
+        User user = new User()
+                .setEmail("test@test.com")
+                .setName("Name")
+                .setPassword("1234");
+        User result1 = userService.creteUser(user);
+        assertNotNull(result1);
+        UserOut updatedUser = new UserOut()
+                .setEmail("test@test.com")
+                .setName("New Name");
+
+        UserOut result2 = userService.updateUserName(updatedUser);
+
+        assertNotNull(result2);
+        assertNotEquals(result1.getName(), result2.getName());
+        assertEquals(result1.getEmail(), result2.getEmail());
 
 
-
-
-    // @Test
-    // public void updateUserName() {
-    //     log.info("updateName request");
-    //     var res =userController.updateUserName(u3.setName("danone"));
-    //     assertEquals(res.getStatusCode(), HttpStatus.OK);
-    //     Optional<User> res2 =(Optional<User>) userController.getUser(u3.getEmail()).getBody();
-    //     assertEquals(res2.get().getName(), "danone");
-        
-    //     assertEquals(userController.updateUserName(u7).getStatusCode(), HttpStatus.resolve(400));
-
-    // }
-
-
-
-    
-    
-
+    }
 }
+
+    
+
+

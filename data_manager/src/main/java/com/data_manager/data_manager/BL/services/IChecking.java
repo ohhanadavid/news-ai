@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface IChecking {
-    public ResponseEntity<?> checkUser(String email);
-    public <T> ResponseEntity<?> checkResponse(ResponseEntity<?> response,Class<T> expectedType );
+    public Boolean checkUser(String email);
+    public <T> void checkResponse(ResponseEntity<?> response, Class<T> expectedType );
 
 }
