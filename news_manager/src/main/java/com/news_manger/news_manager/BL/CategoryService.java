@@ -9,52 +9,42 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import io.dapr.client.DaprClient;
-import io.dapr.client.domain.HttpExtension;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 @Log4j2
 public class CategoryService implements ICategoryService {
 
     @Autowired
-    private DaprClient daprClient;
+    private RestTemplate restTemplate;
   
     @Value("${UserAccessorUrl}")
     private String userAccessorUrl;
-    
-    
-    String url;
-    
+
     @Override
-    public ResponseEntity<?> getPreferencecByCategory (String email,String category){
-        log.info("getPreferencecByCategory");
-        try{  
-            
-            url=String.format("api.getPreferencecByCategory/%s/%s",email,category);
-            List<String> response = daprClient.invokeMethod(userAccessorUrl, url,null,HttpExtension.GET,List.class).block();
-            if (response == null)
-                return new ResponseEntity<>("we have problem",HttpStatus.INTERNAL_SERVER_ERROR);
-            return new ResponseEntity<>( response,HttpStatus.OK);
-        }catch(Exception e){
-            log.error(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<?> getPreferenceByCategory(String email, String category){
+        log.info("getPreferenceByCategory");
+
+        String url=String.format("%s/api.getPreferenceByCategory/%s/%s",userAccessorUrl,email,category);
+        List<String> response = restTemplate.getForObject(url, List.class);
+
+        if (response == null)
+            return new ResponseEntity<>("we have problem",HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>( response,HttpStatus.OK);
+
     }
     
     @Override
     public ResponseEntity<?> myCategories (String email){
         log.info("get Category");
-        try{  
-            url=String.format("api.myCategories/%s",email); 
-            Map<String,List<String>> response = daprClient.invokeMethod(userAccessorUrl, url,null,HttpExtension.GET,Map.class).block();
+
+          String url=String.format("%s/api.myCategories/%s",userAccessorUrl,email);
+        Map<String,List<String>> response = restTemplate.getForObject(url, Map.class);
             if (response == null)
                 return new ResponseEntity<>("we have problem",HttpStatus.INTERNAL_SERVER_ERROR);
             return new ResponseEntity<>( response,HttpStatus.OK);
-        }catch(Exception e){
-            log.error(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+
     }
 
    

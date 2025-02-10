@@ -1,22 +1,20 @@
 package com.newsdata.io_accessor.newsdata_io_accessor.kafka;
 
-import java.io.IOException;
-import java.util.Map;
+
 import java.util.Optional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.newsdata.io_accessor.newsdata_io_accessor.BL.NewsDataService;
+import com.newsdata.io_accessor.newsdata_io_accessor.DAL.DataForNews;
+import com.newsdata.io_accessor.newsdata_io_accessor.DAL.DataForNewsWithCategory;
+import com.newsdata.io_accessor.newsdata_io_accessor.DAL.DataForNewsWithOneCategory;
 import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+
 
 @Component
 @Log4j2
@@ -27,7 +25,7 @@ public class Consumer {
     @Autowired
     private NewsDataService newsDataService;
 
-    //@PostMapping("/api.getLatestNews")
+
     @KafkaListener(topics = {"api.getLatestNews"})
     public void getLatestNews(ConsumerRecord<?, ?> record) throws JsonProcessingException {
         try{
@@ -36,7 +34,7 @@ public class Consumer {
             if (kafkaMessage.isPresent()) {
 
                 Object message = kafkaMessage.get();
-                Map<String,Object> data= om.readValue(message.toString(), Map.class);
+                DataForNews data= om.readValue(message.toString(), DataForNews.class);
                 newsDataService.getLatestNews(data);
             }
 
@@ -47,7 +45,7 @@ public class Consumer {
         }
     }
 
-   // @PostMapping("/api.getLatestNewsByCategory")
+
    @KafkaListener(topics = {"api.getLatestNewsByCategory"})
     public void getLatestNewsByCategory(ConsumerRecord<?, ?> record) throws JsonProcessingException {
         try{
@@ -56,8 +54,8 @@ public class Consumer {
             if (kafkaMessage.isPresent()) {
 
                 Object message = kafkaMessage.get();
-                Map<String, Object> data = om.readValue(message.toString(), Map.class);
-                String category = (String) data.get("category");
+                DataForNewsWithOneCategory data = om.readValue(message.toString(), DataForNewsWithOneCategory.class);
+                String category =  data.getCategory();
                 newsDataService.getLatestNewsFromTopic(category, data);
             }
 
@@ -68,7 +66,7 @@ public class Consumer {
         }
     }
 
-    //@PostMapping("/api.getLatestListNewsByCategories")
+
     @KafkaListener(topics = {"api.getLatestListNewsByCategories"})
     public void getLatestListNewsFromCategories(ConsumerRecord<?, ?> record) throws JsonProcessingException {
         try{
@@ -77,7 +75,7 @@ public class Consumer {
             if (kafkaMessage.isPresent()) {
 
                 Object message = kafkaMessage.get();
-                Map<String, Object> data = om.readValue(message.toString(), Map.class);
+                DataForNewsWithCategory data = om.readValue(message.toString(), DataForNewsWithCategory.class);
                 newsDataService.getLatestListNewsFromCategories(data);
             }
         }catch(Exception e)

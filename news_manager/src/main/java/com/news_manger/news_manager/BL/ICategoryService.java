@@ -5,5 +5,5 @@ import org.springframework.stereotype.Service;
 @Service
 public interface ICategoryService {
     public ResponseEntity<?> myCategories (String email);
-    public ResponseEntity<?> getPreferencecByCategory (String email,String category);
+    public ResponseEntity<?> getPreferenceByCategory(String email, String category);
 }

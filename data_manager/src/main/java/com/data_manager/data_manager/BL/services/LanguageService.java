@@ -105,19 +105,15 @@ public class LanguageService implements ILanguageService {
     @Override
     public ResponseEntity<?> getLanguegesCode(String email){  
         log.info("get languages code");
-        //try{
-            UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl).
+        UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl).
                     path("api.getLanguagesCode/").
                     path(email).
                     build();
-            List<String>  response = restTemplate.getForObject(url.toUriString(), List.class);
-            if (response == null)
-                return new ResponseEntity<>("we have problem",HttpStatus.INTERNAL_SERVER_ERROR);
-            return new ResponseEntity<>(response,HttpStatus.OK);
-//            }catch(Exception e){
-//                log.error(e.getMessage());
-//                return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
-//            }
+        List<String>  response = restTemplate.getForObject(url.toUriString(), List.class);
+        if (response == null)
+            return new ResponseEntity<>("we have problem",HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(response,HttpStatus.OK);
+
     }
     
     public ResponseEntity<?> deleteLanguage(LanguageKey language){

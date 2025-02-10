@@ -1,2 +1,5 @@
 mySqlData/
 /userData
+/.idea/
+/.vscode/
+/dapr/

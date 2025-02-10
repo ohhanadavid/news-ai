@@ -35,23 +35,4 @@ public class RestTemplateConfig {
 
         return restTemplate;
     }
-
-    //
-//    @Bean
-//    @RequestScope
-//    public RestTemplate getRestTemplate(HttpServletRequest inReq) {
-//        final String authHeader =
-//                inReq.getHeader(HttpHeaders.AUTHORIZATION);
-//        final RestTemplate restTemplate = new RestTemplate();
-//        if (authHeader != null && !authHeader.isEmpty()) {
-//            restTemplate.getInterceptors().add(
-//                    (outReq, bytes, clientHttpReqExec) -> {
-//                        outReq.getHeaders().set(
-//                                HttpHeaders.AUTHORIZATION, authHeader
-//                        );
-//                        return clientHttpReqExec.execute(outReq, bytes);
-//                    });
-//        }
-//        return restTemplate;
-//    }
 }

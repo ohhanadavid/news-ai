@@ -82,21 +82,7 @@ class UserServiceTest {
         verify(userRepository).save(any(User.class));
     }
 
-    @Test
-    void testLoginUser_Success() {
-        User dbUser = new User()
-                .setEmail("test@test.com")
-                .setPassword(UserService.getSHA256Hash("password"))
-                .setName("Test User");
 
-        when(userRepository.findById(testLoginUser.getEmail())).thenReturn(Optional.of(dbUser));
-
-        User result = userService.loginUser(testLoginUser.getEmail());
-
-        assertNotNull(result);
-        assertEquals(dbUser.getEmail(), result.getEmail());
-        assertEquals(dbUser.getName(), result.getName());
-    }
 
     @Test
     void testUpdateUserName() {

@@ -5,5 +5,5 @@ import org.springframework.stereotype.Service;
 @Service
 public interface ILanguageService {
 
-    public ResponseEntity<?> getLanguegesCode(String email);
+    public ResponseEntity<?> getLanguagesCode(String email);
 }

@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.Accessors;
+import org.apache.kafka.common.protocol.types.Field;
 
 
 @Data
@@ -29,8 +30,8 @@ public class Article {
     private String video_url ;
     private String description;
     private String  content ;
-    @JsonDeserialize(using= ArticalDataTimeFormatter.class)
-    private LocalDateTime pubDate ;
+    //@JsonDeserialize(using= ArticalDataTimeFormatter.class)
+    private String pubDate ;
     private String image_url ;
     private String source_id ;
     private int source_priority ;

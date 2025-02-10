@@ -5,29 +5,27 @@ services:
 # #######################################
   
 #   ############## SERVICE #################
-#   datamanager:
-#         image: davidohhana/datamanager
-#         build:
-#           context: .
-#           dockerfile: data_manager/Dockerfile
-#         ports:
-#            - '7001:7001'
-#            - "5006:5005"
-#         environment:
-#           UserAccessorUrl: useraccessor 
-#           NewsAiAccessor: newsdataioaccessor
-#           GeminiAccessorUrl: geminiaccessor
-#           MailSenderEngine: mailsenderengine
-#           JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
-#            #USER_ACCESSOR_URL: http://useraccessor:1006/accessor/api/users
-#         networks:
-#              - News_app_network
-#         restart: unless-stopped
-#         healthcheck:
-#           test: ["CMD", "curl", "-f", "http://localhost:7001"]
-#           interval: 30s
-#           timeout: 10s
-#           retries: 5
+  datamanager:
+        image: davidohhana/newsaidatamanager:latest
+        container_name: newsaidatamanager
+        ports:
+           - '7001:7001'
+           - "5006:5005"
+        # environment:
+        #   UserAccessorUrl: useraccessor 
+        #   NewsAiAccessor: newsdataioaccessor
+        #   GeminiAccessorUrl: geminiaccessor
+        #   MailSenderEngine: mailsenderengine
+        #   JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+           #USER_ACCESSOR_URL: http://useraccessor:1006/accessor/api/users
+        networks:
+             - News_app_network
+        restart: unless-stopped
+        # healthcheck:
+        #   test: ["CMD", "curl", "-f", "http://localhost:7001"]
+        #   interval: 30s
+        #   timeout: 10s
+        #   retries: 5
 
  
 
@@ -67,31 +65,27 @@ services:
 # #######################################
   
 # ########## SERVICE ################
-#   useraccessor:
-#         image: davidohhana/useraccessornewsai
-#         container_name: user_accessor_newsAi
-#         build:
-#           context: .
-#           dockerfile: user_accessor/Dockerfile
-        
-#         ports:
-#           - '7002:7002'
-#           - "5005:5005"
-#         depends_on:
-#           - users_accessor_mysql
-#         environment:
-#           JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
-#           SPRING_DATASOURCE_URL: jdbc:mysql://users_accessor_mysql:3306/user_account?allowPublicKeyRetrieval=true&autoReconnect=true&useSSL=false
-#           SPRING_DATASOURCE_USERNAME: root
-#           SPRING_DATASOURCE_PASSWORD: 1234
-#         networks:
-#           - News_app_network
-#         restart: unless-stopped
-#         healthcheck:
-#           test: ["CMD", "curl", "-f", "http://localhost:7002"]
-#           interval: 30s
-#           timeout: 20s
-#           retries: 10
+  useraccessor:
+        image: davidohhana/newsaiuseraccessor:latest
+        container_name: user_accessor_newsAi
+        ports:
+          - '7002:7002'
+          - "5005:5005"
+        depends_on:
+          - postgres
+        # environment:
+        #   JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+        #   SPRING_DATASOURCE_URL: jdbc:mysql://users_accessor_mysql:3306/user_account?allowPublicKeyRetrieval=true&autoReconnect=true&useSSL=false
+        #   SPRING_DATASOURCE_USERNAME: root
+        #   SPRING_DATASOURCE_PASSWORD: 1234
+        networks:
+          - News_app_network
+        restart: unless-stopped
+        # healthcheck:
+        #   test: ["CMD", "curl", "-f", "http://localhost:7002"]
+        #   interval: 30s
+        #   timeout: 20s
+        #   retries: 10
 
 
 # #######################################
@@ -123,11 +117,11 @@ services:
  
 
 # ########################################
-# # gemini_accessor SERVICE
+# # llm_accessor SERVICE
 # #######################################
   
 #   ########## SERVICE ###################
-#   geminiaccessor:
+#   llmaccessor:
 #         image: davidohhana/gemini_accessor_newsai
 #         container_name:  gemini_accessor_newsAi
 #         build:
@@ -180,7 +174,7 @@ services:
 ##########################
 # USER DB
 ##########################
-  db:
+  postgres:
       image: postgres
       environment:
         POSTGRES_PASSWORD: postgres
@@ -188,6 +182,8 @@ services:
         - 5432:5432
       volumes:
         - ./userData:/var/lib/postgresql/data
+      networks:
+          - News_app_network
       privileged: true
 ########################################
 # ZOOKEEPER
@@ -226,8 +222,7 @@ services:
 # DOCKER-COMPOSE CONFIGURATIONS
 #########################################
 volumes:
-    mySqlData:
-    dapr:
+    userData:
 networks:
     News_app_network:
       name: News_app_network

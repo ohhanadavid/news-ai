@@ -11,7 +11,7 @@ import java.io.FileInputStream;
 import java.util.Properties;
 
 @Configuration
-//@PropertySource(value = "file:${user.dir}/.env", ignoreResourceNotFound = true)
+@PropertySource(value = "file:${user.dir}/.env", ignoreResourceNotFound = true)
 @Log4j2
 public class EnvConfig {
     @Bean
@@ -26,6 +26,7 @@ public class EnvConfig {
                 Properties properties = new Properties();
                 properties.load(fis);
                 log.info(  properties.isEmpty());
+                properties.forEach((x,y)->log.info("{} {} ",x,y));
                 configure.setProperties(properties);
             } catch (Exception e) {
                 log.error("Failed to load .env file", e);
