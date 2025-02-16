@@ -4,11 +4,11 @@ setlocal enabledelayedexpansion
 echo Compiling Maven projects in directories containing pom.xml...
 
 for /d %%d in (*) do (
-    if exist "%%d\pom.xml" (
+    if exist "%%d\createDockerFileAndUplodeToHub.bat" (
         echo.
         echo Compiling project in directory: %%d
         pushd "%%d"
-        call mvn clean install -Dmaven.test.skip=true
+        call createDockerFileAndUplodeToHub.bat
         if !errorlevel! neq 0 (
             echo Maven build failed for project in %%d
         ) else (
@@ -18,10 +18,5 @@ for /d %%d in (*) do (
     )
 )
 
-echo.
-echo All Maven projects have been processed.
-cd /d "%rootDir%"
-call docker-compose build
-call docker-compose up
 
 pause

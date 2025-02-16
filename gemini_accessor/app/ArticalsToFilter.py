@@ -23,7 +23,7 @@ class DataForNews:
 
 
 @dataclass
-class ArticleReturn:
+class ArticleToGetFilter:
     url: str
     title: str
     summary: str = ""
@@ -43,7 +43,7 @@ class ArticleReturn:
         )
 
     @classmethod
-    def from_json(cls, json_data: dict) -> 'ArticleReturn':
+    def from_json(cls, json_data: dict) -> 'ArticleToGetFilter':
         return cls(
             url=json_data['url'],
             title=json_data['title'],
@@ -63,7 +63,7 @@ class ArticleReturn:
 
 @dataclass
 class ArticlesToFilter(DataForNews):
-    article_return_list: List[ArticleReturn] = None
+    article_return_list: List[ArticleToGetFilter] = None
     preference: Dict[str, List[str]] = None
 
     def __post_init__(self):
@@ -84,7 +84,7 @@ class ArticlesToFilter(DataForNews):
         # Convert article list from JSON
         articles = []
         if json_data.get('articleReturnList'):
-            articles = [ArticleReturn.from_json(article) for article in json_data['articleReturnList']]
+            articles = [ArticleToGetFilter.from_json(article) for article in json_data['articleReturnList']]
 
         # Create instance
         return cls(

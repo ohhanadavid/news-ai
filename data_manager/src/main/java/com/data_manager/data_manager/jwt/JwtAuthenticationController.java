@@ -16,12 +16,12 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 
 
 import java.util.ArrayList;
 
-@RestController
+@RestController("dataManager")
 @CrossOrigin
 @Log4j2
 public class JwtAuthenticationController {
@@ -79,7 +79,7 @@ public class JwtAuthenticationController {
            final String token = jwtTokenUtil.generateToken(data.toJwtUser());
            return ResponseEntity.ok(new JwtResponse(token));
        }
-       throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+       throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private void authenticate(String email, String password) throws Exception {

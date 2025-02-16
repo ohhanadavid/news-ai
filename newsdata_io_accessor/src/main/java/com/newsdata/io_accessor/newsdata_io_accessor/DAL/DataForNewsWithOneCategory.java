@@ -4,12 +4,14 @@ package com.newsdata.io_accessor.newsdata_io_accessor.DAL;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @Data
+@NoArgsConstructor
 public class DataForNewsWithOneCategory extends DataForNews {
 
     private String category;

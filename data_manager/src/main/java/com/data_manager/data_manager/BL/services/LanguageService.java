@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -46,7 +47,7 @@ public class LanguageService implements ILanguageService {
                 build();
         Integer countOfMyLanguageResponse = restTemplate.getForObject(url.toUriString(), Integer.class);
         if(countOfMyLanguageResponse==null){
-            throw  new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+            throw  new  HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         url= UriComponentsBuilder.fromHttpUrl(newsAiAccessorUrl).
@@ -54,7 +55,7 @@ public class LanguageService implements ILanguageService {
                     build();
         Integer MaximumLanguageResponse = restTemplate.getForObject(url.toUriString(), Integer.class);
         if(MaximumLanguageResponse==null){
-            throw  new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+            throw  new  HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         if(countOfMyLanguageResponse>MaximumLanguageResponse)
             throw new MoreThenAllowException("languages",MaximumLanguageResponse);
@@ -62,7 +63,7 @@ public class LanguageService implements ILanguageService {
         String codeResponse = getLanguageCodeResponse(language.getLanguage());
 
         if(codeResponse==null){
-            throw  new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+            throw  new  HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
             
         Language lToSend = new Language(language, codeResponse);
@@ -88,7 +89,7 @@ public class LanguageService implements ILanguageService {
         return restTemplate.getForObject(url.toUriString(), String.class);
     }
 
-    public ResponseEntity<?> getLanguages(String email){
+    public List<String> getLanguages(String email){
         log.info("get languages");
         List<String> response;
         UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl).
@@ -98,12 +99,12 @@ public class LanguageService implements ILanguageService {
         response = restTemplate.getForObject(url.toUriString(), List.class);
 
         if (response == null)
-            return new ResponseEntity<>("we have problem",HttpStatus.INTERNAL_SERVER_ERROR);
-        return new ResponseEntity<>(response,HttpStatus.OK);
+            throw new  HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);;
+        return response;
     }
     
     @Override
-    public ResponseEntity<?> getLanguegesCode(String email){  
+    public List<String> getLanguegesCode(String email){
         log.info("get languages code");
         UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl).
                     path("api.getLanguagesCode/").
@@ -111,12 +112,12 @@ public class LanguageService implements ILanguageService {
                     build();
         List<String>  response = restTemplate.getForObject(url.toUriString(), List.class);
         if (response == null)
-            return new ResponseEntity<>("we have problem",HttpStatus.INTERNAL_SERVER_ERROR);
-        return new ResponseEntity<>(response,HttpStatus.OK);
+            throw new  HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);;
+        return response;
 
     }
     
-    public ResponseEntity<?> deleteLanguage(LanguageKey language){
+    public String deleteLanguage(LanguageKey language){
         log.info("delete language");
 
         UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl)
@@ -126,17 +127,16 @@ public class LanguageService implements ILanguageService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<LanguageKey> requestEntity = new HttpEntity<>(language, headers);
         restTemplate.exchange(url.toUriString(), HttpMethod.DELETE,requestEntity,ResponseEntity.class);
-        return new ResponseEntity<>(String.format("%s deleted", language),HttpStatus.OK);
+        return String.format("%s deleted", language);
 
     }
 
-    public ResponseEntity<?> updateLanguage(LanguageForChangeFromUser languages, String email){
+    public String updateLanguage(LanguageForChangeFromUser languages, String email){
         log.info("updateAll");
-        //try {
 
             String codeResponse = getLanguageCodeResponse(languages.getNewLanguage());
             if(codeResponse==null){
-                return new ResponseEntity<>("we have problem!",HttpStatus.INTERNAL_SERVER_ERROR);
+                throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
             }
 
             LanguagesForChangeToSend data = new LanguagesForChangeToSend()
@@ -147,13 +147,8 @@ public class LanguageService implements ILanguageService {
                     .path("api.updateLanguage/")
                     .path(email).build();
             restTemplate.put(url.toUriString(),data);
-            return new ResponseEntity<>(String.format("%s update", languages.getOldLanguage()),HttpStatus.OK);
-            
+            return String.format("%s update", languages.getOldLanguage());
 
-//        } catch (Exception e) {
-//            log.error(e.getMessage());
-//            throw e;
-//        }
     }
 
  

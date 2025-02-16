@@ -17,7 +17,7 @@ public interface IUserService {
 
     public UserIn logIn(String email);
 
-    ResponseEntity<?> updateUserMail(String oldEmail, String newEmail);
+    String updateUserMail(String oldEmail, String newEmail);
 
     Boolean changePassword(ChangePassword data);
 }

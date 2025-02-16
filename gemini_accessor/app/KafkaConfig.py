@@ -1,7 +1,9 @@
+import asyncio
+import logging
 
 from confluent_kafka import Producer, Consumer
 import json
-from LlmService import myArtical as llm
+from LlmService import my_article as llm
 
 class KafkaConfig:
     def __init__(self, bootstrap_servers: str = 'localhost:9092'):
@@ -34,18 +36,15 @@ class KafkaConfig:
     
     def delivery_callback(self, err, msg):
         if err:
-            print(f'שגיאה בשליחת ההודעה: {err}')
+            logging.info(f'שגיאה בשליחת ההודעה: {err}')
         else:
-            print(f'ההודעה נשלחה בהצלחה ל-{msg.topic()}')
+            logging.info(f'ההודעה נשלחה בהצלחה ל-{msg.topic()}')
     
     def produce_message(self, topic: str, message:str) -> None:
         producer = self.create_producer()
         try:
-            t=message
-
             producer.produce(
                 topic,
-
                 value=message,
                 headers=[
                     ("content-type", b"application/json")
@@ -54,32 +53,38 @@ class KafkaConfig:
             )
             producer.flush()
         except Exception as e:
-            print(f"שגיאה בשליחת ההודעה: {e}")
+            logging.info(f"שגיאה בשליחת ההודעה: {e}")
 
-    
     def consume_messages(self) -> None:
+        logging.basicConfig(
+            level=logging.INFO,
+            format='%(asctime)s - %(levelname)s - %(message)s'
+        )
         consumer = self.create_consumer("newsAi")
         consumer.subscribe(["api.getMyArticle"])
         
         try:
             while True:
-                print("whiting for message")
+                logging.info("whiting for message")
                 msg = consumer.poll(1.0)
                 if msg is None:
                     continue
                 if msg.error():
-                    print(f"שגיאת צרכן: {msg.error()}")
+                    logging.info(f"שגיאת צרכן: {msg.error()}")
                     continue
-                
-                value = json.loads(msg.value().decode('utf-8'))
-                ans= llm(value)
-                self.produce_message("LlmAnswer",ans)
-                print(f"התקבלה הודעה: {value}")
+                asyncio.run(self.message_handling(msg))
+
                 
         except KeyboardInterrupt:
-            print("עוצר את הצרכן...")
+            logging.info("עוצר את הצרכן...")
         finally:
             consumer.close()
+
+    async def  message_handling(self, msg):
+        value = json.loads(msg.value().decode('utf-8'))
+        ans = llm(value)
+        self.produce_message("LlmAnswer", ans)
+        return value
 
 
 

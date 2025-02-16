@@ -35,6 +35,16 @@ public class ArticleReturnFromLLM {
 
     @Override
     public String toString (){
-        return String.format("-  url: %S\ntitle: %s\n   summary: %s\n   video url: %s\n   publish date: %s\n",url,title,summary,videoUrl,pubDate);
+        StringBuilder ans = new StringBuilder().append("\uD83D\uDCF0  url: ").append(url).append("\n")
+                .append("   \uD83D\uDCCB title: ").append(title).append("\n")
+                .append("   📝 summary: ").append(summary).append("\n");
+
+        if (videoUrl != null && !videoUrl.isEmpty()) {
+            ans.append("   \uD83C\uDFA5 video url: ").append(videoUrl).append("\n");
+        }
+
+        ans.append("    \uD83D\uDCC5 publish date: ").append(pubDate).append("\n\n").append("⭐ ⭐ ⭐ \n\n");
+
+        return ans.toString();
     }
 }

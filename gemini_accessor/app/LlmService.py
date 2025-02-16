@@ -1,55 +1,65 @@
-#from flask import current_app
-from GeminiConfig import geminiRequest as gemini
+from dataclasses import asdict
+
+from GeminiConfig import geminiRequest as LLM
 import json
 import ArticalsToFilter
+import logging
+from typing import List
+from ArticalToReturn import  ArticleReturn
+from ArticalToReturn import DataToReturn
+from app.ArticalsToFilter import ArticleToGetFilter
 
 
-def myArtical(jsonData):
+def my_article(json_data):
     try:
-        
+        logging.basicConfig(
+            level=logging.INFO,
+            format='%(asctime)s - %(levelname)s - %(message)s'
+        )
         
 
-        data=ArticalsToFilter.ArticlesToFilter.from_json(jsonData)
+        data=ArticalsToFilter.ArticlesToFilter.from_json(json_data)
+        logging.info(f'filter news for {data.to}')
+
         article=data.article_return_list.copy()
 
-
-        numberOfArtical=data.number_of_article
-
-
+        number_of_article=data.number_of_article
         preference=data.preference.copy()
-
-
         user=data.to
+        chat=LLM()
 
-
-        chat=gemini()
-
-        
         while True:
-            response = chat.send_message(geminiRequstTemplet(article,numberOfArtical,preference))
+            try:
+                response = chat.send_message(llm_reqeust_templet(article, number_of_article, preference))
+                logging.info(f'answer return from llm for {data.to}')
 
-            
-            text=response.text
-            start=text.find('[')
-            end=text.find(']')
-            text=text[start:end+1]
+                text=response.text
+                start=text.find('[')
+                end=text.find(']')
+                text=text[start:end+1]
+                text=is_json_object(text)
+                if not text:
+                    logging.warning(f'Invalid JSON format received for user: {data.to}')
+                    continue
+                data_to_send = checking_url(text, article)
+                response_data={"articles":data_to_send,"to":user}
 
 
-            responseData={"articles":text,"to":user}
+                logging.info(f'Successfully filtered news for user: {data.to}')
+                return json.dumps(response_data)
 
-            dataToSend=json.dumps(responseData)
-
-            if is_json_object(dataToSend):
-                return dataToSend
+            except Exception as e:
+                logging.error(f'Error in LLM processing loop for user {data.to}: {str(e)}')
+                continue
     except Exception as e:
         print(e)
 
         
 
-def geminiRequstTemplet(article, numberOfArtical, preference):
+def llm_reqeust_templet(article, number_of_article, preference):
     data = (
     f"from this json {article} "
-    f"i want you to pick {numberOfArtical} articles "
+    f"i want you to pick {number_of_article} articles "
     f"they need to be to most interesting and relevant for me base on {preference}"
     "if its empty or null, choice randomly."
     "i want you return me the answer in this type:"
@@ -64,8 +74,23 @@ def geminiRequstTemplet(article, numberOfArtical, preference):
     return data
 
 def is_json_object(result):
-    try:
-        result = json.loads(result)
-        return isinstance(result, dict)
-    except json.JSONDecodeError:
-        return False
+    return json.loads(result)
+
+
+
+def checking_url(result: List, original: List[ArticleToGetFilter]) -> str:
+
+    original_urls = {article.url: article for article in original}
+
+    data = [ArticleReturn.from_json(article) for article in result]
+
+    for article in data:
+        matching_url = next(
+            (orig_url for orig_url in original_urls.keys()
+             if article.url in orig_url and article.url != orig_url),
+            None
+        )
+        if matching_url:
+            article.url = matching_url
+
+    return json.dumps([asdict(article) for article in data], indent=4)

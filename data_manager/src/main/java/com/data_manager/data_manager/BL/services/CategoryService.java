@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 
 import lombok.extern.log4j.Log4j2;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
@@ -32,13 +33,14 @@ public class CategoryService implements ICategoryService {
     
 
 
-    public ResponseEntity<?> saveCategory (Category category){
+    public String saveCategory (Category category){
         log.info("Save Category");
         String email=category.getCategory().getEmail();
         String categoryString=category.getCategory().getCategory();
         String preference=category.getCategory().getPreference();
+
         Boolean check=checking.checkUser(category.getCategory().getEmail());
-        if(check)
+        if(!check)
             throw new ItemNotFoundException("user not found");
         checkPreference(email,preference,categoryString);
         checkCategory(category.getCategory().getCategory());
@@ -46,12 +48,12 @@ public class CategoryService implements ICategoryService {
                 path("api.saveCategory").build();
 
         restTemplate.postForObject(url.toUriString(),category,Category.class);
-        return new ResponseEntity<>("Category Saved!",HttpStatus.OK);
+        return "Category Saved!";
 
    }
 
     @Override
-    public ResponseEntity<?> getPreferencecByCategory (String email,String category){
+    public List<String> getPreferencecByCategory (String email,String category){
         log.info("getPreferenceByCategory");
 
             UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl).
@@ -61,13 +63,13 @@ public class CategoryService implements ICategoryService {
                     build();
             List<String> response = restTemplate.getForObject(url.toUriString(), List.class);
             if (response == null  )
-                return new ResponseEntity<>("we have problem",HttpStatus.INTERNAL_SERVER_ERROR);
-            return new ResponseEntity<>( response,HttpStatus.OK);
+                throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+            return  response;
 
     }
     
     @Override
-    public ResponseEntity<?> myCategories (String email){
+    public Map<String,List<String>> myCategories (String email){
         log.info("get Category");
 
             UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl).
@@ -76,12 +78,12 @@ public class CategoryService implements ICategoryService {
                     build();
             Map<String,List<String>> response = restTemplate.getForObject(url.toUriString(), Map.class);
            if (response == null)
-                return new ResponseEntity<>("we have problem",HttpStatus.INTERNAL_SERVER_ERROR);
-            return new ResponseEntity<>( response,HttpStatus.OK);
+                throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+            return response;
 
     }
 
-    public ResponseEntity<?> deletePreference(Category category){
+    public String deletePreference(Category category){
         log.info("delete Preference");
 
             UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl)
@@ -95,11 +97,11 @@ public class CategoryService implements ICategoryService {
         restTemplate.exchange(url.toUriString(), HttpMethod.DELETE,requestEntity,ResponseEntity.class);
 
             
-        return new ResponseEntity<>("preference deleted!",HttpStatus.OK);
+        return "preference deleted!";
 
     }
     
-    public ResponseEntity<?> deleteCategory (String email,String category){
+    public String deleteCategory (String email,String category){
         log.info("delete Category");
 
             UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl)
@@ -109,11 +111,11 @@ public class CategoryService implements ICategoryService {
                     .build();
             restTemplate.delete(url.toUriString());
             
-            return new ResponseEntity<>("category deleted!",HttpStatus.OK);
+            return "category deleted!";
 
     }
 
-    public ResponseEntity<?> updateCategory( CategoryForChange category,String email){
+    public String updateCategory( CategoryForChange category,String email){
         log.info("updateCategory");
 
         checkCategory(category.getNewCategory());
@@ -125,10 +127,10 @@ public class CategoryService implements ICategoryService {
                     build();
         Map<String,List<String>> response = restTemplate.getForObject(url.toUriString(), Map.class);
         if (response == null)
-            return new ResponseEntity<>("we have problem",HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
             
         if(!response.containsKey(category.getOldCategory()))
-            return new ResponseEntity<>(String.format("this category %s not exists",category.getOldCategory()),HttpStatus.BAD_REQUEST);
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST);
 
         if(response.containsKey(category.getNewCategory())){
             List<String> newCategoryList=response.get(category.getNewCategory());
@@ -142,7 +144,7 @@ public class CategoryService implements ICategoryService {
         }
         url=UriComponentsBuilder.fromHttpUrl(userAccessorUrl).path("/api.updateCategory/").path(email).build();
         restTemplate.put(url.toUriString(),category);
-        return new ResponseEntity<>("category updated!",HttpStatus.OK);
+        return "category updated!";
     }
 
     private void checkCategory(String category) {
@@ -158,7 +160,7 @@ public class CategoryService implements ICategoryService {
         
     }
 
-    public ResponseEntity<?> updatePreference(PreferenceForChange preference, String email){
+    public String updatePreference(PreferenceForChange preference, String email){
         log.info("updatePreference");
         checkPreference(email,preference.getNewPreference(),preference.getCategory());
         UriComponents url = UriComponentsBuilder.fromHttpUrl(userAccessorUrl)
@@ -166,11 +168,11 @@ public class CategoryService implements ICategoryService {
                 .path(email)
                 .build();
             restTemplate.put(url.toUriString(),preference);
-            return new ResponseEntity<>("Preference update",HttpStatus.OK);
+            return "Preference update";
 
     }
     
-    public ResponseEntity<?> updateAll( CategoryForChangingAll categories){
+    public String updateAll( CategoryForChangingAll categories){
         log.info("updateAll");
 
 
@@ -183,7 +185,7 @@ public class CategoryService implements ICategoryService {
                 .path("api.updateAll")
                 .build();
             restTemplate.put(url.toUriString(),categories);
-            return new ResponseEntity<>("category update!",HttpStatus.OK);
+            return "category update!";
     }
 
     private void checkPreference( String email,String preference,String category) {

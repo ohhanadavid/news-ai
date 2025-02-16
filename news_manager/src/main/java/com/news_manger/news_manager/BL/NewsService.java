@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.news_manger.news_manager.DAL.NewTinyRequest;
 import com.news_manger.news_manager.DAL.articals.*;
 import com.news_manger.news_manager.DAL.articalsToGet.*;
 import com.news_manger.news_manager.DAL.notification.MailData;
@@ -38,10 +39,9 @@ public class NewsService {
 
     @Value("${NewsAiAccessor}")
     private String newsAiAccessorUrl;
-    @Value("${GeminiAccessorUrl}")
-    private String geminiAccessorUrl;
-    @Value("${MailSenderEngine}")
-    private String mailSenderEngine;
+//    @Value("${TinyUrlURL}")
+//    private String tinyUrl_Url;
+
     @Autowired
     private IChecking checking;
     @Autowired
@@ -80,11 +80,10 @@ public class NewsService {
 
     public ResponseEntity<?> getLatestNewsByCategory(String email,String category,int numberOfArticle) throws JsonProcessingException {
         log.info("getLatestNewsByCategory");
+
         ResponseEntity<?> categoryResponse=categoryService.getPreferenceByCategory(email,category);
         checking.checkResponse(categoryResponse, List.class);
-        List<String> categories=((List<String>)categoryResponse.getBody());
-        if(categories.isEmpty())
-            return getLatestNews(email,numberOfArticle );
+
         List<String> languagesCode = getLanguagesCode(email);
 
         DataForNewsWithOneCategory data=new DataForNewsWithOneCategory(numberOfArticle,email,languagesCode,category);
@@ -169,9 +168,6 @@ public class NewsService {
                 return;
             }
 
-
-
-            
             ResponseEntity<?> categoryResponse=categoryService.myCategories(data.getTo());
             checking.checkResponse(categoryResponse, Map.class);
             Map<String,List<String>> categories=((Map<String,List<String>>)categoryResponse.getBody());
@@ -209,8 +205,16 @@ public class NewsService {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         User user= userService.getUser(data.getTo());
 
+
             
         StringBuilder articleToSend = new StringBuilder();
+
+//        data.getArticles().parallelStream().forEach(s->{
+//            NewTinyRequest tinyRequest = new NewTinyRequest(s.getUrl());
+//            String tinyUrl = restTemplate.postForObject(tinyUrl_Url+"/tiny",tinyRequest, String.class);
+//            s.setUrl(tinyUrl);
+//        });
+
         data.getArticles().forEach(s -> articleToSend.append(s.toString()).append("\n"));
 
         MailData mail=new MailData()
@@ -279,4 +283,7 @@ public class NewsService {
 
     }
 
+//    public String tinyUrl(String tiny) {
+//        return restTemplate.getForObject(tinyUrl_Url+"/"+tiny, String.class);
+//    }
 }

@@ -108,7 +108,7 @@ public class UserService implements IUserService {
         }
     }
 
-    public ResponseEntity<?> deleteUser( String email){
+    public String deleteUser( String email){
         log.info("deleteUser request");
 
         userNotExistChecking(email);
@@ -118,7 +118,7 @@ public class UserService implements IUserService {
                     .path(email)
                     .build();
         restTemplate.delete(url.toUriString());
-        return new ResponseEntity<>(STR."\{email} deleted!",HttpStatus.OK);
+        return String.format("%S deleted!",email);
 
     }
 
@@ -128,19 +128,19 @@ public class UserService implements IUserService {
             throw new ItemNotFoundException("user not found");
     }
 
-    public ResponseEntity<?> updateUserName( UserOut user) {
+    public String updateUserName( UserOut user) {
         log.info("updateName request");
         userNotExistChecking(user.getEmail());
         UriComponents url = UriComponentsBuilder.fromHttpUrl(userAccessorUrl)
                     .path("api.updateUserName")
                     .build();
         restTemplate.put(url.toUriString(),user);
-        return new ResponseEntity<>("user name update!",HttpStatus.OK);
+        return "user name update!";
 
     }
 
     @Override
-    public ResponseEntity<?> updateUserMail(String oldEmail, String newEmail) {
+    public String updateUserMail(String oldEmail, String newEmail) {
         log.info("updateMail request");
 
             userNotExistChecking(oldEmail);
@@ -157,7 +157,7 @@ public class UserService implements IUserService {
                     .build();
             restTemplate.put(url.toUriString(),null);
           
-            return new ResponseEntity<>("mail update!",HttpStatus.OK);
+            return "mail update!";
 
     }
 

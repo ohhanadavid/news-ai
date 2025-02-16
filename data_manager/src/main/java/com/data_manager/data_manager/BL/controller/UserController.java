@@ -17,54 +17,32 @@ import com.data_manager.data_manager.BL.services.UserService;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
-@RestController
+@RestController("dataManager/userData")
 public class UserController {
     @Autowired
     UserService userService;
 
 
   @GetMapping("getUser/{email}")
-    public ResponseEntity<?> getUser(@PathVariable String email) {
+    public UserOut getUser(@PathVariable String email) {
         log.info("getUser request");
-        //try{
-            return new ResponseEntity<>( userService.getUserOut(email),HttpStatus.OK);
-            
-         
-//        }catch(Exception e)
-//        {
-//            log.error("getUser request {}",e.getMessage());
-//            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
-//
-//        }
+        return userService.getUserOut(email);
     }
 
     @DeleteMapping("deleteUser")
-    public ResponseEntity<?> deleteUser(@RequestParam String email){
+    public String deleteUser(@RequestParam String email){
         log.info("deleteUser request");
-        //try{
+
             return userService.deleteUser(email);
-            
-//        }
-//
-//        catch(Exception e)
-//        {
-//            log.error("deleteUser request {}",e.getMessage());
-//            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
-//
-//        }
+
     }
 
     @PutMapping("updateName")
-    public ResponseEntity<?> updateUserName(@RequestBody UserOut user) {
+    public String updateUserName(@RequestBody UserOut user) {
         log.info("updateName request");
-        //try{
+
             return userService.updateUserName(user);
-//        }catch(Exception e)
-//        {
-//            log.error("updateName request {}",e.getMessage());
-//            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
-//
-//        }
+
     }
 
 

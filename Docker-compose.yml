@@ -6,26 +6,15 @@ services:
   
 #   ############## SERVICE #################
   datamanager:
-        image: davidohhana/newsaidatamanager:latest
-        container_name: newsaidatamanager
-        ports:
-           - '7001:7001'
-           - "5006:5005"
-        # environment:
-        #   UserAccessorUrl: useraccessor 
-        #   NewsAiAccessor: newsdataioaccessor
-        #   GeminiAccessorUrl: geminiaccessor
-        #   MailSenderEngine: mailsenderengine
-        #   JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
-           #USER_ACCESSOR_URL: http://useraccessor:1006/accessor/api/users
-        networks:
-             - News_app_network
-        restart: unless-stopped
-        # healthcheck:
-        #   test: ["CMD", "curl", "-f", "http://localhost:7001"]
-        #   interval: 30s
-        #   timeout: 10s
-        #   retries: 5
+    image: davidohhana/newsai-data_manager:latest
+    container_name: newsai_data_manager
+    ports:
+      - '7001:7001'
+      - "5006:5005"
+    networks:
+      - News_app_network
+    restart: unless-stopped
+
 
  
 
@@ -34,29 +23,16 @@ services:
 # #######################################
   
 #   ############## SERVICE #################
-#   newsmanager:
-#         image: davidohhana/newsmanager
-#         build:
-#           context: .
-#           dockerfile: news_manager/Dockerfile
-#         ports:
-#            - '7000:7000'
-#            - "5000:5005"
-#         environment:
-#           UserAccessorUrl: useraccessor 
-#           NewsAiAccessor: newsdataioaccessor
-#           GeminiAccessorUrl: geminiaccessor
-#           MailSenderEngine: mailsenderengine
-#           JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
-          
-#         networks:
-#              - News_app_network
-#         restart: unless-stopped
-#         healthcheck:
-#           test: ["CMD", "curl", "-f", "http://localhost:7000"]
-#           interval: 30s
-#           timeout: 10s
-#           retries: 5
+  newsmanager:
+    image: davidohhana/newsai_news-manager:latest
+    container_name: newsai_news_manager
+    ports:
+      - '7000:7000'
+      - "5000:5005"
+    networks:
+      - News_app_network
+    restart: unless-stopped
+
 
 
 
@@ -66,26 +42,18 @@ services:
   
 # ########## SERVICE ################
   useraccessor:
-        image: davidohhana/newsaiuseraccessor:latest
-        container_name: user_accessor_newsAi
-        ports:
-          - '7002:7002'
-          - "5005:5005"
-        depends_on:
-          - postgres
-        # environment:
-        #   JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
-        #   SPRING_DATASOURCE_URL: jdbc:mysql://users_accessor_mysql:3306/user_account?allowPublicKeyRetrieval=true&autoReconnect=true&useSSL=false
-        #   SPRING_DATASOURCE_USERNAME: root
-        #   SPRING_DATASOURCE_PASSWORD: 1234
-        networks:
-          - News_app_network
-        restart: unless-stopped
-        # healthcheck:
-        #   test: ["CMD", "curl", "-f", "http://localhost:7002"]
-        #   interval: 30s
-        #   timeout: 20s
-        #   retries: 10
+    image: davidohhana/newsai_user-accessor:latest
+    container_name: user_accessor_newsAi
+    ports:
+      - '7002:7002'
+      - "5005:5005"
+    depends_on:
+      - postgres
+
+    networks:
+      - News_app_network
+    restart: unless-stopped
+
 
 
 # #######################################
@@ -93,28 +61,15 @@ services:
 # ######################################
   
 #   ########## SERVICE ###################
-#   newsdataioaccessor:
-#         image: davidohhana/newsdataioaccessor
-#         container_name:  newsdata_io_accessor_newsAi
-#         build:
-#           context: .
-#           dockerfile:  ./newsdata_io_accessor/Dockerfile
-#         ports:
-#           - '7003:7003'
-#           - "5008:5005"
-#         environment:
-#           JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
-#           NEWS_DATA_apiKEY: pub_480901f644b6acbeb4d21bd595d2e44550302
-#         networks:
-#           - News_app_network
-#         restart: unless-stopped
-#         healthcheck:
-#           test: ["CMD", "curl", "-f", "http://localhost:7003"]
-#           interval: 30s
-#           timeout: 10s
-#           retries: 5
-  
- 
+  newsdataioaccessor:
+    image: davidohhana/news_data_io_accessor:latest
+    container_name:  newsdata_io_accessor_newsAi
+    ports:
+      - '7003:7003'
+      - "5008:5005"
+    networks:
+      - News_app_network
+    restart: unless-stopped
 
 # ########################################
 # # llm_accessor SERVICE
@@ -147,27 +102,45 @@ services:
 # ########################################
 # # MAIL SENDER SERVICE
 # #######################################
-  
-#   ########## SERVICE ###################
-#   mailsenderengine:
-#         image: davidohhana/mailsenderengine
-#         container_name:  mailsenderengine_newsAi
-#         build:
-#           context: .
-#           dockerfile:  ./mail_sender_engine/Dockerfile
-#         ports:
-#           - '7005:7005'
-#           - "5009:5005"
-#         environment:
-#           JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
-#         networks:
-#           - News_app_network
-#         restart: unless-stopped
-#         healthcheck:
-#           test: ["CMD", "curl", "-f", "http://localhost:7005"]
-#           interval: 30s
-#           timeout: 10s
-#           retries: 5
+
+  mailsenderengine:
+    image: davidohhana/mailsender_engine:latest
+    container_name:  mail_sender_engine_newsAi
+    ports:
+      - '7005:7005'
+      - "5009:5005"
+    networks:
+      - News_app_network
+    restart: unless-stopped
+      
+
+# ########################################
+# # GATEWAY
+# #######################################
+
+  gateway:
+    image: davidohhana/newsai_gateway:latest
+    container_name:  newsai_gateway
+    ports:
+      - '8080:8080'
+      
+    networks:
+      - News_app_network
+    restart: unless-stopped
+# # ########################################
+# # # TINY URL
+# # #######################################
+
+#   tinyurl:
+#     image: davidohhana/newsaitinyurl:latest
+#     container_name:  tinyurl_newsai
+#     ports:
+#       - '7008:7008'
+#     depends_on:
+#       - redis
+#     networks:
+#       - News_app_network
+#     restart: unless-stopped
 ########################################
 # DATA BASES
 ########################################
@@ -175,16 +148,29 @@ services:
 # USER DB
 ##########################
   postgres:
-      image: postgres
-      environment:
-        POSTGRES_PASSWORD: postgres
-      ports:
-        - 5432:5432
-      volumes:
-        - ./userData:/var/lib/postgresql/data
-      networks:
-          - News_app_network
-      privileged: true
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - ./userData:/var/lib/postgresql/data
+    networks:
+      - News_app_network
+    privileged: true
+# ###############################
+# # SHORT URL DB
+# ##############################
+#   redis:
+#     image: redis
+#     command: redis-server --bind 127.0.0.1
+#     ports:
+#       - "127.0.0.1:6379:6379"
+#     networks:
+#       - News_app_network
+#     volumes:
+#       - ./urlData:/data
+#     privileged: true
 ########################################
 # ZOOKEEPER
 #######################################
@@ -222,8 +208,9 @@ services:
 # DOCKER-COMPOSE CONFIGURATIONS
 #########################################
 volumes:
-    userData:
+  userData:
+  urlData:
 networks:
-    News_app_network:
-      name: News_app_network
+  News_app_network:
+    name: News_app_network
  

@@ -13,7 +13,9 @@ import com.data_manager.data_manager.DAL.languege.LanguageForChangeFromUser;
 
 import lombok.extern.log4j.Log4j2;
 
-@RestController
+import java.util.List;
+
+@RestController("dataManager/userLanguages")
 @Log4j2
 public class LanguageController {
     @Autowired
@@ -26,25 +28,25 @@ public class LanguageController {
 
     }
     @GetMapping("getLanguages")
-    public ResponseEntity<?> getLanguages(@RequestParam String email){
+    public List<String> getLanguages(@RequestParam String email){
         log.info("get Languages");
         return languageService.getLanguages(email);
 
     }
     @GetMapping("getLanguagesCode")
-    public ResponseEntity<?> getLanguagesCode(@RequestParam String email){
+    public List<String> getLanguagesCode(@RequestParam String email){
         log.info("get Languages code");
         return languageService.getLanguegesCode(email);
 
     }
     @DeleteMapping("deleteLanguage")
-    public ResponseEntity<?> deleteLanguage(@RequestBody LanguageKey Language){
+    public String deleteLanguage(@RequestBody LanguageKey Language){
         log.info("delete language");
         return languageService.deleteLanguage(Language);
 
     }
     @PutMapping("updateLanguage/{email}")
-    public ResponseEntity<?> updateLanguage(@RequestBody LanguageForChangeFromUser languages, @PathVariable String email){
+    public String updateLanguage(@RequestBody LanguageForChangeFromUser languages, @PathVariable String email){
         log.info("updateAll");
         return languageService.updateLanguage(languages,email);
 
