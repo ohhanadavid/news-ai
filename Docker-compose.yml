@@ -76,28 +76,13 @@ services:
 # #######################################
   
 #   ########## SERVICE ###################
-#   llmaccessor:
-#         image: davidohhana/gemini_accessor_newsai
-#         container_name:  gemini_accessor_newsAi
-#         build:
-#           context: .
-#           dockerfile:  ./gemini_accessor/Dockerfile
-#         ports:
-#           - '7004:7004'
-#           - '5678:5678'
-          
-#         environment:
-#           - GEMINI_apiKEY=<api key her>
-#         volumes:
-#           - .gemini_accessor/app:/gimini/app
-#         networks:
-#           - News_app_network
-#         restart: unless-stopped
-#         healthcheck:
-#           test: ["CMD", "curl", "-f", "http://localhost:7004"]
-#           interval: 30s
-#           timeout: 10s
-#           retries: 5
+  llmaccessor:
+        image: davidohhana/newsai_llm_accessor:latest
+        container_name:  llm_accessor_newsAi
+        networks:
+          - News_app_network
+        restart: unless-stopped
+
 
 # ########################################
 # # MAIL SENDER SERVICE

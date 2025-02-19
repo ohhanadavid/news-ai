@@ -6,8 +6,7 @@ import ArticalsToFilter
 import logging
 from typing import List
 from ArticalToReturn import  ArticleReturn
-from ArticalToReturn import DataToReturn
-from app.ArticalsToFilter import ArticleToGetFilter
+from ArticalsToFilter import ArticleToGetFilter
 
 
 def my_article(json_data):

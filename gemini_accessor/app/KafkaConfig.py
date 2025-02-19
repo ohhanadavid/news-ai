@@ -6,7 +6,7 @@ import json
 from LlmService import my_article as llm
 
 class KafkaConfig:
-    def __init__(self, bootstrap_servers: str = 'localhost:9092'):
+    def __init__(self, bootstrap_servers: str = 'kafka:9092'):
         self.config = {
             'bootstrap.servers': bootstrap_servers
         }
@@ -65,7 +65,7 @@ class KafkaConfig:
         
         try:
             while True:
-                logging.info("whiting for message")
+
                 msg = consumer.poll(1.0)
                 if msg is None:
                     continue
