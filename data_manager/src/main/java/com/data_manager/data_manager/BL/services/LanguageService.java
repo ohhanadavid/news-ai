@@ -34,11 +34,11 @@ public class LanguageService implements ILanguageService {
 
 
     public String saveLanguage(LanguageUser language){
-        log.info("Save language");
+        log.info("Save language for {}",language.getEmail());
 
-        Boolean check=checking.checkUser(language.getEmail());
-        if(!check)
-            throw new ItemNotFoundException("user not found");
+//        Boolean check=checking.checkUser(language.getEmail());
+//        if(!check)
+//            throw new ItemNotFoundException("user  not found");
             
 
         UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl).
@@ -57,7 +57,7 @@ public class LanguageService implements ILanguageService {
         if(MaximumLanguageResponse==null){
             throw  new  HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        if(countOfMyLanguageResponse>MaximumLanguageResponse)
+        if(countOfMyLanguageResponse>=MaximumLanguageResponse)
             throw new MoreThenAllowException("languages",MaximumLanguageResponse);
 
         String codeResponse = getLanguageCodeResponse(language.getLanguage());
@@ -78,6 +78,7 @@ public class LanguageService implements ILanguageService {
                 path("api.checkLanguage/").
                 path(language).
                 build();
+
         if(Boolean.FALSE.equals(restTemplate.getForObject(url.toUriString(), Boolean.class))){
             throw new ItemNotFoundException("this Language not exist!");
         }
@@ -90,7 +91,7 @@ public class LanguageService implements ILanguageService {
     }
 
     public List<String> getLanguages(String email){
-        log.info("get languages");
+        log.info("get languages for {}",email);
         List<String> response;
         UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl).
                     path("api.getLanguages/").
@@ -105,7 +106,7 @@ public class LanguageService implements ILanguageService {
     
     @Override
     public List<String> getLanguegesCode(String email){
-        log.info("get languages code");
+        log.info("get languages code for {}",email);
         UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl).
                     path("api.getLanguagesCode/").
                     path(email).
@@ -118,7 +119,7 @@ public class LanguageService implements ILanguageService {
     }
     
     public String deleteLanguage(LanguageKey language){
-        log.info("delete language");
+        log.info("delete language for {}",language.getEmail());
 
         UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl)
                     .path("api.deleteLanguage").build();
@@ -126,13 +127,15 @@ public class LanguageService implements ILanguageService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<LanguageKey> requestEntity = new HttpEntity<>(language, headers);
-        restTemplate.exchange(url.toUriString(), HttpMethod.DELETE,requestEntity,ResponseEntity.class);
+
+        restTemplate.exchange(url.toUriString(), HttpMethod.DELETE,requestEntity,String.class);
+
         return String.format("%s deleted", language);
 
     }
 
     public String updateLanguage(LanguageForChangeFromUser languages, String email){
-        log.info("updateAll");
+        log.info("updateAll language for {}",email);
 
             String codeResponse = getLanguageCodeResponse(languages.getNewLanguage());
             if(codeResponse==null){

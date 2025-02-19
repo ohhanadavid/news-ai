@@ -3,6 +3,7 @@ package com.news_manger.news_manager.configuration;
 import javax.servlet.http.HttpServletRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration;
@@ -15,15 +16,22 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.annotation.RequestScope;
 
+@Log4j2
 @Configuration
 @Import(ServletWebServerFactoryAutoConfiguration.class)
 public class RestTemplateConfig {
 
     @Bean
     @RequestScope
+
     public RestTemplate getRestTemplate(ObjectProvider<HttpServletRequest> requestProvider) {
         HttpServletRequest inReq = requestProvider.getIfAvailable();
         RestTemplate restTemplate = new RestTemplate();
+
+        restTemplate.getInterceptors().add((outReq, bytes, clientHttpReqExec) -> {
+            log.info("Sending request to: {} {}", outReq.getMethod(), outReq.getURI());
+            return clientHttpReqExec.execute(outReq, bytes);
+        });
 
         if (inReq != null) {
             final String authHeader = inReq.getHeader(HttpHeaders.AUTHORIZATION);

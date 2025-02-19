@@ -31,6 +31,7 @@ public class CategoryService implements IUserKeyAction {
         return categoryRepository.save(category);
 
     }
+
     public List<String> getPreferencesByCategory(String email, String category){
         log.info("getPreferenceByCategory");
 
@@ -38,6 +39,7 @@ public class CategoryService implements IUserKeyAction {
             return categoryRepository.getPreferenceByCategory(email, category);
 
     }
+
     public Map<String,List<String>> myCategories (String email){
         log.info("get Category");
 
@@ -55,31 +57,25 @@ public class CategoryService implements IUserKeyAction {
 
     public void deletePreferences(Category category){
         log.info("deletePreferences: delete Preference");
-       
-
-
-            categoryRepository.delete(category);
-            log.info("deletePreferences deleted!");
+        categoryRepository.delete(category);
+        log.info("deletePreferences deleted!");
 
 
     }
+
     @Async
     @Override
     public void deleteUser (String email){
         log.info("delete user");
-      
-
-            categoryRepository.deleteUser(email);
-            log.info("deleted!");
+        categoryRepository.deleteUser(email);
+        log.info("deleted!");
 
 
     }
 
     public void deleteCategory (String email,String category){
         log.info("delete Preference");
-        
-
-            categoryRepository.deleteCategory(email, category);
+        categoryRepository.deleteCategory(email, category);
 
 
     }
@@ -90,6 +86,7 @@ public class CategoryService implements IUserKeyAction {
 
 
     }
+
     public void updatePreference(PreferenceForChange preferences, String email){
         log.info("updatePreference");
         
@@ -98,11 +95,10 @@ public class CategoryService implements IUserKeyAction {
 
 
     }
+
     public void updateAll( CategoryForChangingAll categories){
         log.info("updateAll");
-       
-
-            categoryRepository.updateAll(categories.getEmail(),
+        categoryRepository.updateAll(categories.getEmail(),
                                         categories.getOldCategory() ,
                                         categories.getOldPreference(),
                                         categories.getNewCategory(),
@@ -110,6 +106,7 @@ public class CategoryService implements IUserKeyAction {
 
 
     }
+
     @Async
     @Override
     public void updateMail(@Param("oldEmail") String oldEmail,@Param("newEmail") String newEmail){

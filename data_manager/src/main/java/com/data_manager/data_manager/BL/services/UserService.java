@@ -31,27 +31,24 @@ public class UserService implements IUserService {
 
 
     public UserOut getUserOut(String email) {
-        log.info("getUserOut request");
-        try{
-            UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl).
+        log.info("getUserOut request for {}",email);
+
+        UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl).
                     path("api.getUserOut/").
                     path(email).
                     build();
-            UserOut response = restTemplate.getForObject(url.toUriString(), UserOut.class);
-            if(response==null){
-                throw new ItemNotFoundException();
-            }
-
-            return response;
-        } catch(Exception e){
-            log.error("getUserOut request {}", e.getMessage());
-            throw e;
+        UserOut response = restTemplate.getForObject(url.toUriString(), UserOut.class);
+        if(response==null){
+            throw new ItemNotFoundException();
         }
+
+        return response;
+
     }
 
     @Override
     public Optional<UserIn> getUser(String email) {
-        log.info("getUser request");
+        log.info("getUser request for {} ",email);
 
         UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl).
                     path("api.getUser/").
@@ -69,7 +66,7 @@ public class UserService implements IUserService {
 
     @Override
     public UserIn saveUser(UserIn user){
-        log.info("createUser request");
+        log.info("createUser request for {}",user.getEmail());
 
         Boolean check=checking.checkUser(user.getEmail());
         if(check){
@@ -87,7 +84,7 @@ public class UserService implements IUserService {
 
     @Override
     public UserIn logIn(String email) {
-        log.info("logIn request");
+        log.info("logIn request for {}",email);
 
         UriComponents url = UriComponentsBuilder.fromHttpUrl(userAccessorUrl)
                 .path("api.login/")
@@ -109,7 +106,7 @@ public class UserService implements IUserService {
     }
 
     public String deleteUser( String email){
-        log.info("deleteUser request");
+        log.info("deleteUser request for {}",email);
 
         userNotExistChecking(email);
 
@@ -129,7 +126,7 @@ public class UserService implements IUserService {
     }
 
     public String updateUserName( UserOut user) {
-        log.info("updateName request");
+        log.info("updateName request for {}",user.getEmail());
         userNotExistChecking(user.getEmail());
         UriComponents url = UriComponentsBuilder.fromHttpUrl(userAccessorUrl)
                     .path("api.updateUserName")
@@ -141,7 +138,7 @@ public class UserService implements IUserService {
 
     @Override
     public String updateUserMail(String oldEmail, String newEmail) {
-        log.info("updateMail request");
+        log.info("updateMail request for {}",oldEmail);
 
             userNotExistChecking(oldEmail);
 

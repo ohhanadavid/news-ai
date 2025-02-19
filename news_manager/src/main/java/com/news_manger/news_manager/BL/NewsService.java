@@ -2,12 +2,7 @@ package com.news_manger.news_manager.BL;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.news_manger.news_manager.DAL.NewTinyRequest;
 import com.news_manger.news_manager.DAL.articals.*;
@@ -31,6 +26,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.news_manger.news_manager.DAL.user.User;
 
 import lombok.extern.log4j.Log4j2;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @Service
@@ -228,58 +224,56 @@ public class NewsService {
 
     }   
     
-    public ResponseEntity<?> getCategories() {
+    public List<String> getCategories() {
         log.info("getCategories");
         String url=String.format("%s/api.getCategories",newsAiAccessorUrl);
         List<String> response =restTemplate.getForObject(url,List.class);
         if (response == null)
-            return new ResponseEntity<>("we have problem",HttpStatus.INTERNAL_SERVER_ERROR);
-        return new ResponseEntity<>(response,HttpStatus.OK);
+            throw new HttpServerErrorException( HttpStatus.INTERNAL_SERVER_ERROR);
+        return response;
 
     }
   
-    public ResponseEntity<?> getLanguages() {
+    public Set<String> getLanguages() {
         log.info("getLanguages");
         String url=String.format("%s/api.getLanguages",newsAiAccessorUrl);
-        Map<String,String> response =restTemplate.getForObject(url,Map.class);
+        Set<String> response =restTemplate.getForObject(url,Set.class);
 
         if (response == null)
-            return new ResponseEntity<>("we have problem",HttpStatus.INTERNAL_SERVER_ERROR);
-        return new ResponseEntity<>(response,HttpStatus.OK);
+            throw new HttpServerErrorException( HttpStatus.INTERNAL_SERVER_ERROR);
+        return response;
 
     }
    
-    public ResponseEntity<?> checkCategory( String category) {
+    public Boolean checkCategory( String category) {
         log.info("checkCategory");
-
-
         String url=String.format("%s/api.checkCategory/%s",newsAiAccessorUrl,category);
         Boolean response = restTemplate.getForObject( url,Boolean.class);
         if (response == null)
-            return new ResponseEntity<>("we have problem",HttpStatus.INTERNAL_SERVER_ERROR);
-        return new ResponseEntity<>(response,HttpStatus.OK);
+            throw new HttpServerErrorException( HttpStatus.INTERNAL_SERVER_ERROR);
+        return response;
 
     }
     
-    public ResponseEntity<?> getLanguageCode( String language) {
+    public String getLanguageCode( String language) {
         log.info("getLanguageCode");
 
         String url = String.format("%s/api.getLanguageCode/%s",newsAiAccessorUrl,language);
-        Map<String,String> response = restTemplate.getForObject(url,Map.class);
+        String response = restTemplate.getForObject(url,String.class);
             if (response == null)
-                return new ResponseEntity<>("we have problem",HttpStatus.INTERNAL_SERVER_ERROR);
-            return new ResponseEntity<>(response,HttpStatus.OK);
+                throw new HttpServerErrorException( HttpStatus.INTERNAL_SERVER_ERROR);
+            return response;
 
         
     }
   
-    public ResponseEntity<?> getMaximumLanguage() {
+    public Integer getMaximumLanguage() {
         String url = String.format("%s/api.maximumLanguage",newsAiAccessorUrl);
         Integer response = restTemplate.getForObject(url,Integer.class);
 
         if (response == null)
-            return new ResponseEntity<>("we have problem",HttpStatus.INTERNAL_SERVER_ERROR);
-        return new ResponseEntity<>(response,HttpStatus.OK);
+            throw new HttpServerErrorException( HttpStatus.INTERNAL_SERVER_ERROR);
+        return response;
 
     }
 

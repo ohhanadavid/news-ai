@@ -26,11 +26,8 @@ public class UserService {
 
     public User creteUser(User user){
         log.info("func: createUser.  UserService");
-
             if(user.getName().isEmpty())
                 user.setName(user.getEmail());
-            //  String password= getSHA256Hash(user.getPassword());
-           // user.setPassword(password);
             userRepository.save(user);
             log.info("user saved!");
 
@@ -42,61 +39,53 @@ public class UserService {
 
             Optional<User> dbUser = userRepository.findById(email);
             if(dbUser.isEmpty()){
-                log.info("user {} no found!", email);
+                log.info("loginUser user {} no found!", email);
                 throw new ItemNotFoundException("user "+"email"+" no found!");
             }
-            log.info("user {} found!",email);
+            log.info("loginUser user {} found!",email);
             return dbUser.get();
     }
 
     public UserOut getUserOut(String email){
-        log.info("func: getUserOut. UserOut UserService");
-       Optional<User> user;
-
-             user =userRepository.findById(email);
-             if(user.isEmpty()) {
-                 log.info("getUserOut user not found!");
-                 return null;
-             }
-            else
-                log.info("user found!");
-
-
+        log.info("func: getUserOut. UserOut UserService for {}",email);
+        Optional<User> user;
+        user = userRepository.findById(email);
+        if(user.isEmpty()) {
+            log.info("getUserOut user {} not found!",email);
+            return null;
+        }
+        log.info("getUserOut user {} found!",email);
         return new UserOut(user.get());
     }
 
     public Optional<User> getUser(String email){
-        log.info("func: getUser. UserOut UserService");
+        log.info("func: getUser. UserOut UserService for {}",email);
         Optional<User> user;
-
-            user =userRepository.findById(email);
-            if(user.isEmpty()) {
-                log.info("user not found!");
-                return Optional.empty();
-            }
-            return user;
-
-
-
+        user =userRepository.findById(email);
+        if(user.isEmpty()) {
+            log.info("getUser user {} not found!",email);
+            return Optional.empty();
+        }
+        return user;
     }
 
     @Async
     public void deleteUser(String email){
-        log.info("func: deleteUser.  UserService");
+        log.info("func: deleteUser.  UserService for {}",email);
 
              userRepository.deleteById(email);
              
-            log.info("user deleted!");
+            log.info("user {} deleted!",email);
            
 
     }
 
     public UserOut updateUserName(UserOut user){
-        log.info("func: updateUserName.  UserService");
+        log.info("func: updateUserName.  UserService for {}",user.getEmail());
         
 
             userRepository.updateName(user.getEmail(), user.getName());
-            log.info("func: updateUserName. user update!");
+            log.info("func: updateUserName. user {} update!",user.getEmail());
 
 
         return user;
@@ -104,26 +93,21 @@ public class UserService {
 
     @Async
     public void updateUserMail(String oldEmail,String newEmail){
-        log.info("func: updateUserMail.  UserService");
+        log.info("func: updateUserMail.  UserService for {}",oldEmail);
+        userRepository.updateEmail(newEmail, oldEmail);
+        log.info("user {} update to {}!",oldEmail,newEmail);
 
-             userRepository.updateEmail(newEmail, oldEmail);
-             log.info("user update!");
-
-
-        
     }
 
     public boolean userExists(String email) {
-        log.info("userExists func");
+        log.info("userExists func for {}",email);
         return userRepository.existsById(email);
     }
 
     public Boolean changePassword(LoginUser user,String password){
-        log.info("func: changePassword.  UserService");
+        log.info("func: changePassword.  UserService for {}",user.getEmail());
         userRepository.updatePassword(user.getEmail(), password);
         return true;
-
-
     }
 
 

@@ -43,6 +43,7 @@ public class JwtAuthenticationController {
 
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
     public ResponseEntity<?> logInAndCreateAuthenticationToken(@RequestBody LoginUser authenticationRequest) throws Exception {
+        log.info("authenticate for {}",authenticationRequest.getEmail());
         authenticate(authenticationRequest.getEmail(), authenticationRequest.getPassword());
         UserIn user=userService.logIn(authenticationRequest.getEmail());
         final String token = jwtTokenUtil.generateToken(user.toJwtUser());
@@ -51,26 +52,29 @@ public class JwtAuthenticationController {
 
     @RequestMapping(value = "/saveUser", method = RequestMethod.POST)
     public ResponseEntity<?> createUser(@RequestBody UserIn userRequest) throws Exception {
+        log.info("save user for {}",userRequest.getEmail());
         String encodedPass = passwordEncoder.encode(userRequest.getPassword());
         userRequest.setPassword(encodedPass);
         UserIn user = userService.saveUser(userRequest);
-
+        log.info("user  {} saved",user.getEmail());
         UserDetails userDetails = new User(user.getEmail(),encodedPass, new ArrayList<>());
         return ResponseEntity.ok(new JwtResponse(jwtTokenUtil.generateToken(userDetails)));
     }
 
     @PutMapping("updateMail/{oldEmail}")
     public ResponseEntity<?> updateUserMail(@PathVariable String oldEmail,@RequestParam String newEmail) {
-        log.info("updateMail request");
+        log.info("updateMail request for {}",oldEmail);
         userService.updateUserMail(oldEmail, newEmail);
+        log.info("updateMail  for {} succeeded",oldEmail);
         UserIn user=userService.logIn(newEmail);
+
         final String token = jwtTokenUtil.generateToken(user.toJwtUser());
         return ResponseEntity.ok(new JwtResponse(token));
     }
 
     @PutMapping("changePassword")
     public ResponseEntity<?> changePassword(@RequestBody ChangePassword data) throws Exception {
-        log.info("changePassword request");
+        log.info("changePassword request for {}",data.getUser().getEmail());
         authenticate(data.getUser().getEmail(),data.getUser().getPassword());
         String encodedPass = passwordEncoder.encode(data.getNewPassword());
         data.setNewPassword(encodedPass);

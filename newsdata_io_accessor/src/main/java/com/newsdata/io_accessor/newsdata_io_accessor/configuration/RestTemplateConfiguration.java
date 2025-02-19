@@ -1,6 +1,7 @@
 package com.newsdata.io_accessor.newsdata_io_accessor.configuration;
 
 
+import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -11,11 +12,16 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Configuration
+@Log4j2
 public class RestTemplateConfiguration {
 
     @Bean
     public RestTemplate restTemplate(ObjectMapper objectMapper) {
         RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getInterceptors().add((outReq, bytes, clientHttpReqExec) -> {
+            log.info("Sending request to: {} {}", outReq.getMethod(), outReq.getURI());
+            return clientHttpReqExec.execute(outReq, bytes);
+        });
         restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter(objectMapper));
         return restTemplate;
     }

@@ -2,8 +2,9 @@ package com.news_manger.news_manager.BL;
 
 
 
-import java.io.IOException;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.extern.log4j.Log4j2;
-import org.springframework.web.servlet.ModelAndView;
 
 @RestController("newsManager")
 @Log4j2
@@ -43,7 +43,7 @@ public class NewsController {
 
 
     @GetMapping("getCategories")
-    public ResponseEntity<?> getCategories() {
+    public List<String> getCategories() {
         log.info("getCategories");
         return newsDataService.getCategories();
 
@@ -51,7 +51,7 @@ public class NewsController {
     }
 
     @GetMapping("getLanguages")
-    public ResponseEntity<?> getLanguages() {
+    public Set<String> getLanguages() {
         log.info("getLanguages");
         return newsDataService.getLanguages();
 
@@ -59,14 +59,15 @@ public class NewsController {
     }
 
     @GetMapping("checkCategory")
-    public ResponseEntity<?> checkCategory(@RequestParam String category) {
+    public Boolean checkCategory(@RequestParam String category) {
         log.info("checkCategory");
         return newsDataService.checkCategory(category);
 
         
     }
+
     @GetMapping("getLanguageCode")
-    public ResponseEntity<?> getLanguageCode(@RequestParam String language) {
+    public String getLanguageCode(@RequestParam String language) {
         log.info("getLanguageCode");
         return newsDataService.getLanguageCode(language);
 
@@ -74,7 +75,7 @@ public class NewsController {
     }
 
     @GetMapping("maximumLanguage")
-    public ResponseEntity<?> getMaximumLanguage() {
+    public Integer getMaximumLanguage() {
         log.info("api.maximumLanguage");
         return newsDataService.getMaximumLanguage() ;
 
@@ -86,9 +87,4 @@ public class NewsController {
 //        return new ModelAndView("redirect:" + url);
 //    }
 
-
-
-
-
-    
 }

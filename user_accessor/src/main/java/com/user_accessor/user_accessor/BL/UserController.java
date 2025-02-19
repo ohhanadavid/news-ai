@@ -33,24 +33,13 @@ public class UserController {
     @GetMapping("/api.getUserOut/{email}")
     public UserOut getUseOut(@PathVariable String email) {
         log.info("getUserOut request");
-        try{
-            UserOut user= userService.getUserOut(email);
-            log.info("getUserOut request {} found!",user);
-            if(user==null){
-                throw new ItemNotFoundException("user not found");
-            }
-            else{
-                return user;
-            }
-        }catch( ItemNotFoundException  e){
-            log.error("getUserOut request ItemNotFoundException {}",e.getMessage());
-            throw e;
+        UserOut user= userService.getUserOut(email);
+        log.info("getUserOut request {} found!",user);
+        if(user==null){
+            throw new ItemNotFoundException("user not found");
         }
-        catch(Exception e){
-            log.error("getUserOut request Exception {}",e.getMessage());
-            throw e;
+        return user;
 
-        }
     }
 
     @GetMapping("/api.getUser/{email}")
@@ -79,15 +68,12 @@ public class UserController {
     @PostMapping("/api.login/{email}")
     public User loginUser(@PathVariable String email) {
         log.info("loginUser request");
-
-            User user= userService.loginUser(email);
-            log.info("loginUser request ${user} found!");
-            if(user==null){
-                throw new ItemNotFoundException("user not found");
-            }
-            return user;
-
-
+        User user= userService.loginUser(email);
+        log.info("loginUser request ${user} found!");
+        if(user==null){
+            throw new ItemNotFoundException("user not found");
+        }
+        return user;
     }
 
     @GetMapping("/api.userExists/{email}")
@@ -144,18 +130,13 @@ public class UserController {
 
     @PutMapping("/api.updateUserMail/{oldEmail}")
     public ResponseEntity<?> updateUserMail(@PathVariable String oldEmail,@RequestParam String newEmail) {
-
         log.info("updateMail request");
-
-            CompletableFuture<Void> updateUser = CompletableFuture.runAsync(() ->userService.updateUserMail(oldEmail,newEmail));
-            CompletableFuture<Void> updateCategory = CompletableFuture.runAsync(() ->categoryService.updateMail(oldEmail, newEmail));
-            CompletableFuture<Void> updateLanguage = CompletableFuture.runAsync(() -> languageService.updateMail(oldEmail, newEmail));
-            CompletableFuture.allOf(updateUser, updateCategory, updateLanguage).join();
-            log.info("updateMail request  accessed!");
-            return new ResponseEntity<>(String.format("%s update!!",newEmail),HttpStatus.OK);
-
-
-
+        CompletableFuture<Void> updateUser = CompletableFuture.runAsync(() ->userService.updateUserMail(oldEmail,newEmail));
+        CompletableFuture<Void> updateCategory = CompletableFuture.runAsync(() ->categoryService.updateMail(oldEmail, newEmail));
+        CompletableFuture<Void> updateLanguage = CompletableFuture.runAsync(() -> languageService.updateMail(oldEmail, newEmail));
+        CompletableFuture.allOf(updateUser, updateCategory, updateLanguage).join();
+        log.info("updateMail request  accessed!");
+        return new ResponseEntity<>(String.format("%s update!!",newEmail),HttpStatus.OK);
     }
 
 

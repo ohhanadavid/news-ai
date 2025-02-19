@@ -25,10 +25,10 @@ public class LanguageService implements IUserKeyAction{
  
 
     public void saveLanguage(Language language){
-        log.info("Save language");
+        log.info("Save language for {}",language.getLanguageKey().getEmail());
         // userService.userNotExists(language.getLanguageKey().getEmail());
         if(languageRepository.existsById(language.getLanguageKey())){
-            log.error("language already exist!");
+            log.error("language already exist for {}!",language.getLanguageKey().getEmail());
             throw new ItemFoundException("language already exist!");
         }
 
@@ -36,21 +36,21 @@ public class LanguageService implements IUserKeyAction{
 
     }
     public List<String> getLanguages(String email){
-        log.info("get languages");
+        log.info("get languages for {}",email);
 
             return languageRepository.getMyLanguages(email);
 
     }
     public List<String> getLanguagesCode(String email){
-        log.info("get languages code");
+        log.info("get languages code for {}",email);
 
             return languageRepository.getMyLanguagesCode(email);
 
     }
     public void deleteLanguage(LanguageKey language){
-        log.info("delete language");
+        log.info("delete language for {}",language.getEmail());
         if(!languageRepository.existsById(language))
-            throw new ItemNotFoundException("this language not exists");
+            throw new ItemNotFoundException("this language not exists for "+ language.getEmail());
 
         languageRepository.deleteById(language);
 
@@ -58,26 +58,24 @@ public class LanguageService implements IUserKeyAction{
     @Async
     @Override
     public void deleteUser(String email){
-        log.info("delete user");
+        log.info("delete user- delete language for {} ",email);
 
             languageRepository.deleteUser(email);
-            log.info("deleted!");
+            log.info(" language deleted for {}!",email);
 
 
     }
     @Async
     @Override
     public void updateMail(String oldEmail,String newEmail){
-        log.info("updateMail");
-        
-
-            languageRepository.updateMail(oldEmail, newEmail);
+        log.info("updateMail in languages for {}",oldEmail);
+        languageRepository.updateMail(oldEmail, newEmail);
 
     }
     public void updateLanguage(LanguageForChange languages,String email){
-        log.info("updateLanguage");
+        log.info("updateLanguage for {}",email);
 
-            languageRepository.updateAll(email,
+        languageRepository.updateAll(email,
                     languages.getOldLanguage(),
                     languages.getNewLanguage(),
                     languages.getNewLanguageCode());
@@ -85,7 +83,7 @@ public class LanguageService implements IUserKeyAction{
 
     }
    public int numberOfMyLanguages(String email) {
-        log.info("numberOfMyLanguages");
+        log.info("numberOfMyLanguages for {}",email);
 
             return languageRepository.namberOfMyLanguages(email);
 

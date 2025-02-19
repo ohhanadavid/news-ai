@@ -27,7 +27,7 @@ public class LanguageController {
         return languageService.saveLanguage(Language);
 
     }
-    @GetMapping("getLanguages")
+    @GetMapping("getMyLanguages")
     public List<String> getLanguages(@RequestParam String email){
         log.info("get Languages");
         return languageService.getLanguages(email);

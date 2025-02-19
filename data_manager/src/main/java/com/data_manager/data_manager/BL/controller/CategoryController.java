@@ -56,7 +56,7 @@ public class CategoryController {
         log.info("delete Category");
         return categoryService.deleteCategory(email, category);
     }
-    @PutMapping("updateCategory")
+    @PutMapping("changeCategory")
     public String updateCategory(@RequestBody CategoryForChange category, @RequestParam String email){
         log.info("updateCategory");
         return categoryService.updateCategory(category, email);
@@ -67,7 +67,7 @@ public class CategoryController {
         return categoryService.updatePreference(preference, email);
 
     }
-    @PutMapping("updateAll")
+    @PutMapping("updateCategory")
     public String updateAll( @RequestBody CategoryForChangingAll categories){
         log.info("updateAll");
         return categoryService.updateAll(categories);

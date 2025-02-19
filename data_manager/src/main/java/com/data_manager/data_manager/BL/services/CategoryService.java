@@ -34,7 +34,7 @@ public class CategoryService implements ICategoryService {
 
 
     public String saveCategory (Category category){
-        log.info("Save Category");
+        log.info("Save Category for {}",category.getCategory().getEmail());
         String email=category.getCategory().getEmail();
         String categoryString=category.getCategory().getCategory();
         String preference=category.getCategory().getPreference();
@@ -54,7 +54,7 @@ public class CategoryService implements ICategoryService {
 
     @Override
     public List<String> getPreferencecByCategory (String email,String category){
-        log.info("getPreferenceByCategory");
+        log.info("getPreferenceByCategory for {}",email);
 
             UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl).
                     path("api.getPreferenceByCategory"+"/").
@@ -70,7 +70,7 @@ public class CategoryService implements ICategoryService {
     
     @Override
     public Map<String,List<String>> myCategories (String email){
-        log.info("get Category");
+        log.info("get Category for {}",email);
 
             UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl).
                     path("api.myCategories"+"/").
@@ -84,7 +84,7 @@ public class CategoryService implements ICategoryService {
     }
 
     public String deletePreference(Category category){
-        log.info("delete Preference");
+        log.info("delete Preference for {}",category.getCategory().getEmail());
 
             UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl)
                     .path("api.deletePreference")
@@ -102,7 +102,7 @@ public class CategoryService implements ICategoryService {
     }
     
     public String deleteCategory (String email,String category){
-        log.info("delete Category");
+        log.info("delete Category FOR {}",email);
 
             UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl)
                     .path("api.deleteCategory"+"/")
@@ -116,7 +116,7 @@ public class CategoryService implements ICategoryService {
     }
 
     public String updateCategory( CategoryForChange category,String email){
-        log.info("updateCategory");
+        log.info("updateCategory for {}",email);
 
         checkCategory(category.getNewCategory());
         UriComponents url;
@@ -161,7 +161,7 @@ public class CategoryService implements ICategoryService {
     }
 
     public String updatePreference(PreferenceForChange preference, String email){
-        log.info("updatePreference");
+        log.info("updatePreference for {}",email);
         checkPreference(email,preference.getNewPreference(),preference.getCategory());
         UriComponents url = UriComponentsBuilder.fromHttpUrl(userAccessorUrl)
                 .path("api.updatePreference" + "/")
@@ -173,7 +173,7 @@ public class CategoryService implements ICategoryService {
     }
     
     public String updateAll( CategoryForChangingAll categories){
-        log.info("updateAll");
+        log.info("updateAll category  for {}",categories.getEmail());
 
 
         String newCategory=categories.getNewCategory();
@@ -202,7 +202,7 @@ public class CategoryService implements ICategoryService {
             throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         if(res) {
-            throw new HttpServerErrorException(HttpStatus.CONFLICT);
+            throw new HttpClientErrorException(HttpStatus.CONFLICT);
         }
 
     }
