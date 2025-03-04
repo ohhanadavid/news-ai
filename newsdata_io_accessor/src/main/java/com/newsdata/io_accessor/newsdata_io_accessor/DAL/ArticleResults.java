@@ -15,4 +15,5 @@ public class ArticleResults {
     private String status;
     private int totalResults;
     List<Article> results;
+    private String nextPage;
 }

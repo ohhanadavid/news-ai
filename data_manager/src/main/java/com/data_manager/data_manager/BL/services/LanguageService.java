@@ -2,7 +2,12 @@ package com.data_manager.data_manager.BL.services;
 
 import java.util.List;
 
-import com.data_manager.data_manager.DAL.languege.*;
+import com.data_manager.data_manager.DAL.modol.languege.LanguageForChange;
+import com.data_manager.data_manager.DAL.modol.languege.LanguageKey;
+import com.data_manager.data_manager.DAL.modol.languege.LanguageToDB;
+import com.data_manager.data_manager.DAL.srevice.LanguageToDBService;
+import com.data_manager.data_manager.DTO.languege.*;
+import com.data_manager.data_manager.DTO.user.UserData;
 import com.data_manager.data_manager.Exception.ItemNotFoundException;
 import com.data_manager.data_manager.Exception.MoreThenAllowException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +16,6 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.log4j.Log4j2;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
@@ -19,44 +23,36 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 @Log4j2
-public class LanguageService implements ILanguageService {
+public class LanguageService  {
 
-    @Autowired
-    private IChecking checking;
+
     @Value("${NewsAiAccessor}")
     private String newsAiAccessorUrl;
-    @Value("${UserAccessorUrl}")
-    private String userAccessorUrl;
     @Autowired
     RestTemplate restTemplate;
+    @Autowired
+    LanguageToDBService languageToDBService;
     
     private final String  operation="create";
 
 
-    public String saveLanguage(LanguageUser language){
-        log.info("Save language for {}",language.getEmail());
+    public void saveLanguage(LanguageUser language, UserData userData){
 
-//        Boolean check=checking.checkUser(language.getEmail());
-//        if(!check)
-//            throw new ItemNotFoundException("user  not found");
-            
+        log.info("Save language for {}",userData.getUserID());
 
-        UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl).
-                path("api.numberOfMyLanguages/").
-                path(language.getEmail()).
+
+        int countOfMyLanguageResponse = languageToDBService.numberOfMyLanguages(userData.getUserID());
+
+        UriComponents url = UriComponentsBuilder.fromHttpUrl(newsAiAccessorUrl).
+                path("api.maximumLanguage").
                 build();
-        Integer countOfMyLanguageResponse = restTemplate.getForObject(url.toUriString(), Integer.class);
-        if(countOfMyLanguageResponse==null){
-            throw  new  HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
 
-        url= UriComponentsBuilder.fromHttpUrl(newsAiAccessorUrl).
-                    path("api.maximumLanguage").
-                    build();
         Integer MaximumLanguageResponse = restTemplate.getForObject(url.toUriString(), Integer.class);
+
         if(MaximumLanguageResponse==null){
             throw  new  HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+
         if(countOfMyLanguageResponse>=MaximumLanguageResponse)
             throw new MoreThenAllowException("languages",MaximumLanguageResponse);
 
@@ -65,10 +61,9 @@ public class LanguageService implements ILanguageService {
         if(codeResponse==null){
             throw  new  HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-            
-        Language lToSend = new Language(language, codeResponse);
-        url=UriComponentsBuilder.fromHttpUrl(userAccessorUrl).path("api.saveLanguage").build();
-        return restTemplate.postForObject(url.toUriString(),lToSend,String.class);
+        LanguageKey languageKey = new LanguageKey(userData.getUserID(),language.getLanguage());
+        LanguageToDB languageToDB = new LanguageToDB(languageKey, codeResponse);
+        languageToDBService.saveLanguage(languageToDB);
 
     }
 
@@ -90,66 +85,41 @@ public class LanguageService implements ILanguageService {
         return restTemplate.getForObject(url.toUriString(), String.class);
     }
 
-    public List<String> getLanguages(String email){
-        log.info("get languages for {}",email);
-        List<String> response;
-        UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl).
-                    path("api.getLanguages/").
-                    path(email).
-                    build();
-        response = restTemplate.getForObject(url.toUriString(), List.class);
+    public List<String> getMyLanguages(UserData userData){
+        log.info("get languages for {}",userData.getUserID());
 
-        if (response == null)
-            throw new  HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);;
-        return response;
+        return languageToDBService.getLanguages(userData.getUserID());
     }
     
-    @Override
-    public List<String> getLanguegesCode(String email){
-        log.info("get languages code for {}",email);
-        UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl).
-                    path("api.getLanguagesCode/").
-                    path(email).
-                    build();
-        List<String>  response = restTemplate.getForObject(url.toUriString(), List.class);
-        if (response == null)
-            throw new  HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);;
-        return response;
+
+    public List<String> getLanguagesCode(UserData userData){
+        log.info("get languages code for {}",userData.getUserID());
+       return  languageToDBService.getLanguagesCode(userData.getUserID());
 
     }
     
-    public String deleteLanguage(LanguageKey language){
-        log.info("delete language for {}",language.getEmail());
+    public String deleteLanguage(String language,UserData userData){
+        log.info("delete language for {}",userData.getUserID());
 
-        UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl)
-                    .path("api.deleteLanguage").build();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<LanguageKey> requestEntity = new HttpEntity<>(language, headers);
-
-        restTemplate.exchange(url.toUriString(), HttpMethod.DELETE,requestEntity,String.class);
+        languageToDBService.deleteLanguage(new LanguageKey(userData.getUserID(),language));
 
         return String.format("%s deleted", language);
 
     }
 
-    public String updateLanguage(LanguageForChangeFromUser languages, String email){
-        log.info("updateAll language for {}",email);
+    public String updateLanguage(LanguageForChangeFromUser languages,UserData userData){
+        log.info("updateAll language for {}",userData.getUserID());
 
             String codeResponse = getLanguageCodeResponse(languages.getNewLanguage());
             if(codeResponse==null){
                 throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
             }
 
-            LanguagesForChangeToSend data = new LanguagesForChangeToSend()
+        LanguageForChange data = new LanguageForChange()
                     .setOldLanguage(languages.getOldLanguage())
                     .setNewLanguage(languages.getNewLanguage())
                     .setNewLanguageCode(codeResponse);
-            UriComponents url=UriComponentsBuilder.fromHttpUrl(userAccessorUrl)
-                    .path("api.updateLanguage/")
-                    .path(email).build();
-            restTemplate.put(url.toUriString(),data);
+           languageToDBService.updateLanguage(data,userData.getUserID());
             return String.format("%s update", languages.getOldLanguage());
 
     }

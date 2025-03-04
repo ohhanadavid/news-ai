@@ -1,10 +1,11 @@
 package com.data_manager.data_manager.BL.controller;
 
-import com.data_manager.data_manager.DAL.category.CategoryForChange;
-import com.data_manager.data_manager.DAL.category.PreferenceForChange;
+import com.data_manager.data_manager.DTO.category.CategoryForChange;
+import com.data_manager.data_manager.DTO.category.PreferenceForChange;
+import com.data_manager.data_manager.DTO.user.UserData;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.data_manager.data_manager.BL.services.CategoryService;
-import com.data_manager.data_manager.DAL.category.Category;
-import com.data_manager.data_manager.DAL.category.CategoryForChangingAll;
+import com.data_manager.data_manager.DTO.category.Category;
+import com.data_manager.data_manager.DTO.category.CategoryForChangingAll;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -30,47 +31,43 @@ public class CategoryController {
     CategoryService categoryService;
 
     @PostMapping("saveCategory")
-    public String saveCategory (@RequestBody Category category){
+    public String saveCategory (@RequestBody Category category,@AuthenticationPrincipal Jwt jwt){
         log.info("Save Category");
 
-        return categoryService.saveCategory(category);
+        return categoryService.saveCategory(category,new UserData(jwt));
     }
     @GetMapping("getPreferenceByCategory")
-    public List<String> getPreferenceByCategory (@RequestParam String email, @RequestParam String category){
+    public List<String> getPreferenceByCategory ( @RequestParam String category,@AuthenticationPrincipal Jwt jwt){
         log.info("getPreferenceByCategory");
-        return categoryService.getPreferencecByCategory(email, category);
+        return categoryService.getPreferenceByCategory( category,new UserData(jwt));
     }
     @GetMapping("myCategories")
-    public Map<String, List<String>> myCategories (@RequestParam String email){
+    public Map<String, List<String>> myCategories (@AuthenticationPrincipal Jwt jwt){
         log.info("get Category");
-            return categoryService.myCategories(email);
+            return categoryService.myCategories(new UserData(jwt));
     }
     @DeleteMapping("deletePreference")
-    public String deletePreference (@RequestBody Category category){
+    public String deletePreference (@RequestBody Category category,@AuthenticationPrincipal Jwt jwt){
         log.info("delete Preference");
-        return categoryService.deletePreference(category);
+        return categoryService.deletePreference(category,new UserData(jwt));
 
     }
     @DeleteMapping("deleteCategory")
-    public String deleteCategory (@RequestParam String email,@RequestParam String category){
+    public String deleteCategory (@RequestParam String category,@AuthenticationPrincipal Jwt jwt){
         log.info("delete Category");
-        return categoryService.deleteCategory(email, category);
+        return categoryService.deleteCategory( category,new UserData(jwt));
     }
     @PutMapping("changeCategory")
-    public String updateCategory(@RequestBody CategoryForChange category, @RequestParam String email){
+    public String updateCategory(@RequestBody CategoryForChange category,@AuthenticationPrincipal Jwt jwt){
         log.info("updateCategory");
-        return categoryService.updateCategory(category, email);
+        return categoryService.updateCategory(category,new UserData(jwt));
     }
     @PutMapping("updatePreference")
-    public String updatePreference(@RequestBody PreferenceForChange preference, @RequestParam String email){
+    public String updatePreference(@RequestBody PreferenceForChange preference,@AuthenticationPrincipal Jwt jwt){
         log.info("updatePreference");
-        return categoryService.updatePreference(preference, email);
+        return categoryService.updatePreference(preference,new UserData(jwt));
 
     }
-    @PutMapping("updateCategory")
-    public String updateAll( @RequestBody CategoryForChangingAll categories){
-        log.info("updateAll");
-        return categoryService.updateAll(categories);
-    }
+
 
 }

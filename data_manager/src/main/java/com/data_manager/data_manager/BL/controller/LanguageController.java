@@ -1,15 +1,16 @@
 package com.data_manager.data_manager.BL.controller;
 
-import com.data_manager.data_manager.DAL.languege.LanguageKey;
+import com.data_manager.data_manager.DTO.user.UserData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import com.data_manager.data_manager.BL.services.LanguageService;
-import com.data_manager.data_manager.DAL.languege.LanguageUser;
-import com.data_manager.data_manager.DAL.languege.Language;
-import com.data_manager.data_manager.DAL.languege.LanguageForChangeFromUser;
+import com.data_manager.data_manager.DTO.languege.LanguageUser;
+import com.data_manager.data_manager.DTO.languege.LanguageForChangeFromUser;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -22,33 +23,34 @@ public class LanguageController {
     LanguageService languageService;
     
     @PostMapping("saveLanguage")
-    public String saveLanguage(@RequestBody LanguageUser Language){
+    public ResponseEntity<?> saveLanguage(@RequestBody LanguageUser Language, @AuthenticationPrincipal Jwt jwt){
         log.info("Save Language");
-        return languageService.saveLanguage(Language);
+        languageService.saveLanguage(Language,new UserData(jwt));
+        return new ResponseEntity<>(HttpStatus.OK);
 
     }
     @GetMapping("getMyLanguages")
-    public List<String> getLanguages(@RequestParam String email){
+    public List<String> getLanguages(@AuthenticationPrincipal Jwt jwt){
         log.info("get Languages");
-        return languageService.getLanguages(email);
+        return languageService.getMyLanguages(new UserData(jwt));
 
     }
     @GetMapping("getLanguagesCode")
-    public List<String> getLanguagesCode(@RequestParam String email){
+    public List<String> getLanguagesCode(@AuthenticationPrincipal Jwt jwt){
         log.info("get Languages code");
-        return languageService.getLanguegesCode(email);
+        return languageService.getLanguagesCode(new UserData(jwt));
 
     }
     @DeleteMapping("deleteLanguage")
-    public String deleteLanguage(@RequestBody LanguageKey Language){
+    public String deleteLanguage(@RequestBody String Language,@AuthenticationPrincipal Jwt jwt){
         log.info("delete language");
-        return languageService.deleteLanguage(Language);
+        return languageService.deleteLanguage(Language,new UserData(jwt));
 
     }
     @PutMapping("updateLanguage/{email}")
-    public String updateLanguage(@RequestBody LanguageForChangeFromUser languages, @PathVariable String email){
+    public String updateLanguage(@RequestBody LanguageForChangeFromUser languages,@AuthenticationPrincipal Jwt jwt){
         log.info("updateAll");
-        return languageService.updateLanguage(languages,email);
+        return languageService.updateLanguage(languages,new UserData(jwt));
 
     }
     

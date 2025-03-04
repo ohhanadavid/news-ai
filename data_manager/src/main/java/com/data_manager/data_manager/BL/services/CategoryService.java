@@ -3,9 +3,10 @@ package com.data_manager.data_manager.BL.services;
 import java.util.List;
 import java.util.Map;
 
-import com.data_manager.data_manager.DAL.category.*;
-import com.data_manager.data_manager.DAL.languege.LanguageKey;
-import com.data_manager.data_manager.Exception.ItemNotFoundException;
+import com.data_manager.data_manager.DAL.modol.category.CategoryKeyForDB;
+import com.data_manager.data_manager.DAL.srevice.CategoryToDBService;
+import com.data_manager.data_manager.DTO.category.*;
+import com.data_manager.data_manager.DTO.user.UserData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -21,129 +22,80 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 @Log4j2
-public class CategoryService implements ICategoryService {
-    @Autowired
-    private IChecking checking;
+public class CategoryService {
     @Autowired
     RestTemplate restTemplate;
     @Value("${NewsAiAccessor}")
     private String newsAiAccessorUrl;
-    @Value("${UserAccessorUrl}")
-    private String userAccessorUrl;
+    @Autowired
+    CategoryToDBService categoryToDBService;
     
 
 
-    public String saveCategory (Category category){
-        log.info("Save Category for {}",category.getCategory().getEmail());
-        String email=category.getCategory().getEmail();
-        String categoryString=category.getCategory().getCategory();
-        String preference=category.getCategory().getPreference();
+    public String saveCategory (Category category, UserData user){
+        log.info("Save Category for {}",user.getUserID());
 
-        Boolean check=checking.checkUser(category.getCategory().getEmail());
-        if(!check)
-            throw new ItemNotFoundException("user not found");
-        checkPreference(email,preference,categoryString);
+
+        checkPreference(category.getCategory().toCategoryKeyForDB(user.getUserID()));
+
         checkCategory(category.getCategory().getCategory());
-        UriComponents url = UriComponentsBuilder.fromHttpUrl(userAccessorUrl).
-                path("api.saveCategory").build();
 
-        restTemplate.postForObject(url.toUriString(),category,Category.class);
+
+        categoryToDBService.saveCategory(category.toCategoryToDB(user.getUserID()));
+
         return "Category Saved!";
 
    }
 
-    @Override
-    public List<String> getPreferencecByCategory (String email,String category){
-        log.info("getPreferenceByCategory for {}",email);
 
-            UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl).
-                    path("api.getPreferenceByCategory"+"/").
-                    path(email+"/").
-                    path(category).
-                    build();
-            List<String> response = restTemplate.getForObject(url.toUriString(), List.class);
-            if (response == null  )
-                throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
-            return  response;
+    public List<String> getPreferenceByCategory(String category, UserData user){
+        log.info("getPreferenceByCategory for {}",user.getUserID());
+        return categoryToDBService.getPreferencesByCategory(user.getUserID(),category);
 
     }
     
-    @Override
-    public Map<String,List<String>> myCategories (String email){
-        log.info("get Category for {}",email);
 
-            UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl).
-                    path("api.myCategories"+"/").
-                    path(email).
-                    build();
-            Map<String,List<String>> response = restTemplate.getForObject(url.toUriString(), Map.class);
-           if (response == null)
-                throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
-            return response;
+    public Map<String,List<String>> myCategories (UserData user){
+        log.info("get Category for {}",user.getUserID());
+
+          return categoryToDBService.myCategories(user.getUserID());
 
     }
 
-    public String deletePreference(Category category){
-        log.info("delete Preference for {}",category.getCategory().getEmail());
-
-            UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl)
-                    .path("api.deletePreference")
-                    .build();
-
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<Category> requestEntity = new HttpEntity<>(category, headers);
-        restTemplate.exchange(url.toUriString(), HttpMethod.DELETE,requestEntity,ResponseEntity.class);
-
-            
+    public String deletePreference(Category category, UserData user){
+        log.info("delete Preference for {}",user.getUserID());
+        categoryToDBService.deletePreferences(category.toCategoryToDB(user.getUserID()));
         return "preference deleted!";
 
     }
     
-    public String deleteCategory (String email,String category){
-        log.info("delete Category FOR {}",email);
-
-            UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl)
-                    .path("api.deleteCategory"+"/")
-                    .path(email)
-                    .queryParam("category",category)
-                    .build();
-            restTemplate.delete(url.toUriString());
-            
-            return "category deleted!";
+    public String deleteCategory (String category, UserData user){
+        log.info("delete Category FOR {}",user.getUserID());
+        categoryToDBService.deleteCategory(user.getUserID(),category);
+        return "category deleted!";
 
     }
 
-    public String updateCategory( CategoryForChange category,String email){
-        log.info("updateCategory for {}",email);
+    public String updateCategory( CategoryForChange category, UserData user){
+        log.info("updateCategory for {}",user.getUserID());
 
         checkCategory(category.getNewCategory());
         UriComponents url;
 
-        url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl).
-                    path("api.myCategories"+"/").
-                    path(email).
-                    build();
-        Map<String,List<String>> response = restTemplate.getForObject(url.toUriString(), Map.class);
-        if (response == null)
-            throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
-            
+        Map<String,List<String>> response = categoryToDBService.myCategories(user.getUserID());
+
         if(!response.containsKey(category.getOldCategory()))
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST);
 
         if(response.containsKey(category.getNewCategory())){
             List<String> newCategoryList=response.get(category.getNewCategory());
-            List<String> toUpdate=response.get(category.getOldCategory());
-            toUpdate.forEach(x->{
-                if(newCategoryList.contains(x)){
-                    deletePreference(new Category(new CategoryKey(email, x, category.getOldCategory())));
-                }
-            }
-            );
+            newCategoryList.retainAll(response.get(category.getOldCategory()));
+
+            newCategoryList.forEach(x->
+                    deletePreference(new Category(new CategoryKeyFromUser( x, category.getOldCategory())),user) );
         }
-        url=UriComponentsBuilder.fromHttpUrl(userAccessorUrl).path("/api.updateCategory/").path(email).build();
-        restTemplate.put(url.toUriString(),category);
+        categoryToDBService.updateCategory(category.getOldCategory(),category.getNewCategory(),user.getUserID());
+
         return "category updated!";
     }
 
@@ -160,47 +112,21 @@ public class CategoryService implements ICategoryService {
         
     }
 
-    public String updatePreference(PreferenceForChange preference, String email){
-        log.info("updatePreference for {}",email);
-        checkPreference(email,preference.getNewPreference(),preference.getCategory());
-        UriComponents url = UriComponentsBuilder.fromHttpUrl(userAccessorUrl)
-                .path("api.updatePreference" + "/")
-                .path(email)
-                .build();
-            restTemplate.put(url.toUriString(),preference);
-            return "Preference update";
+    public String updatePreference(PreferenceForChange preference, UserData user){
+        log.info("updatePreference for {}",user.getUserID());
+
+        checkPreference(new CategoryKeyForDB(user.getUserID(), preference.getNewPreference(),preference.getCategory()));
+
+        categoryToDBService.updatePreference(preference,user.getUserID());
+
+        return "Preference update";
 
     }
     
-    public String updateAll( CategoryForChangingAll categories){
-        log.info("updateAll category  for {}",categories.getEmail());
 
 
-        String newCategory=categories.getNewCategory();
-
-        checkCategory(newCategory);
-        checkPreference(categories.getEmail(),categories.getNewPreference(),categories.getNewCategory());
-        UriComponents url = UriComponentsBuilder
-                .fromHttpUrl(userAccessorUrl)
-                .path("api.updateAll")
-                .build();
-            restTemplate.put(url.toUriString(),categories);
-            return "category update!";
-    }
-
-    private void checkPreference( String email,String preference,String category) {
-        Boolean res;
-        UriComponents url;
-        url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl).
-                path("api.checkPreference/").
-                path(email).
-                queryParam("preference", preference).
-                queryParam("category", category).
-                build();
-        res = restTemplate.getForObject(url.toUriString(), Boolean.class);
-        if(res == null) {
-            throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    private void checkPreference( CategoryKeyForDB categoryKeyForDB) {
+        boolean res = categoryToDBService.checkPreference(categoryKeyForDB);
         if(res) {
             throw new HttpClientErrorException(HttpStatus.CONFLICT);
         }

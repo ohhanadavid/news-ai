@@ -28,11 +28,8 @@ public class User {
 
 
     @Id
-    @Column(name= "email")
-    @Email
-    private String email;
-    @Column(name= "name")
-    private String name;
-    private String Password;
+    private String userID;
+    private String phone;
+
 
 }

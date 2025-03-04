@@ -16,25 +16,17 @@ import lombok.experimental.Accessors;
 @ToString(includeFieldNames = true)
 @AllArgsConstructor
 @Accessors(chain = true)
-@Entity
-@Table(name="users")
-@Component
 @NoArgsConstructor
 @SqlResultSetMapping(name = "NewUser")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserOut {
 
-
-    @Id
-    @Column(name= "email")
-    @Email
-    private String email;
-    @Column(name= "name")
-    private String name;
+    private String phone;
 
     public UserOut(User user){
-        email= user.getEmail();
-        name= user.getName();
+        this.phone= user.getPhone();;
     }
+
+
 
 }

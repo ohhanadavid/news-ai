@@ -1,180 +1,202 @@
 package com.data_manager.data_manager.BL.services;
 
-import java.util.Optional;
+import java.util.*;
 
-import com.data_manager.data_manager.DAL.user.ChangePassword;
-import com.data_manager.data_manager.DAL.user.UserOut;
-import com.data_manager.data_manager.Exception.ItemFoundException;
+import com.data_manager.data_manager.DAL.modol.user.UserToDB;
+import com.data_manager.data_manager.DAL.repository.IUser;
+import com.data_manager.data_manager.DAL.srevice.UserToDBService;
+import com.data_manager.data_manager.DTO.user.*;
+import com.data_manager.data_manager.configuration.KeyCloakConfig;
+import com.data_manager.data_manager.jwt.JwtResponse;
+import jakarta.ws.rs.core.Response;
+import org.keycloak.OAuth2Constants;
+import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.UserResource;
+import org.keycloak.representations.AccessTokenResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 
-import com.data_manager.data_manager.DAL.user.UserIn;
-import com.data_manager.data_manager.Exception.ItemNotFoundException;
-
 import lombok.extern.log4j.Log4j2;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.context.annotation.RequestScope;
+
+
+import org.keycloak.admin.client.KeycloakBuilder;
+import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
+
 
 @Service
 @Log4j2
-public class UserService implements IUserService {
+@RequestScope
+public class UserService  {
 
-    @Value("${UserAccessorUrl}")
-    String userAccessorUrl;
     @Autowired
-    IChecking checking;
+    UserToDBService userToDBService;
+
     @Autowired
-    RestTemplate restTemplate;
+    @Qualifier("categoryToDBService")
+    IUser category;
 
+    @Autowired
+    @Qualifier("languageToDBService")
+    IUser language;
 
-    public UserOut getUserOut(String email) {
-        log.info("getUserOut request for {}",email);
-
-        UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl).
-                    path("api.getUserOut/").
-                    path(email).
-                    build();
-        UserOut response = restTemplate.getForObject(url.toUriString(), UserOut.class);
-        if(response==null){
-            throw new ItemNotFoundException();
-        }
-
-        return response;
-
+    public UserOut getUserOut(UserData user) {
+        log.info("getUserOut request for {}",user.getUserID());
+        return userToDBService.getUserOut(user.getUserID());
     }
 
-    @Override
-    public Optional<UserIn> getUser(String email) {
-        log.info("getUser request for {} ",email);
-
-        UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl).
-                    path("api.getUser/").
-                    path(email).
-                    build();
-        Optional<UserIn> response = restTemplate.getForObject(url.toUriString(), Optional.class);
-
-        if(response.isPresent())
-            throw new ItemNotFoundException();
-
-        return response;
-
-
-    }
-
-    @Override
-    public UserIn saveUser(UserIn user){
+    public JwtResponse saveUser(UserIn user){
         log.info("createUser request for {}",user.getEmail());
+        RealmResource keycloak= getRealm();
 
-        Boolean check=checking.checkUser(user.getEmail());
-        if(check){
-            throw new ItemFoundException(String.format("%s already exists",user.getEmail()));
+        UserRepresentation userToSave = getUserToSave(user);
+
+        var a = keycloak.users().searchByUsername(userToSave.getUsername(),true);
+        var b = keycloak.users().searchByEmail(userToSave.getEmail(),true);
+        Response response =keycloak.users().create(userToSave);
+
+        if (response.getStatus() >= 500){
+            throw new HttpServerErrorException(HttpStatus.valueOf(response.getStatus()));
+        }
+        else if (response.getStatus() >= 400){
+            throw new HttpClientErrorException(HttpStatus.valueOf(response.getStatus()));
+        }
+        String location = response.getHeaderString("Location");
+        String userID=location.substring(location.lastIndexOf("/") + 1);
+
+        UserToDB userPhone= new UserToDB(userID,user.getPhone());
+        userToDBService.creteUser(userPhone);
+        log.info("user  {} saved",userID);
+
+        return new JwtResponse(getAccessToken(new LoginUser(user.getUserName(),user.getPassword())));
+
+    }
+
+    public JwtResponse logIn(LoginUser user) {
+
+        log.info("logIn request for {}",user.getUserIdentifier());
+
+        AccessTokenResponse tokenResponse = getAccessToken(user);
+
+        return new JwtResponse(tokenResponse);
+
+    }
+
+    public String deleteUser(UserData user){
+
+        log.info("deleteUser request for {}",user.getUserID());
+
+        category.deleteUser(user.getUserID());
+        language.deleteUser(user.getUserID());
+        userToDBService.deleteUser(user.getUserID());
+
+        RealmResource keycloak= getRealm();
+        Response response=keycloak.users().delete(user.getUserID());
+
+        if (response.getStatus() >= 500){
+            throw new HttpServerErrorException(HttpStatus.valueOf(response.getStatus()));
+        }
+        else if (response.getStatus() >= 400){
+            throw new HttpClientErrorException(HttpStatus.valueOf(response.getStatus()));
         }
 
-            UriComponents url=UriComponentsBuilder.fromHttpUrl(userAccessorUrl)
-                    .path("api.createUser")
-                    .build();
-            user= restTemplate.postForObject(url.toUriString(),user, UserIn.class);
-            return user;
+
+
+        return String.format("%S deleted!",user.getUserID());
 
     }
 
+    public void updateUser(UserData userData, UserUpdate userUpdate) {
 
-    @Override
-    public UserIn logIn(String email) {
-        log.info("logIn request for {}",email);
+        log.info("update user  request for {}",userData.getUserID());
+        RealmResource realmResource = getRealm();
+        UserResource userResource = realmResource.users().get(userData.getUserID());
 
-        UriComponents url = UriComponentsBuilder.fromHttpUrl(userAccessorUrl)
-                .path("api.login/")
-                .path(email)
-                .build();
+        UserRepresentation user = userResource.toRepresentation();
 
-        ResponseEntity<UserIn> response = restTemplate.exchange(
-                url.toUriString(),
-                HttpMethod.POST,
-                null,
-                UserIn.class
-        );
+        userUpdate.getLastName().filter(x -> !x.isEmpty()).ifPresent(user::setLastName);
+        userUpdate.getEmail().filter(x -> !x.isEmpty()).ifPresent(user::setEmail);
+        userUpdate.getFirstName().filter(x -> !x.isEmpty()).ifPresent(user::setFirstName);
+        userUpdate.getPhone().filter(x -> !x.isEmpty()).ifPresent(phone -> {
+            userToDBService.updateUserPhone(userData.getUserID(), phone);
+        });
 
-        if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-            return response.getBody();
-        } else {
-            throw new ItemNotFoundException("User not found");
-        }
-    }
-
-    public String deleteUser( String email){
-        log.info("deleteUser request for {}",email);
-
-        userNotExistChecking(email);
-
-        UriComponents url=UriComponentsBuilder.fromHttpUrl(userAccessorUrl)
-                    .path("api.deleteUser/")
-                    .path(email)
-                    .build();
-        restTemplate.delete(url.toUriString());
-        return String.format("%S deleted!",email);
+        userResource.update(user);
 
     }
 
-    private void userNotExistChecking(String email) {
-        Boolean check=checking.checkUser(email);
-        if(!check )
-            throw new ItemNotFoundException("user not found");
-    }
+    public JwtResponse changePassword(ChangePassword data, UserData user){
 
-    public String updateUserName( UserOut user) {
-        log.info("updateName request for {}",user.getEmail());
-        userNotExistChecking(user.getEmail());
-        UriComponents url = UriComponentsBuilder.fromHttpUrl(userAccessorUrl)
-                    .path("api.updateUserName")
-                    .build();
-        restTemplate.put(url.toUriString(),user);
-        return "user name update!";
+        CredentialRepresentation password = new CredentialRepresentation();
+        password.setType(CredentialRepresentation.PASSWORD);
+        password.setValue(data.getNewPassword());
+        password.setTemporary(false);
+
+        getRealm().users().get(user.getUserID()).resetPassword(password);
+
+        AccessTokenResponse tokenResponse = getAccessToken(new LoginUser(user.getUserName(), data.getNewPassword()));
+
+        return new JwtResponse(tokenResponse);
 
     }
 
-    @Override
-    public String updateUserMail(String oldEmail, String newEmail) {
-        log.info("updateMail request for {}",oldEmail);
-
-            userNotExistChecking(oldEmail);
-
-            Boolean check=checking.checkUser(newEmail);
-            if(check){
-                throw new ItemFoundException(String.format("%s already exists",newEmail));
-            }
-
-            UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl)
-                    .path("api.updateUserMail/")
-                    .path(oldEmail)
-                    .queryParam("newEmail", newEmail)
-                    .build();
-            restTemplate.put(url.toUriString(),null);
-          
-            return "mail update!";
-
+    private  AccessTokenResponse getImpersonatedToken(UserData userData) {
+        return KeycloakBuilder.builder()
+                .serverUrl(KeyCloakConfig.getServerUrl())
+                .clientId(KeyCloakConfig.getClientId())
+                .clientSecret(KeyCloakConfig.getClientSecret())
+                .realm(KeyCloakConfig.getRealm())
+                .username(userData.getUserName())
+                .grantType(KeyCloakConfig.getClientGrantType())
+                .build()
+                .tokenManager()
+                .grantToken();
     }
 
-    @Override
-    public Boolean changePassword(ChangePassword data){
+    private RealmResource getRealm() {
+        return KeycloakBuilder.builder()
+                .serverUrl(KeyCloakConfig.getServerUrl())
+                .clientId(KeyCloakConfig.getClientId())
+                .clientSecret(KeyCloakConfig.getClientSecret())
+                .realm(KeyCloakConfig.getRealm())
+                .grantType(KeyCloakConfig.getClientGrantType())
+                .build()
+                .realm(KeyCloakConfig.getRealm());
+    }
 
-        checking.checkUser(data.getUser().getEmail());
+    private  AccessTokenResponse getAccessToken(LoginUser user) {
+        return KeycloakBuilder.builder()
+                .serverUrl(KeyCloakConfig.getServerUrl())
+                .clientId(KeyCloakConfig.getClientId())
+                .clientSecret(KeyCloakConfig.getClientSecret())
+                .realm(KeyCloakConfig.getRealm())
+                .username(user.getUserIdentifier())
+                .password(user.getPassword())
+                .grantType(OAuth2Constants.PASSWORD)
+                .build()
+                .tokenManager()
+                .getAccessToken();
+    }
 
-        UriComponents url=UriComponentsBuilder.fromHttpUrl(userAccessorUrl)
-                .path("api.changePassword")
-                .build();
+    private  UserRepresentation getUserToSave(UserIn user) {
+        UserRepresentation userToSave = new UserRepresentation();
+        userToSave.setUsername(user.getUserName());
+        userToSave.setEmail(user.getEmail());
+        userToSave.setFirstName(user.getFirstName());
+        userToSave.setLastName(user.getLastName());
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<ChangePassword> requestEntity = new HttpEntity<>(data, headers);
-        var res=  restTemplate.exchange(url.toUriString(), HttpMethod.PUT,requestEntity,Boolean.class);
+        userToSave.setEnabled(true);
 
-        checking.checkResponse(res,Boolean.class);
-        return res.getBody();
-
-
+        CredentialRepresentation password = new CredentialRepresentation();
+        password.setType(CredentialRepresentation.PASSWORD);
+        password.setValue(user.getPassword());
+        password.setTemporary(false);
+        userToSave.setCredentials(Collections.singletonList(password));
+        return userToSave;
     }
 }

@@ -1,16 +1,13 @@
 package com.data_manager.data_manager.BL.controller;
 
-import com.data_manager.data_manager.DAL.user.UserOut;
+import com.data_manager.data_manager.DTO.user.*;
+import com.data_manager.data_manager.jwt.JwtResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.*;
 
 import com.data_manager.data_manager.BL.services.UserService;
 
@@ -22,28 +19,51 @@ public class UserController {
     @Autowired
     UserService userService;
 
-
-  @GetMapping("getUser/{email}")
-    public UserOut getUser(@PathVariable String email) {
-        log.info("getUser request");
-        return userService.getUserOut(email);
+    @RequestMapping(value = "/saveUser", method = RequestMethod.POST)
+    public JwtResponse createUser(@RequestBody UserIn userRequest) throws Exception {
+        log.info("save user for {}",userRequest.getEmail());
+        return userService.saveUser(userRequest);
     }
+
+    @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
+    public ResponseEntity<?> logInAndCreateAuthenticationToken(@RequestBody LoginUser authenticationRequest) throws Exception {
+        log.info("authenticate for {}",authenticationRequest.getUserIdentifier());
+
+        return ResponseEntity.ok(userService.logIn(authenticationRequest));
+
+    }
+
+    @GetMapping("getUser")
+    public UserOut getUser(@AuthenticationPrincipal Jwt jwt) {
+        log.info("getUser request");
+        return userService.getUserOut(new UserData(jwt));
+    }
+
+    @PutMapping("updateUser")
+    public ResponseEntity<?> updateUser(@RequestBody UserUpdate userUpdate,@AuthenticationPrincipal Jwt jwt) {
+        UserData data=new UserData(jwt);
+        log.info("updateMail request for {}",data.getUserID());
+        userService.updateUser(data, userUpdate);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PutMapping("changePassword")
+    public ResponseEntity<?> changePassword(@RequestBody ChangePassword data,@AuthenticationPrincipal Jwt jwt) throws Exception {
+
+        return ResponseEntity.ok( userService.changePassword(data,new UserData(jwt)));
+
+    }
+
 
     @DeleteMapping("deleteUser")
-    public String deleteUser(@RequestParam String email){
+    public String deleteUser(@AuthenticationPrincipal Jwt jwt){
         log.info("deleteUser request");
 
-            return userService.deleteUser(email);
+        return userService.deleteUser(new UserData(jwt));
 
     }
 
-    @PutMapping("updateName")
-    public String updateUserName(@RequestBody UserOut user) {
-        log.info("updateName request");
 
-            return userService.updateUserName(user);
-
-    }
 
 
 }
