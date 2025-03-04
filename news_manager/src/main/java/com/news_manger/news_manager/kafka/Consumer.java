@@ -12,6 +12,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashMap;
@@ -29,6 +30,7 @@ public class Consumer {
 
 
     @KafkaListener(topics = {"getLatestNews"})
+    @Async
     public void getLatestNews(ConsumerRecord<?, ?> record) throws JsonProcessingException {
         log.info("KafkaListener-getLatestNews");
         Optional<?> kafkaMessage = Optional.ofNullable(record.value());
@@ -43,6 +45,7 @@ public class Consumer {
     }
 
     @KafkaListener(topics = {"getLatestNewsByCategory"})
+    @Async
     public void getLatestNewsByCategory(ConsumerRecord<?, ?> record) throws JsonProcessingException {
         log.info("KafkaListener-getLatestNewsByCategory");
         Optional<?> kafkaMessage = Optional.ofNullable(record.value());
@@ -57,6 +60,7 @@ public class Consumer {
     }
 
     @KafkaListener(topics = {"getLatestListNewsByCategories"})
+    @Async
     public void getLatestListNewsByCategories(ConsumerRecord<?, ?> record) throws JsonProcessingException {
         log.info("KafkaListener-getLatestListNewsByCategories");
         Optional<?> kafkaMessage = Optional.ofNullable(record.value());

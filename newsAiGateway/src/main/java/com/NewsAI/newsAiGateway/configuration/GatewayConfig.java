@@ -1,8 +1,14 @@
 package com.NewsAI.newsAiGateway.configuration;
 //
 //
+import com.NewsAI.newsAiGateway.DTO.UserData;
+import com.NewsAI.newsAiGateway.DTO.UserRequest;
+import com.NewsAI.newsAiGateway.DTO.UserRequestWithCategory;
+import com.NewsAI.newsAiGateway.kafka.Producer;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.log4j.Log4j2;
+import org.apache.kafka.clients.producer.KafkaProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -10,6 +16,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
@@ -17,6 +24,11 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.core.Authentication;
+
+import static com.NewsAI.newsAiGateway.kafka.KafkaTopic.*;
 import static org.springframework.web.reactive.function.server.RequestPredicates.*;
 //
 @Configuration
@@ -32,6 +44,9 @@ public class GatewayConfig {
     private String newsManagerURL;
     @Value("${NEWS_MANAGER_PORT}")
     private String newsManagerPort;
+
+    @Autowired
+    Producer producer;
 
     private final WebClient webClient;
 
@@ -86,9 +101,9 @@ public class GatewayConfig {
 
 
 
-                .andRoute(GET("/getLatestNews"), this::handleRequestToNewsManagerWithoutBody)
-                .andRoute(GET("/getLatestNewsByCategory"), this::handleRequestToNewsManagerWithoutBody)
-                .andRoute(GET("/getLatestListNewsByCategories"), this::handleRequestToNewsManagerWithoutBody)
+                .andRoute(GET("/getLatestNews"), this::handleGetLatestNews)
+                .andRoute(GET("/getLatestNewsByCategory"), this::handleGetLatestNewsWithCategory)
+                .andRoute(GET("/getLatestListNewsByCategories"), this::handleGetLatestNewsWithMtCategories)
 
                 .andRoute(GET("/getCategories"), this::handleRequestToNewsManagerWithoutBody)
                 .andRoute(GET("/getLanguages"), this::handleRequestToNewsManagerWithoutBody)
@@ -172,4 +187,88 @@ public class GatewayConfig {
     }
 
 
+    private Mono<ServerResponse> handleGetLatestNews(ServerRequest request) {
+
+        return request.bodyToMono(String.class)
+
+                .flatMap(body -> {
+                        UserRequest userRequest = new UserRequest();
+                        UserData userData = getJwtToken();
+                        userRequest.setUserID(userData.getUserID());
+                        userRequest.setNumberOfArticles(
+                                request.queryParam("numberOfArticles")
+                                        .map(Integer::parseInt)
+                                        .orElse(3)
+                        );
+                        try {
+                            producer.send(userRequest, GET_LATEST_NEWS);
+                        } catch (JsonProcessingException e) {
+                            throw new RuntimeException(e);
+                        }
+                        log.info("handleGetLatestNews Sent message for {} to Kafka topic: {}",userData.getUserID(), GET_LATEST_NEWS);
+                        return ServerResponse.ok().bodyValue("The news send");
+
+                    });
+
+    }
+
+    private Mono<ServerResponse> handleGetLatestNewsWithCategory(ServerRequest request){
+
+        return request.bodyToMono(String.class)
+
+                .flatMap(body -> {
+                    UserRequestWithCategory userRequest = new UserRequestWithCategory();
+                    UserData userData = getJwtToken();
+                    userRequest.setUserID(userData.getUserID());
+                    userRequest.setNumberOfArticles(
+                            request.queryParam("numberOfArticles")
+                                    .map(Integer::parseInt)
+                                    .orElse(3)
+                    );
+                    userRequest.setCategory(
+                            request.queryParam("category")
+                                    .orElseThrow(() -> new IllegalArgumentException("Category is required"))
+                    );
+                    try {
+                        producer.send(userRequest, GET_LATEST_NEWS_BY_CATEGORY);
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e);
+                    }
+                    log.info("handleGetLatestNewsWithCategory Sent message for {} to Kafka topic: {}",userData.getUserID() ,GET_LATEST_NEWS_BY_CATEGORY);
+                    return ServerResponse.ok().bodyValue("The news send");
+
+                });
+    }
+
+    private Mono<ServerResponse> handleGetLatestNewsWithMtCategories(ServerRequest request){
+
+        return request.bodyToMono(String.class)
+
+                .flatMap(body -> {
+                    UserRequest userRequest = new UserRequest();
+                    UserData userData = getJwtToken();
+                    userRequest.setUserID(userData.getUserID());
+                    userRequest.setNumberOfArticles(
+                            request.queryParam("numberOfArticles")
+                                    .map(Integer::parseInt)
+                                    .orElse(3)
+                    );
+                    try {
+                        producer.send(userRequest, GET_LATEST_NEWS_BY_MY_CATEGORIES);
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e);
+                    }
+                    log.info("handleGetLatestNewsWithMtCategories Sent message to Kafka topic: {}", GET_LATEST_NEWS_BY_MY_CATEGORIES);
+                    return ServerResponse.ok().bodyValue("The news send");
+
+                });
+    }
+
+    public UserData getJwtToken() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof Jwt) {
+            return new UserData((Jwt) authentication.getPrincipal());
+        }
+        return null;
+    }
 }

@@ -44,25 +44,9 @@ class GlobalDefaultExceptionHandler {
         }
         if (e instanceof WebClientResponseException) {
             return new ResponseEntity<>(anErrorResponse(e.getMessage()), ((WebClientResponseException) e).getStatusCode());
-//            String res ="";
-//            return switch (((WebClientResponseException) e).getStatusCode()) {
-//                case CONFLICT -> new ResponseEntity<>(anErrorResponse("Duplicate Id"), CONFLICT);
-//                case NOT_FOUND -> new ResponseEntity<>(anErrorResponse("Not Found"), HttpStatus.NOT_FOUND);
-//                case BAD_REQUEST -> {
-//                    res = anErrorResponse(e.getMessage());
-//                    yield new ResponseEntity<>(res, BAD_REQUEST);
-//                }
-//                case FORBIDDEN -> {
-//                    res = anErrorResponse(e.getMessage());
-//                    yield new ResponseEntity<>(res, HttpStatus.FORBIDDEN);
-//                }
-//                case UNAUTHORIZED -> {
-//                    res = anErrorResponse(e.getMessage());
-//                    yield new ResponseEntity<>(res, UNAUTHORIZED);
-//                }
-//                default ->
-//                        new ResponseEntity<>(anErrorResponse("unexpected problem"), ((WebClientResponseException) e).getStatusCode());
-//            };
+
+        } else if (e instanceof IllegalArgumentException) {
+            return new ResponseEntity<>(anErrorResponse(e.getMessage()), BAD_REQUEST);
         }
         logger.error(e.getMessage(), e);
         // Otherwise it is unexpected
