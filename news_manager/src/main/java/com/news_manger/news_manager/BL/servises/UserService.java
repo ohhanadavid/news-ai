@@ -1,4 +1,4 @@
-package com.news_manger.news_manager.BL;
+package com.news_manger.news_manager.BL.servises;
 
 import com.news_manger.news_manager.DAL.user.LoginUser;
 import com.news_manger.news_manager.Exception.ItemNotFoundException;

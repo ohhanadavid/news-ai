@@ -2,22 +2,19 @@ package com.news_manger.news_manager.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.news_manger.news_manager.BL.NewsService;
+import com.news_manger.news_manager.BL.servises.NewsAIService;
 
 import com.news_manger.news_manager.DAL.articals.ArticleFromLLm;
-import com.news_manger.news_manager.DAL.articals.ArticleReturn;
 import com.news_manger.news_manager.DAL.articalsToGet.ReturnData;
+import com.news_manger.news_manager.DAL.user.UserRequest;
+import com.news_manger.news_manager.DAL.user.UserRequestWithCategory;
 import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
-import java.io.IOException;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Optional;
 
 @Component
@@ -27,24 +24,66 @@ public class Consumer {
     @Autowired
     ObjectMapper om;
     @Autowired
-    private NewsService newsDataService;
+    private NewsAIService newsDataService;
 
 
 
-
-    @KafkaListener(topics = {"getNews"})
-    public void getNews(ConsumerRecord<?, ?> record) throws IOException {
-        log.info("KafkaListener-getNews");
+    @KafkaListener(topics = {"getLatestNews"})
+    public void getLatestNews(ConsumerRecord<?, ?> record) throws JsonProcessingException {
+        log.info("KafkaListener-getLatestNews");
         Optional<?> kafkaMessage = Optional.ofNullable(record.value());
-            if (kafkaMessage.isPresent()) {
+        if (kafkaMessage.isPresent()) {
 
-                Object message = kafkaMessage.get();
-                Map<String,Object> data= om.readValue(message.toString(), Map.class);
-                newsDataService.getNews(data);
-            }
+            Object message = kafkaMessage.get();
+            UserRequest data= om.readValue(message.toString(), UserRequest.class);
+            newsDataService.getLatestNews(data);
+        }
 
 
     }
+
+    @KafkaListener(topics = {"getLatestNewsByCategory"})
+    public void getLatestNewsByCategory(ConsumerRecord<?, ?> record) throws JsonProcessingException {
+        log.info("KafkaListener-getLatestNewsByCategory");
+        Optional<?> kafkaMessage = Optional.ofNullable(record.value());
+        if (kafkaMessage.isPresent()) {
+
+            Object message = kafkaMessage.get();
+            UserRequestWithCategory data= om.readValue(message.toString(), UserRequestWithCategory.class);
+            newsDataService.getLatestNewsByCategory(data);
+        }
+
+
+    }
+
+    @KafkaListener(topics = {"getLatestListNewsByCategories"})
+    public void getLatestListNewsByCategories(ConsumerRecord<?, ?> record) throws JsonProcessingException {
+        log.info("KafkaListener-getLatestListNewsByCategories");
+        Optional<?> kafkaMessage = Optional.ofNullable(record.value());
+        if (kafkaMessage.isPresent()) {
+
+            Object message = kafkaMessage.get();
+            UserRequest data= om.readValue(message.toString(), UserRequest.class);
+            newsDataService.getLatestListNewsFromCategories(data);
+        }
+
+
+    }
+
+
+//    @KafkaListener(topics = {"getNews"})
+//    public void getNews(ConsumerRecord<?, ?> record) throws IOException {
+//        log.info("KafkaListener-getNews");
+//        Optional<?> kafkaMessage = Optional.ofNullable(record.value());
+//            if (kafkaMessage.isPresent()) {
+//
+//                Object message = kafkaMessage.get();
+//                Map<String,Object> data= om.readValue(message.toString(), Map.class);
+//                newsDataService.getNews(data);
+//            }
+//
+//
+//    }
 
 
     @KafkaListener(topics = {"getListNews"})

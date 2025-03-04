@@ -1,4 +1,4 @@
-package com.news_manger.news_manager.BL;
+package com.news_manger.news_manager.BL.servises;
 
 import java.util.List;
 

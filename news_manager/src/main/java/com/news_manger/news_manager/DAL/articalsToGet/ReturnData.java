@@ -24,6 +24,18 @@ public class ReturnData {
         return this;
     }
 
+    public ReturnData(DataForNews data,List<String> article){
+        this.setTo(data.getTo());
+        this.setNumberOfArticle(data.getNumberOfArticle());
+        this.article=article == null ? null : new ArrayList<>(article);
+    }
 
+
+
+    public ReturnData(DataForNews data,String article){
+        this.setTo(data.getTo());
+        this.setNumberOfArticle(data.getNumberOfArticle());
+        this.article = (article == null || article.isEmpty()) ? null : new ArrayList<>(List.of(article));
+    }
 
 }

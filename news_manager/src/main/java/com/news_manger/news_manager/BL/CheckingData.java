@@ -32,14 +32,5 @@ public class CheckingData implements IChecking {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @Override
-    public Boolean checkUser(String email){
 
-        UriComponents url= UriComponentsBuilder.fromHttpUrl(userAccessorUrl).
-                path("api.userExists/").
-                path(email).
-                build();
-        return restTemplate.getForObject(url.toUriString(), Boolean.class);
-
-    }
 }

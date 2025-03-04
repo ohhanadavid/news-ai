@@ -56,8 +56,6 @@ public class UserService  {
 
         UserRepresentation userToSave = getUserToSave(user);
 
-        var a = keycloak.users().searchByUsername(userToSave.getUsername(),true);
-        var b = keycloak.users().searchByEmail(userToSave.getEmail(),true);
         Response response =keycloak.users().create(userToSave);
 
         if (response.getStatus() >= 500){

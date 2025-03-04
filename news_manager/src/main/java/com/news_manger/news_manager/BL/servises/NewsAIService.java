@@ -1,13 +1,14 @@
-package com.news_manger.news_manager.BL;
+package com.news_manger.news_manager.BL.servises;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import com.news_manger.news_manager.DAL.NewTinyRequest;
+import com.news_manger.news_manager.BL.IChecking;
+import com.news_manger.news_manager.BL.NewsAIAccessorService;
 import com.news_manger.news_manager.DAL.articals.*;
 import com.news_manger.news_manager.DAL.articalsToGet.*;
 import com.news_manger.news_manager.DAL.notification.MailData;
+import com.news_manger.news_manager.DAL.user.UserRequest;
+import com.news_manger.news_manager.DAL.user.UserRequestWithCategory;
 import com.news_manger.news_manager.kafka.KafkaTopic;
 import com.news_manger.news_manager.kafka.Producer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,10 +31,9 @@ import org.springframework.web.client.RestTemplate;
 
 @Service
 @Log4j2
-public class NewsService {
+public class NewsAIService {
 
-    @Value("${NewsAiAccessor}")
-    private String newsAiAccessorUrl;
+
 //    @Value("${TinyUrlURL}")
 //    private String tinyUrl_Url;
 
@@ -53,105 +52,98 @@ public class NewsService {
     RestTemplate restTemplate;
     @Autowired
     private Producer producer;
-    
-    public ResponseEntity<?> getLatestNews(String email,int numberOfArticle ) throws JsonProcessingException {
-        log.info("getLatestNews");
-        List<String> languagesCode = getLanguagesCode(email);
 
-        DataForNews data=new DataForNews(numberOfArticle,email,languagesCode);
+    @Autowired
+    private NewsAIAccessorService newsAccessor;
+
+
+    
+    public void getLatestNews(UserRequest user ) throws JsonProcessingException {
+        log.info("getLatestNews");
+        List<String> languagesCode = getLanguagesCode(user.getUserID());
+
+        DataForNews data=new DataForNews(user.getNumberOfArticles(),user.getUserID(),languagesCode);
 
 
         producer.send(data, KafkaTopic.GET_LATEST_NEWS);
-        return new ResponseEntity<>( "email send!",HttpStatus.valueOf(200));
+
         
 
     }
 
-    private List<String> getLanguagesCode(String email) {
-        ResponseEntity<?> languageResponse=languageService.getLanguagesCode(email);
-        checking.checkResponse(languageResponse, List.class);
-        List<String> languagesCode=(List<String>)languageResponse.getBody();
-        return languagesCode;
-    }
-
-    public ResponseEntity<?> getLatestNewsByCategory(String email,String category,int numberOfArticle) throws JsonProcessingException {
+    public void getLatestNewsByCategory(UserRequestWithCategory user) throws JsonProcessingException {
         log.info("getLatestNewsByCategory");
 
-        ResponseEntity<?> categoryResponse=categoryService.getPreferenceByCategory(email,category);
+        ResponseEntity<?> categoryResponse=categoryService.getPreferenceByCategory(user.getUserID(), user.getCategory());
         checking.checkResponse(categoryResponse, List.class);
 
-        List<String> languagesCode = getLanguagesCode(email);
+        List<String> languagesCode = getLanguagesCode(user.getUserID());
 
-        DataForNewsWithOneCategory data=new DataForNewsWithOneCategory(numberOfArticle,email,languagesCode,category);
+        DataForNewsWithOneCategory data=new DataForNewsWithOneCategory(user.getNumberOfArticles(),user.getUserID(),languagesCode,user.getCategory());
         producer.send(data,KafkaTopic.GET_LATEST_NEWS_BY_CATEGORY);
-
-                        
-        return new ResponseEntity<>( "email send!",HttpStatus.valueOf(200));
-        
 
     }
    
-    public ResponseEntity<?> getLatestListNewsFromCategories(String email,int numberOfArticle) throws JsonProcessingException {
+    public void getLatestListNewsFromCategories(UserRequest user) throws JsonProcessingException {
        
         log.info("getLatestListNewsByCategories");
-        ResponseEntity<?> categoryResponse=categoryService.myCategories(email);
+        ResponseEntity<?> categoryResponse=categoryService.myCategories(user.getUserID());
         checking.checkResponse(categoryResponse, Map.class);
 
         Map<String,List<String>> categories=((Map<String,List<String>>)categoryResponse.getBody());
-        if(categories.isEmpty())
-            return getLatestNews(email,numberOfArticle );
+        if(categories.isEmpty()) {
+            getLatestNews(new UserRequest());
+            return;
+        }
 
-        List<String> languagesCode = getLanguagesCode(email);
+        List<String> languagesCode = getLanguagesCode(user.getUserID());
 
 
         DataLists dataForNews=new DataLists(new ArrayList<>(categories.keySet()));
 
-        DataForNewsWithCategorys data=new DataForNewsWithCategorys(numberOfArticle,email,languagesCode,dataForNews);
+        DataForNewsWithCategory data=new DataForNewsWithCategory(user.getNumberOfArticles(),user.getUserID(),languagesCode,dataForNews);
 
         producer.send(data,KafkaTopic.GET_LATEST_LIST_NEWS_BY_CATEGORIES);
 
-        return new ResponseEntity<>( "email send!",HttpStatus.valueOf(200));
-        
-
     }
 
-    public void getNews(Map<String,Object> data) throws IOException {
-
-        ArticleResults articles=new ArticleResults();
-        if(data.get("article") instanceof String){
-            byte[] decoded=Base64.getDecoder().decode((String)data.get("article"));
-            String originalString = new String(decoded, StandardCharsets.UTF_8);
-            articles=objectMapper.readValue(decoded,ArticleResults.class);
-        }
-        if(articles.getResults()==null){
-            log.error("results is null");
-            return;
-        }
-        int numberOfArticle=(int)data.get("numberOfArticle");
-        User user=objectMapper.convertValue(data.get("to"), User.class) ;
-            
-        ResponseEntity<?> categoryResponse=categoryService.myCategories(user.getEmail());
-        checking.checkResponse(categoryResponse, Map.class);
-
-
-        Map<String,List<String>> categories=((Map<String,List<String>>)categoryResponse.getBody());
-
-        List<ArticleReturn> articleReturns=articles.getResults().stream().map(a->new ArticleReturn(a)).toList();
-
-        data.clear();
-            
-        categoryService.myCategories (user.getEmail());
-        objectMapper.registerModule(new JavaTimeModule());
-
-        data.put("article",objectMapper.writeValueAsBytes(articleReturns));
-        data.put("numberOfArticle",numberOfArticle);
-        data.put("preference",categories);
-        data.put("to",user);
-
-        producer.send(data,KafkaTopic.GET_MY_ARTICLE);
-
-
-    }
+//    public void getNews(Map<String,Object> data) throws IOException {
+//
+//        ArticleResults articles=new ArticleResults();
+//        if(data.get("article") instanceof String){
+//            byte[] decoded=Base64.getDecoder().decode((String)data.get("article"));
+//            String originalString = new String(decoded, StandardCharsets.UTF_8);
+//            articles=objectMapper.readValue(decoded,ArticleResults.class);
+//        }
+//        if(articles.getResults()==null){
+//            log.error("results is null");
+//            return;
+//        }
+//        int numberOfArticle=(int)data.get("numberOfArticle");
+//        User user=objectMapper.convertValue(data.get("to"), User.class) ;
+//
+//        ResponseEntity<?> categoryResponse=categoryService.myCategories(user.getEmail());
+//        checking.checkResponse(categoryResponse, Map.class);
+//
+//
+//        Map<String,List<String>> categories=((Map<String,List<String>>)categoryResponse.getBody());
+//
+//        List<ArticleReturn> articleReturns=articles.getResults().stream().map(a->new ArticleReturn(a)).toList();
+//
+//        data.clear();
+//
+//        categoryService.myCategories (user.getEmail());
+//        objectMapper.registerModule(new JavaTimeModule());
+//
+//        data.put("article",objectMapper.writeValueAsBytes(articleReturns));
+//        data.put("numberOfArticle",numberOfArticle);
+//        data.put("preference",categories);
+//        data.put("to",user);
+//
+//        producer.send(data,KafkaTopic.GET_MY_ARTICLE);
+//
+//
+//    }
 
     public void getListNews(ReturnData data) throws JsonMappingException, JsonProcessingException{
 
@@ -226,58 +218,39 @@ public class NewsService {
     
     public List<String> getCategories() {
         log.info("getCategories");
-        String url=String.format("%s/api.getCategories",newsAiAccessorUrl);
-        List<String> response =restTemplate.getForObject(url,List.class);
-        if (response == null)
-            throw new HttpServerErrorException( HttpStatus.INTERNAL_SERVER_ERROR);
-        return response;
+        return  newsAccessor.getCategories();
 
     }
   
-    public Set<String> getLanguages() {
+    public Set<String> getLanguages() throws Exception {
         log.info("getLanguages");
-        String url=String.format("%s/api.getLanguages",newsAiAccessorUrl);
-        Set<String> response =restTemplate.getForObject(url,Set.class);
-
-        if (response == null)
-            throw new HttpServerErrorException( HttpStatus.INTERNAL_SERVER_ERROR);
-        return response;
+        return newsAccessor.getLanguagesAsMap().keySet();
 
     }
    
     public Boolean checkCategory( String category) {
         log.info("checkCategory");
-        String url=String.format("%s/api.checkCategory/%s",newsAiAccessorUrl,category);
-        Boolean response = restTemplate.getForObject( url,Boolean.class);
-        if (response == null)
-            throw new HttpServerErrorException( HttpStatus.INTERNAL_SERVER_ERROR);
-        return response;
+        return newsAccessor.getCategories().stream().anyMatch(x->x.equals(category));
 
     }
     
-    public String getLanguageCode( String language) {
+    public String getLanguageCode( String language) throws Exception {
         log.info("getLanguageCode");
 
-        String url = String.format("%s/api.getLanguageCode/%s",newsAiAccessorUrl,language);
-        String response = restTemplate.getForObject(url,String.class);
-            if (response == null)
-                throw new HttpServerErrorException( HttpStatus.INTERNAL_SERVER_ERROR);
-            return response;
+        return newsAccessor.getLanguagesAsMap().get(language);
 
-        
     }
   
     public Integer getMaximumLanguage() {
-        String url = String.format("%s/api.maximumLanguage",newsAiAccessorUrl);
-        Integer response = restTemplate.getForObject(url,Integer.class);
-
-        if (response == null)
-            throw new HttpServerErrorException( HttpStatus.INTERNAL_SERVER_ERROR);
-        return response;
-
+        return 5;
     }
 
-//    public String tinyUrl(String tiny) {
-//        return restTemplate.getForObject(tinyUrl_Url+"/"+tiny, String.class);
-//    }
+    private List<String> getLanguagesCode(String userId) {
+        ResponseEntity<?> languageResponse=languageService.getLanguagesCode(userId);
+        checking.checkResponse(languageResponse, List.class);
+        List<String> languagesCode=(List<String>)languageResponse.getBody();
+        return languagesCode;
+    }
+
+
 }

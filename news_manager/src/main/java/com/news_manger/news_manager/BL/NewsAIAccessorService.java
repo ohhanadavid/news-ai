@@ -1,15 +1,18 @@
-package com.newsdata.io_accessor.newsdata_io_accessor.BL;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
+package com.news_manger.news_manager.BL;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.newsdata.io_accessor.newsdata_io_accessor.DAL.*;
-import com.newsdata.io_accessor.newsdata_io_accessor.DAL.languages.LanguageWithCode;
-import com.newsdata.io_accessor.newsdata_io_accessor.kafka.Producer;
+
+import com.news_manger.news_manager.DAL.articalsToGet.DataForNews;
+import com.news_manger.news_manager.DAL.articalsToGet.DataForNewsWithCategory;
+import com.news_manger.news_manager.DAL.articalsToGet.DataForNewsWithOneCategory;
+import com.news_manger.news_manager.DAL.articalsToGet.ReturnData;
+import com.news_manger.news_manager.DAL.category.CategoriesList;
+import com.news_manger.news_manager.DAL.languege.LanguageWithCode;
+import com.news_manger.news_manager.DAL.languege.LanguagesToMap;
+import com.news_manger.news_manager.kafka.KafkaTopic;
+import com.news_manger.news_manager.kafka.Producer;
+import lombok.extern.log4j.Log4j2;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -17,16 +20,16 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.newsdata.io_accessor.newsdata_io_accessor.DAL.categories.CategoriesList;
-import com.newsdata.io_accessor.newsdata_io_accessor.DAL.languages.LanguagesToMap;
-
-import lombok.extern.log4j.Log4j2;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Log4j2
 @Service
-public class NewsDataService {
+public class NewsAIAccessorService {
 
     @Autowired
     private RestTemplate restTemplate;
@@ -38,8 +41,6 @@ public class NewsDataService {
     private CategoriesList categoriesList;
     @Autowired
     private LanguagesToMap languages;
-    @Autowired
-    ObjectMapper objectMapper;
     @Autowired
     Producer producer;
 
@@ -55,12 +56,12 @@ public class NewsDataService {
         String results = restTemplate.getForObject(url.toUriString(), String.class);
 
         if (results == null)
-            producer.send("error",Producer.GET_NEWS_TOPIC);
+            producer.send("error",KafkaTopic.GET_NEWS_TOPIC);
 
         log.info("getLatestNews-success");
         ReturnData returnData = new ReturnData(data,results);
         //data.put("article",Base64.getEncoder().encodeToString(results.getBytes()));
-        producer.send(returnData,Producer.GET_LIST_NEWS_TOPIC);
+        producer.send(returnData, KafkaTopic.GET_LIST_NEWS_TOPIC);
     }
 
     public void getLatestNewsFromTopic(String category, DataForNewsWithOneCategory data) throws JsonProcessingException {
@@ -77,11 +78,11 @@ public class NewsDataService {
         String results = restTemplate.getForObject(url.toUriString(), String.class);
 
         if (results == null)
-            producer.send("error",Producer.GET_NEWS_TOPIC);
+            producer.send("error",KafkaTopic.GET_NEWS_TOPIC);
         log.info("getLatestNewsFromTopic-success");
         ReturnData returnData = new ReturnData(data,results);
         //data.put("article",Base64.getEncoder().encodeToString(results.getBytes()));
-        producer.send(returnData,Producer.GET_LIST_NEWS_TOPIC);
+        producer.send(returnData,KafkaTopic.GET_LIST_NEWS_TOPIC);
     }
 
     public void getLatestListNewsFromCategories(DataForNewsWithCategory data) throws JsonProcessingException {
@@ -104,7 +105,7 @@ public class NewsDataService {
         ReturnData returnData = new ReturnData(data,results);
        // data.put("article",String.join(results));
 
-        producer.send(returnData,Producer.GET_LIST_NEWS_TOPIC);
+        producer.send(returnData,KafkaTopic.GET_LIST_NEWS_TOPIC);
 
     }
 

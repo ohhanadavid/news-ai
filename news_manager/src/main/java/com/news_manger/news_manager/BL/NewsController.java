@@ -3,10 +3,10 @@ package com.news_manger.news_manager.BL;
 
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.news_manger.news_manager.BL.servises.NewsAIService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,29 +17,29 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class NewsController {
     @Autowired
-    private NewsService newsDataService;
+    private NewsAIService newsDataService;
     private final String defaultForArticle ="3";
    
-    @GetMapping("getLatestNews")
-    public ResponseEntity<?> getLatestNews(@RequestParam String email,@RequestParam (required = false,defaultValue = defaultForArticle)int numberOfArticle) throws JsonProcessingException {
-        log.info("getLatestNews");
-        return newsDataService.getLatestNews( email, numberOfArticle);
+//    @GetMapping("getLatestNews")
+//    public ResponseEntity<?> getLatestNews(@RequestParam String email,@RequestParam (required = false,defaultValue = defaultForArticle)int numberOfArticle) throws JsonProcessingException {
+//        log.info("getLatestNews");
+//        return newsDataService.getLatestNews( email, numberOfArticle);
+//
+//    }
 
-    }
-
-    @GetMapping("getLatestNewsByCategory")
-    public ResponseEntity<?> getLatestNewsByCategory(@RequestParam String email,@RequestParam String category,@RequestParam (required = false,defaultValue = defaultForArticle)int numberOfArticle) throws JsonProcessingException {
-        log.info("getLatestNewsByCategory");
-        return newsDataService.getLatestNewsByCategory(email,category,numberOfArticle);
-
-    }
-
-    @GetMapping("getLatestListNewsByCategories")
-    public ResponseEntity<?> getLatestListNewsFromCategories(String email,@RequestParam (required = false,defaultValue = defaultForArticle)int numberOfArticle) throws JsonProcessingException {
-        log.info("getLatestListNewsByCategories");
-        return newsDataService.getLatestListNewsFromCategories(email,numberOfArticle);
-
-    }
+//    @GetMapping("getLatestNewsByCategory")
+//    public ResponseEntity<?> getLatestNewsByCategory(@RequestParam String email,@RequestParam String category,@RequestParam (required = false,defaultValue = defaultForArticle)int numberOfArticle) throws JsonProcessingException {
+//        log.info("getLatestNewsByCategory");
+//        return newsDataService.getLatestNewsByCategory(email,category,numberOfArticle);
+//
+//    }
+//
+//    @GetMapping("getLatestListNewsByCategories")
+//    public ResponseEntity<?> getLatestListNewsFromCategories(String email,@RequestParam (required = false,defaultValue = defaultForArticle)int numberOfArticle) throws JsonProcessingException {
+//        log.info("getLatestListNewsByCategories");
+//        return newsDataService.getLatestListNewsFromCategories(email,numberOfArticle);
+//
+//    }
 
 
     @GetMapping("getCategories")
@@ -51,7 +51,7 @@ public class NewsController {
     }
 
     @GetMapping("getLanguages")
-    public Set<String> getLanguages() {
+    public Set<String> getLanguages() throws Exception {
         log.info("getLanguages");
         return newsDataService.getLanguages();
 
@@ -67,11 +67,10 @@ public class NewsController {
     }
 
     @GetMapping("getLanguageCode")
-    public String getLanguageCode(@RequestParam String language) {
+    public String getLanguageCode(@RequestParam String language) throws Exception {
         log.info("getLanguageCode");
         return newsDataService.getLanguageCode(language);
 
-        
     }
 
     @GetMapping("maximumLanguage")

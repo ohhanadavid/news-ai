@@ -1,8 +1,9 @@
 package com.news_manger.news_manager.configuration;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -15,6 +16,8 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.annotation.RequestScope;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Log4j2
 @Configuration
@@ -23,9 +26,7 @@ public class RestTemplateConfig {
 
     @Bean
     @RequestScope
-
-    public RestTemplate getRestTemplate(ObjectProvider<HttpServletRequest> requestProvider) {
-        HttpServletRequest inReq = requestProvider.getIfAvailable();
+    public RestTemplate getRestTemplate() {
         RestTemplate restTemplate = new RestTemplate();
 
         restTemplate.getInterceptors().add((outReq, bytes, clientHttpReqExec) -> {
@@ -33,15 +34,25 @@ public class RestTemplateConfig {
             return clientHttpReqExec.execute(outReq, bytes);
         });
 
-        if (inReq != null) {
+        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attrs != null) {
+            jakarta.servlet.http.HttpServletRequest inReq = attrs.getRequest();
+
+            if (inReq instanceof HttpServletRequestWrapper) {
+                inReq = (HttpServletRequest) ((HttpServletRequestWrapper) inReq).getRequest();
+            }
+
             final String authHeader = inReq.getHeader(HttpHeaders.AUTHORIZATION);
             if (authHeader != null && !authHeader.isEmpty()) {
-                restTemplate.getInterceptors().add(
-                        (outReq, bytes, clientHttpReqExec) -> {
-                            outReq.getHeaders().set(HttpHeaders.AUTHORIZATION, authHeader);
-                            return clientHttpReqExec.execute(outReq, bytes);
-                        });
+                restTemplate.getInterceptors().add((outReq, bytes, clientHttpReqExec) -> {
+                    outReq.getHeaders().set(HttpHeaders.AUTHORIZATION, authHeader);
+                    return clientHttpReqExec.execute(outReq, bytes);
+                });
+            } else {
+                log.warn("No Authorization header found in incoming request.");
             }
+        } else {
+            log.warn("No incoming request found.");
         }
 
         return restTemplate;
@@ -51,6 +62,10 @@ public class RestTemplateConfig {
     @Qualifier("kafkaRestTemplate")
     public RestTemplate restTemplate(ObjectMapper objectMapper) {
         RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getInterceptors().add((outReq, bytes, clientHttpReqExec) -> {
+            log.info("Sending request to: {} {}", outReq.getMethod(), outReq.getURI());
+            return clientHttpReqExec.execute(outReq, bytes);
+        });
         restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter(objectMapper));
         return restTemplate;
     }
