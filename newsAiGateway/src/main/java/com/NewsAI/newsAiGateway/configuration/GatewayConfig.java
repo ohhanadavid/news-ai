@@ -1,6 +1,7 @@
 package com.NewsAI.newsAiGateway.configuration;
 //
 //
+import com.NewsAI.newsAiGateway.DTO.SendOption;
 import com.NewsAI.newsAiGateway.DTO.UserData;
 import com.NewsAI.newsAiGateway.DTO.UserRequest;
 import com.NewsAI.newsAiGateway.DTO.UserRequestWithCategory;
@@ -77,6 +78,7 @@ public class GatewayConfig {
                 .andRoute(POST("/saveUser"),this::handleRequestWithoutAuthorization)
                 .andRoute(PUT("/updateUser"), this::handleRequestToDataManagerWithoutBody)
                 .andRoute(PUT("/changePassword"), this::handleRequestToDataManagerWithBody)
+                .andRoute(POST("/refreshToken"), this::handleRequestToDataManagerWithBody)
 
                 .andRoute(POST("/saveCategory"), this::handleRequestToDataManagerWithBody)
                 .andRoute(GET("/getPreferenceByCategory"),this::handleRequestToDataManagerWithoutBody)
@@ -191,6 +193,10 @@ public class GatewayConfig {
                     userRequest.setNumberOfArticles(
                             request.queryParam("numberOfArticles").map(Integer::parseInt).orElse(3)
                     );
+                    userRequest.setOption(
+                            SendOption.valueOf(request.queryParam("sendOption")
+                                    .orElse(String.valueOf(SendOption.EMAIL)))
+                    );
 
                     return Mono.fromRunnable(() -> {
                                 try {
@@ -207,25 +213,7 @@ public class GatewayConfig {
                                         .bodyValue("Failed to send news");
                             });
                 });
-//        return request.bodyToMono(String.class)
-//                .flatMap(_ -> {
-//                        UserRequest userRequest = new UserRequest();
-//                        UserData userData = getJwtToken();
-//                        userRequest.setUserID(userData.getUserID());
-//                        userRequest.setNumberOfArticles(
-//                                request.queryParam("numberOfArticles")
-//                                        .map(Integer::parseInt)
-//                                        .orElse(3)
-//                        );
-//                        try {
-//                            producer.send(userRequest, GET_LATEST_NEWS);
-//                        } catch (JsonProcessingException e) {
-//                            throw new RuntimeException(e);
-//                        }
-//                        log.info("handleGetLatestNews Sent message for {} to Kafka topic: {}",userData.getUserID(), GET_LATEST_NEWS);
-//                        return ServerResponse.ok().bodyValue("The news send");
-//
-//                    });
+
 
     }
 
@@ -241,6 +229,10 @@ public class GatewayConfig {
                     userRequest.setCategory(
                             request.queryParam("category")
                                     .orElseThrow(() -> new IllegalArgumentException("Category is required"))
+                    );
+                    userRequest.setOption(
+                            SendOption.valueOf(request.queryParam("sendOption")
+                                    .orElse(String.valueOf(SendOption.EMAIL)))
                     );
 
                     return Mono.fromRunnable(() -> {
@@ -258,30 +250,7 @@ public class GatewayConfig {
                                         .bodyValue("Failed to send news");
                             });
                 });
-//        return request.bodyToMono(String.class)
-//
-//                .flatMap(body -> {
-//                    UserRequestWithCategory userRequest = new UserRequestWithCategory();
-//                    UserData userData = getJwtToken();
-//                    userRequest.setUserID(userData.getUserID());
-//                    userRequest.setNumberOfArticles(
-//                            request.queryParam("numberOfArticles")
-//                                    .map(Integer::parseInt)
-//                                    .orElse(3)
-//                    );
-//                    userRequest.setCategory(
-//                            request.queryParam("category")
-//                                    .orElseThrow(() -> new IllegalArgumentException("Category is required"))
-//                    );
-//                    try {
-//                        producer.send(userRequest, GET_LATEST_NEWS_BY_CATEGORY);
-//                    } catch (JsonProcessingException e) {
-//                        throw new RuntimeException(e);
-//                    }
-//                    log.info("handleGetLatestNewsWithCategory Sent message for {} to Kafka topic: {}",userData.getUserID() ,GET_LATEST_NEWS_BY_CATEGORY);
-//                    return ServerResponse.ok().bodyValue("The news send");
-//
-//                });
+
     }
 
     private Mono<ServerResponse> handleGetLatestNewsWithMtCategories(ServerRequest request){
@@ -292,6 +261,10 @@ public class GatewayConfig {
                     userRequest.setToken(userData.getToken());
                     userRequest.setNumberOfArticles(
                             request.queryParam("numberOfArticles").map(Integer::parseInt).orElse(3)
+                    );
+                    userRequest.setOption(
+                            SendOption.valueOf(request.queryParam("sendOption")
+                                    .orElse(String.valueOf(SendOption.EMAIL)))
                     );
 
                     return Mono.fromRunnable(() -> {
@@ -309,26 +282,7 @@ public class GatewayConfig {
                                         .bodyValue("Failed to send news");
                             });
                 });
-//        return request.bodyToMono(String.class)
-//
-//                .flatMap(body -> {
-//                    UserRequest userRequest = new UserRequest();
-//                    UserData userData = getJwtToken();
-//                    userRequest.setUserID(userData.getUserID());
-//                    userRequest.setNumberOfArticles(
-//                            request.queryParam("numberOfArticles")
-//                                    .map(Integer::parseInt)
-//                                    .orElse(3)
-//                    );
-//                    try {
-//                        producer.send(userRequest, GET_LATEST_NEWS_BY_MY_CATEGORIES);
-//                    } catch (JsonProcessingException e) {
-//                        throw new RuntimeException(e);
-//                    }
-//                    log.info("handleGetLatestNewsWithMtCategories Sent message to Kafka topic: {}", GET_LATEST_NEWS_BY_MY_CATEGORIES);
-//                    return ServerResponse.ok().bodyValue("The news send");
-//
-//                });
+
     }
 
     Mono<UserData> getJwtToken(ServerRequest request) {

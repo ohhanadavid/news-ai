@@ -6,13 +6,12 @@ import com.news_manger.news_manager.BL.IChecking;
 import com.news_manger.news_manager.DAL.articals.*;
 import com.news_manger.news_manager.DAL.articalsToGet.*;
 import com.news_manger.news_manager.DAL.notification.MailData;
+import com.news_manger.news_manager.DAL.user.SendOption;
 import com.news_manger.news_manager.DAL.user.UserRequest;
 import com.news_manger.news_manager.DAL.user.UserRequestWithCategory;
 import com.news_manger.news_manager.kafka.KafkaTopic;
 import com.news_manger.news_manager.kafka.Producer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -23,7 +22,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.news_manger.news_manager.DAL.user.User;
 
 import lombok.extern.log4j.Log4j2;
-import org.springframework.web.client.RestTemplate;
 
 @Service
 @Log4j2
@@ -55,13 +53,13 @@ public class NewsAIService {
         log.info("getLatestNews");
         List<String> languagesCode = getLanguagesCode(user.getUserID());
 
-        DataForNews data=new DataForNews(user.getNumberOfArticles(),user.getUserID(),languagesCode);
+        DataForNews data=new DataForNews(user.getNumberOfArticles(),user.getUserID(),user.getOption(),languagesCode);
 
         ReturnData returnData=newsAccessor.getLatestNews(data);
 
         getListNews(returnData);
 
-        //producer.send(data, KafkaTopic.GET_LATEST_NEWS);
+
 
         
 
@@ -76,7 +74,7 @@ public class NewsAIService {
         ReturnData returnData= newsAccessor.getLatestNewsFromTopic(data);
 
         getListNews(returnData);
-        //producer.send(data,KafkaTopic.GET_LATEST_NEWS_BY_CATEGORY);
+
 
     }
    
@@ -98,49 +96,13 @@ public class NewsAIService {
         DataForNewsWithCategory data=new DataForNewsWithCategory(user.getNumberOfArticles(),user.getUserID(),languagesCode,dataForNews);
 
         ReturnData returnData=newsAccessor.getLatestListNewsFromCategories(data);
-        //producer.send(data,KafkaTopic.GET_LATEST_LIST_NEWS_BY_CATEGORIES);
+
 
         getListNews(returnData);
 
     }
 
-//    public void getNews(Map<String,Object> data) throws IOException {
-//
-//        ArticleResults articles=new ArticleResults();
-//        if(data.get("article") instanceof String){
-//            byte[] decoded=Base64.getDecoder().decode((String)data.get("article"));
-//            String originalString = new String(decoded, StandardCharsets.UTF_8);
-//            articles=objectMapper.readValue(decoded,ArticleResults.class);
-//        }
-//        if(articles.getResults()==null){
-//            log.error("results is null");
-//            return;
-//        }
-//        int numberOfArticle=(int)data.get("numberOfArticle");
-//        User user=objectMapper.convertValue(data.get("to"), User.class) ;
-//
-//        ResponseEntity<?> categoryResponse=categoryService.myCategories(user.getEmail());
-//        checking.checkResponse(categoryResponse, Map.class);
-//
-//
-//        Map<String,List<String>> categories=((Map<String,List<String>>)categoryResponse.getBody());
-//
-//        List<ArticleReturn> articleReturns=articles.getResults().stream().map(a->new ArticleReturn(a)).toList();
-//
-//        data.clear();
-//
-//        categoryService.myCategories (user.getEmail());
-//        objectMapper.registerModule(new JavaTimeModule());
-//
-//        data.put("article",objectMapper.writeValueAsBytes(articleReturns));
-//        data.put("numberOfArticle",numberOfArticle);
-//        data.put("preference",categories);
-//        data.put("to",user);
-//
-//        producer.send(data,KafkaTopic.GET_MY_ARTICLE);
-//
-//
-//    }
+
 
     public void getListNews(ReturnData data) throws JsonMappingException, JsonProcessingException{
 
@@ -195,21 +157,21 @@ public class NewsAIService {
             
         StringBuilder articleToSend = new StringBuilder();
 
-//        data.getArticles().parallelStream().forEach(s->{
-//            NewTinyRequest tinyRequest = new NewTinyRequest(s.getUrl());
-//            String tinyUrl = restTemplate.postForObject(tinyUrl_Url+"/tiny",tinyRequest, String.class);
-//            s.setUrl(tinyUrl);
-//        });
-
         data.getArticles().forEach(s -> articleToSend.append(s.toString()).append("\n"));
 
         MailData mail=new MailData()
-                .setEmail(user.getEmail())
                 .setName(user.getName())
                 .setSubject("Articles from newsAI")
                 .setText(articleToSend.toString());
 
-        producer.send(mail,KafkaTopic.SEND_EMAIL);
+        if(data.getOption()== SendOption.EMAIL) {
+            mail.setConnectInfo(user.getEmail());
+            producer.send(mail, KafkaTopic.SEND_EMAIL);
+        }
+        else if(data.getOption()== SendOption.SMS) {
+            mail.setConnectInfo(user.getPhone());
+            producer.send(mail, KafkaTopic.SEND_SMS);
+        }
 
 
     }   

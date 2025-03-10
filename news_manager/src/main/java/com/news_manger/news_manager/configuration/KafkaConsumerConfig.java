@@ -17,33 +17,6 @@ import java.util.Map;
 @Configuration
 public class KafkaConsumerConfig {
 
-//    @Bean
-//    public ConsumerFactory<String, Map<String, Object>> consumerFactory() {
-//        Map<String, Object> props = new HashMap<>();
-//
-//
-//        JsonDeserializer<Map<String, Object>> deserializer = new JsonDeserializer<>();
-//        deserializer.addTrustedPackages("*");
-//
-//        deserializer.setUseTypeHeaders(true);
-//        deserializer.setTypeMapper(new DefaultJackson2JavaTypeMapper());
-//        deserializer.setRemoveTypeHeaders(false);
-//
-//        return new DefaultKafkaConsumerFactory<>(
-//                props,
-//                new StringDeserializer(),
-//                deserializer
-//        );
-//    }
-//
-//    @Bean
-//    public ConcurrentKafkaListenerContainerFactory<String, Map<String, Object>>
-//    kafkaListenerContainerFactory() {
-//        ConcurrentKafkaListenerContainerFactory<String, Map<String, Object>> factory =
-//                new ConcurrentKafkaListenerContainerFactory<>();
-//        factory.setConsumerFactory(consumerFactory());
-//        return factory;
-//    }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Map<String,Object>> specialListenerFactory() {

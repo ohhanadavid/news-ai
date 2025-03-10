@@ -28,19 +28,15 @@ public class KafkaTopicConfig {
 
 
     @Bean
-    public NewTopic getNewsTopic() {
-        return createTopic(GET_LATEST_NEWS);
+    public NewTopic sendEmail() {
+        return createTopic(SEND_EMAIL);
     }
 
     @Bean
-    public NewTopic getNewsByCategoryTopic() {
-        return createTopic(GET_LATEST_NEWS_BY_CATEGORY);
+    public NewTopic sendSms() {
+        return createTopic(SEND_SMS);
     }
 
-    @Bean
-    public NewTopic getListNewsByCategoriesTopic() {
-        return createTopic(GET_LATEST_LIST_NEWS_BY_CATEGORIES);
-    }
     @Bean
     public NewTopic getMyArticleTopic() {
         return createTopic(GET_MY_ARTICLE);

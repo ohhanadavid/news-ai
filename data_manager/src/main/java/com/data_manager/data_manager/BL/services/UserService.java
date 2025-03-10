@@ -8,6 +8,8 @@ import com.data_manager.data_manager.DAL.srevice.UserToDBService;
 import com.data_manager.data_manager.DTO.user.*;
 import com.data_manager.data_manager.configuration.KeyCloakConfig;
 import com.data_manager.data_manager.jwt.JwtResponse;
+import com.data_manager.data_manager.jwt.RefreshToken;
+import com.data_manager.data_manager.jwt.TokenRequest;
 import jakarta.ws.rs.core.Response;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.resource.RealmResource;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.annotation.RequestScope;
 
 
@@ -143,17 +146,37 @@ public class UserService  {
 
     }
 
-    private  AccessTokenResponse getImpersonatedToken(UserData userData) {
-        return KeycloakBuilder.builder()
-                .serverUrl(KeyCloakConfig.getServerUrl())
-                .clientId(KeyCloakConfig.getClientId())
-                .clientSecret(KeyCloakConfig.getClientSecret())
-                .realm(KeyCloakConfig.getRealm())
-                .username(userData.getUserName())
-                .grantType(KeyCloakConfig.getClientGrantType())
-                .build()
-                .tokenManager()
-                .grantToken();
+    private  AccessTokenResponse getImpersonatedToken(RefreshToken refreshToken,UserData userData) {
+        RestTemplate r = new RestTemplate();
+
+        RestTemplate restTemplate = new RestTemplate();
+        String url = "http://keycloak:8081/realms/key_test/protocol/openid-connect/token";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        headers.setBearerAuth(userData.getToken());
+
+        String body = new TokenRequest(refreshToken.getRefreshToken(),KeyCloakConfig.getClientId(),KeyCloakConfig.getClientSecret()).toString();
+
+        HttpEntity<String> requestEntity = new HttpEntity<>(body, headers);
+
+        ResponseEntity<AccessTokenResponse> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, AccessTokenResponse.class);
+
+        return  response.getBody();
+
+        //        return KeycloakBuilder.builder()
+//                .serverUrl(KeyCloakConfig.getServerUrl())
+//                .clientId(KeyCloakConfig.getClientId())
+//                .clientSecret(KeyCloakConfig.getClientSecret())
+//                .realm(KeyCloakConfig.getRealm())
+//                .username(userData.getUserName())
+//                .authorization(refreshToken.getRefreshToken())
+//                .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
+//                .build()
+//
+//                .tokenManager()
+//
+//                .grantToken();
     }
 
     private RealmResource getRealm() {
@@ -196,5 +219,11 @@ public class UserService  {
         password.setTemporary(false);
         userToSave.setCredentials(Collections.singletonList(password));
         return userToSave;
+    }
+
+    public JwtResponse refreshToken(RefreshToken refreshToken,UserData userData) {
+        var a = getImpersonatedToken(refreshToken,userData);
+        return new JwtResponse(a);
+
     }
 }

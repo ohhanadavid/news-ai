@@ -3,22 +3,28 @@ from datetime import datetime
 from typing import List, Dict, Optional
 import json
 
+from click import option
+
 
 @dataclass
 class DataForNews:
     number_of_article: Optional[int] = None
     to: Optional[str] = None
+    option: Optional[str] = None
 
     def set_data(self, data: 'DataForNews') -> 'DataForNews':
         self.number_of_article = data.number_of_article
         self.to = data.to
+        self.option=data.option
         return self
 
     @classmethod
     def from_json(cls, json_data: dict) -> 'DataForNews':
         return cls(
             number_of_article=json_data.get('number_of_article'),
-            to=json_data.get('to')
+            to=json_data.get('to'),
+            option=json_data.get('option')
+
         )
 
 
@@ -66,6 +72,8 @@ class ArticlesToFilter(DataForNews):
     article_return_list: List[ArticleToGetFilter] = None
     preference: Dict[str, List[str]] = None
 
+
+
     def __post_init__(self):
         if self.article_return_list is None:
             self.article_return_list = []
@@ -90,6 +98,7 @@ class ArticlesToFilter(DataForNews):
         return cls(
             number_of_article=json_data.get('numberOfArticle'),
             to=json_data.get('to'),
+            option=json_data.get('option'),
             article_return_list=articles,
             preference=json_data.get('preference', {})
         )
@@ -99,6 +108,7 @@ class ArticlesToFilter(DataForNews):
         return json.dumps({
             'numberOfArticle': self.number_of_article,
             'to': self.to,
+            'option': self.option,
             'articleReturnList': [
                 {
                     'url': article.url,

@@ -1,5 +1,4 @@
 package com.mail_sender_engine.mail_sender_engine.BL;
-import java.util.Map;
 import java.util.Optional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -7,13 +6,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mail_sender_engine.mail_sender_engine.DAL.MailData;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.log4j.Log4j2;
@@ -37,11 +32,26 @@ public class MailController {
             Object message = kafkaMessage.get();
             MailData data = om.readValue(message.toString(), MailData.class);
             if (mailService.sentEmail(data))
-                log.info("email to {} send", data.getEmail());
+                log.info("email to {} send", data.getConnectInfo());
         }
 
 
     }
+    @Autowired
+    SmsService smsService;
 
+    @KafkaListener(topics = {"api.sms"})
+    public void smsAll(ConsumerRecord<?, ?> record) throws JsonProcessingException {
+        Optional<?> kafkaMessage = Optional.ofNullable(record.value());
+        if (kafkaMessage.isPresent()) {
+
+            Object message = kafkaMessage.get();
+            MailData data = om.readValue(message.toString(), MailData.class);
+            smsService.send(data.getText(), data.getConnectInfo());
+                log.info("sms to {} send", data.getConnectInfo());
+        }
+
+
+    }
 
 }

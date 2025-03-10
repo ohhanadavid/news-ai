@@ -1,12 +1,9 @@
 package com.news_manger.news_manager.kafka;
 
 public enum KafkaTopic {
-    GET_LATEST_NEWS("api.getLatestNews"),
-    GET_LATEST_NEWS_BY_CATEGORY("api.getLatestNewsByCategory"),
-    GET_LATEST_LIST_NEWS_BY_CATEGORIES("api.getLatestListNewsByCategories"),
+
     SEND_EMAIL("api.sendMail"),
-    GET_LIST_NEWS_TOPIC ("getListNews"),
-    GET_NEWS_TOPIC  ("getNews"),
+    SEND_SMS("api.sms"),
     GET_MY_ARTICLE("api.getMyArticle");
 
 

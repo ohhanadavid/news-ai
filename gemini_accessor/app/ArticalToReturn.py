@@ -36,7 +36,7 @@ class ArticleReturn:
 
     def __str__(self) -> str:
         return f"-  url: {self.url}\n" \
-               f"title: {self.title}\n" \
+               f"   title: {self.title}\n" \
                f"   summary: {self.summary}\n" \
                f"   video url: {self.videoUrl}\n" \
                f"   publish date: {self.pubDate}\n"
@@ -46,6 +46,7 @@ class ArticleReturn:
 @dataclass
 class DataToReturn:
     to:str
+    option:str
     articles:list[ArticleReturn]
 
     @classmethod
@@ -53,6 +54,7 @@ class DataToReturn:
         articals=json.loads(json_data['articles'])
         return cls(
             to=json_data['to'],
+            option=json_data['option'],
             articles=[ArticleReturn.from_json(article) for article in articals]
             #articles=[ArticleReturn.from_json(article) for article in json_data['articles']]
 

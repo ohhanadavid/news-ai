@@ -24,7 +24,7 @@ public class EmailService {
     public Boolean sentEmail(MailData data)  {
         Email from = new Email("davidohhana@gmail.com");
         String subject = data.getSubject();
-        Email to = new Email(data.getEmail());
+        Email to = new Email(data.getConnectInfo());
         Content content = new Content("text/plain", data.getText());
         Mail mail = new Mail(from, subject, to, content);
 

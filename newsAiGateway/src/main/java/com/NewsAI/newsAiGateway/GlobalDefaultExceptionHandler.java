@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.web.server.ResponseStatusException;
 
 
 import static org.springframework.http.HttpStatus.*;
@@ -47,6 +48,9 @@ class GlobalDefaultExceptionHandler {
 
         } else if (e instanceof IllegalArgumentException) {
             return new ResponseEntity<>(anErrorResponse(e.getMessage()), BAD_REQUEST);
+        }
+        else if (e instanceof ResponseStatusException) {
+            return new ResponseEntity<>(anErrorResponse(e.getMessage()), ((ResponseStatusException)e).getStatusCode());
         }
         logger.error(e.getMessage(), e);
         // Otherwise it is unexpected

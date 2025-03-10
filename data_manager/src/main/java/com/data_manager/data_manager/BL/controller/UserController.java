@@ -2,6 +2,7 @@ package com.data_manager.data_manager.BL.controller;
 
 import com.data_manager.data_manager.DTO.user.*;
 import com.data_manager.data_manager.jwt.JwtResponse;
+import com.data_manager.data_manager.jwt.RefreshToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -61,6 +62,12 @@ public class UserController {
 
         return userService.deleteUser(new UserData(jwt));
 
+    }
+
+    @PostMapping("refreshToken")
+    public JwtResponse jwtResponse (@RequestBody RefreshToken refreshToken,@AuthenticationPrincipal Jwt jwt){
+
+        return userService.refreshToken(refreshToken,new UserData(jwt));
     }
 
 

@@ -11,7 +11,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Accessors(chain = true)
 public class MailData {
-    private String email;
+    private String connectInfo;
     private String name;
     private String subject;
     private String text;
