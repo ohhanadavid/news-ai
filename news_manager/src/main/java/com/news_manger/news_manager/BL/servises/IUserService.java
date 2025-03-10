@@ -8,5 +8,5 @@ public interface IUserService {
 
     public User getUser(String email);
 
-    LoginUser logIn(String email);
+
 }

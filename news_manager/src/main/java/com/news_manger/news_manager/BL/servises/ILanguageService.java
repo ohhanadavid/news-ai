@@ -1,9 +1,10 @@
 package com.news_manger.news_manager.BL.servises;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public interface ILanguageService {
 
-    public ResponseEntity<?> getLanguagesCode(String email);
+    public List<String> getLanguagesCode();
 }

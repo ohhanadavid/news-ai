@@ -8,6 +8,7 @@ import com.news_manger.news_manager.DAL.articals.ArticleFromLLm;
 import com.news_manger.news_manager.DAL.articalsToGet.ReturnData;
 import com.news_manger.news_manager.DAL.user.UserRequest;
 import com.news_manger.news_manager.DAL.user.UserRequestWithCategory;
+import com.news_manger.news_manager.configuration.TokenStorage;
 import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,8 @@ public class Consumer {
     ObjectMapper om;
     @Autowired
     private NewsAIService newsDataService;
-
+    @Autowired
+    private TokenStorage tokenStorage;
 
 
     @KafkaListener(topics = {"getLatestNews"})
@@ -38,6 +40,7 @@ public class Consumer {
 
             Object message = kafkaMessage.get();
             UserRequest data= om.readValue(message.toString(), UserRequest.class);
+            tokenStorage.setToken(data.getToken());
             newsDataService.getLatestNews(data);
         }
 
@@ -53,6 +56,7 @@ public class Consumer {
 
             Object message = kafkaMessage.get();
             UserRequestWithCategory data= om.readValue(message.toString(), UserRequestWithCategory.class);
+            tokenStorage.setToken(data.getToken());
             newsDataService.getLatestNewsByCategory(data);
         }
 
@@ -68,6 +72,7 @@ public class Consumer {
 
             Object message = kafkaMessage.get();
             UserRequest data= om.readValue(message.toString(), UserRequest.class);
+            tokenStorage.setToken(data.getToken());
             newsDataService.getLatestListNewsFromCategories(data);
         }
 

@@ -3,7 +3,6 @@ package com.news_manger.news_manager.BL.servises;
 import java.util.*;
 
 import com.news_manger.news_manager.BL.IChecking;
-import com.news_manger.news_manager.BL.NewsAIAccessorService;
 import com.news_manger.news_manager.DAL.articals.*;
 import com.news_manger.news_manager.DAL.articalsToGet.*;
 import com.news_manger.news_manager.DAL.notification.MailData;
@@ -13,8 +12,6 @@ import com.news_manger.news_manager.kafka.KafkaTopic;
 import com.news_manger.news_manager.kafka.Producer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +23,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.news_manger.news_manager.DAL.user.User;
 
 import lombok.extern.log4j.Log4j2;
-import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @Service
@@ -48,9 +44,6 @@ public class NewsAIService {
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
-    @Qualifier("kafkaRestTemplate")
-    RestTemplate restTemplate;
-    @Autowired
     private Producer producer;
 
     @Autowired
@@ -64,8 +57,11 @@ public class NewsAIService {
 
         DataForNews data=new DataForNews(user.getNumberOfArticles(),user.getUserID(),languagesCode);
 
+        ReturnData returnData=newsAccessor.getLatestNews(data);
 
-        producer.send(data, KafkaTopic.GET_LATEST_NEWS);
+        getListNews(returnData);
+
+        //producer.send(data, KafkaTopic.GET_LATEST_NEWS);
 
         
 
@@ -74,23 +70,21 @@ public class NewsAIService {
     public void getLatestNewsByCategory(UserRequestWithCategory user) throws JsonProcessingException {
         log.info("getLatestNewsByCategory");
 
-        ResponseEntity<?> categoryResponse=categoryService.getPreferenceByCategory(user.getUserID(), user.getCategory());
-        checking.checkResponse(categoryResponse, List.class);
-
         List<String> languagesCode = getLanguagesCode(user.getUserID());
 
         DataForNewsWithOneCategory data=new DataForNewsWithOneCategory(user.getNumberOfArticles(),user.getUserID(),languagesCode,user.getCategory());
-        producer.send(data,KafkaTopic.GET_LATEST_NEWS_BY_CATEGORY);
+        ReturnData returnData= newsAccessor.getLatestNewsFromTopic(data);
+
+        getListNews(returnData);
+        //producer.send(data,KafkaTopic.GET_LATEST_NEWS_BY_CATEGORY);
 
     }
    
     public void getLatestListNewsFromCategories(UserRequest user) throws JsonProcessingException {
        
         log.info("getLatestListNewsByCategories");
-        ResponseEntity<?> categoryResponse=categoryService.myCategories(user.getUserID());
-        checking.checkResponse(categoryResponse, Map.class);
+        Map<String,List<String>> categories=categoryService.myCategories();
 
-        Map<String,List<String>> categories=((Map<String,List<String>>)categoryResponse.getBody());
         if(categories.isEmpty()) {
             getLatestNews(new UserRequest());
             return;
@@ -103,7 +97,10 @@ public class NewsAIService {
 
         DataForNewsWithCategory data=new DataForNewsWithCategory(user.getNumberOfArticles(),user.getUserID(),languagesCode,dataForNews);
 
-        producer.send(data,KafkaTopic.GET_LATEST_LIST_NEWS_BY_CATEGORIES);
+        ReturnData returnData=newsAccessor.getLatestListNewsFromCategories(data);
+        //producer.send(data,KafkaTopic.GET_LATEST_LIST_NEWS_BY_CATEGORIES);
+
+        getListNews(returnData);
 
     }
 
@@ -149,16 +146,15 @@ public class NewsAIService {
 
             objectMapper.registerModule(new JavaTimeModule());
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            //List<String> articles=(List<String>)(data.get("article"));
+
             
             if(data.getArticle() == null){
                 log.error("results is null");
                 return;
             }
 
-            ResponseEntity<?> categoryResponse=categoryService.myCategories(data.getTo());
-            checking.checkResponse(categoryResponse, Map.class);
-            Map<String,List<String>> categories=((Map<String,List<String>>)categoryResponse.getBody());
+            Map<String,List<String>> categories=categoryService.myCategories();
+
             
             List<Article> results=new LinkedList<>();
             data.getArticle().forEach(a->{
@@ -176,11 +172,13 @@ public class NewsAIService {
             
             List<ArticleReturn> articlesReturn=results.stream().map(ArticleReturn::new).toList();
 
-           // categoryService.myCategories (user.getEmail());
+
         ArticlesToFilter articles= new ArticlesToFilter()
                 .setArticleReturnList(articlesReturn)
                 .setPreference(categories)
                 .setData(data);
+
+
             producer.send(articles,KafkaTopic.GET_MY_ARTICLE);
 
 
@@ -246,10 +244,9 @@ public class NewsAIService {
     }
 
     private List<String> getLanguagesCode(String userId) {
-        ResponseEntity<?> languageResponse=languageService.getLanguagesCode(userId);
-        checking.checkResponse(languageResponse, List.class);
-        List<String> languagesCode=(List<String>)languageResponse.getBody();
-        return languagesCode;
+
+        return languageService.getLanguagesCode();
+
     }
 
 

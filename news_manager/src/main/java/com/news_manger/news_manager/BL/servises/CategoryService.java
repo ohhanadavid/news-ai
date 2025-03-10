@@ -6,11 +6,13 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.log4j.Log4j2;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 @Log4j2
@@ -23,27 +25,30 @@ public class CategoryService implements ICategoryService {
     private String userAccessorUrl;
 
     @Override
-    public ResponseEntity<?> getPreferenceByCategory(String email, String category){
+    public List<String> getPreferenceByCategory( String category){
         log.info("getPreferenceByCategory");
+        UriComponents uri = UriComponentsBuilder.fromHttpUrl(userAccessorUrl)
+                .path("getPreferenceByCategory")
+                .queryParam("category",category)
+                .build();
 
-        String url=String.format("%s/api.getPreferenceByCategory/%s/%s",userAccessorUrl,email,category);
-        List<String> response = restTemplate.getForObject(url, List.class);
+        List<String> response = restTemplate.getForObject(uri.toUriString(), List.class);
 
         if (response == null)
-            return new ResponseEntity<>("we have problem",HttpStatus.INTERNAL_SERVER_ERROR);
-        return new ResponseEntity<>( response,HttpStatus.OK);
+            throw  new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+        return response;
 
     }
     
     @Override
-    public ResponseEntity<?> myCategories (String email){
+    public Map<String, List<String>> myCategories (){
         log.info("get Category");
 
-          String url=String.format("%s/api.myCategories/%s",userAccessorUrl,email);
+        String url=String.format("%s/myCategories",userAccessorUrl);
         Map<String,List<String>> response = restTemplate.getForObject(url, Map.class);
-            if (response == null)
-                return new ResponseEntity<>("we have problem",HttpStatus.INTERNAL_SERVER_ERROR);
-            return new ResponseEntity<>( response,HttpStatus.OK);
+        if (response == null)
+            throw  new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+        return response;
 
     }
 

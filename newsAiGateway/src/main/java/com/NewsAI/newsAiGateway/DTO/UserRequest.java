@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class UserRequest {
     private  String userID;
     private Integer numberOfArticles;
+    private String token;
 }

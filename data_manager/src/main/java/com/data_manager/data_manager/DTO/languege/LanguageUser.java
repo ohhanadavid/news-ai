@@ -11,7 +11,6 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 public class LanguageUser {
 
-
     private String language;
 
 }

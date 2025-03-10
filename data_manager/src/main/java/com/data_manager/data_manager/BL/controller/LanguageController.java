@@ -29,25 +29,29 @@ public class LanguageController {
         return new ResponseEntity<>(HttpStatus.OK);
 
     }
+
     @GetMapping("getMyLanguages")
     public List<String> getLanguages(@AuthenticationPrincipal Jwt jwt){
         log.info("get Languages");
         return languageService.getMyLanguages(new UserData(jwt));
 
     }
-    @GetMapping("getLanguagesCode")
+
+    @GetMapping("getMyLanguagesCode")
     public List<String> getLanguagesCode(@AuthenticationPrincipal Jwt jwt){
         log.info("get Languages code");
         return languageService.getLanguagesCode(new UserData(jwt));
 
     }
+
     @DeleteMapping("deleteLanguage")
-    public String deleteLanguage(@RequestBody String Language,@AuthenticationPrincipal Jwt jwt){
+    public String deleteLanguage(@RequestBody LanguageUser Language,@AuthenticationPrincipal Jwt jwt){
         log.info("delete language");
-        return languageService.deleteLanguage(Language,new UserData(jwt));
+        return languageService.deleteLanguage(Language.getLanguage(),new UserData(jwt));
 
     }
-    @PutMapping("updateLanguage/{email}")
+
+    @PutMapping("updateLanguage")
     public String updateLanguage(@RequestBody LanguageForChangeFromUser languages,@AuthenticationPrincipal Jwt jwt){
         log.info("updateAll");
         return languageService.updateLanguage(languages,new UserData(jwt));

@@ -61,6 +61,7 @@ def llm_reqeust_templet(article, number_of_article, preference):
     f"i want you to pick {number_of_article} articles "
     f"they need to be to most interesting and relevant for me base on {preference}"
     "if its empty or null, choice randomly."
+    "Make sure the articles are different and not repetitive. "
     "i want you return me the answer in this type:"
     "url: the article url here give me the exact same url "
     "title: the article title here"

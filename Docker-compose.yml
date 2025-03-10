@@ -39,37 +39,57 @@ services:
 # ########################################
 # # USER ACCESSOR SERVICE
 # #######################################
+
+  keycloak:
+      image: quay.io/keycloak/keycloak:latest
+      container_name: keycloak
+      restart: always
+      command: start-dev
+      environment:
+          KC_DB: postgres
+          KC_DB_URL: jdbc:postgresql://postgres/NewsAiDB
+          KC_DB_USERNAME: postgres
+          KC_DB_PASSWORD: postgres
+          KC_HOSTNAME: localhost
+          KEYCLOAK_ADMIN: admin
+          KEYCLOAK_ADMIN_PASSWORD: admin
+      ports:
+          - "8081:8080"
+      networks:
+        - News_app_network
+      depends_on:
+          - postgres
   
-# ########## SERVICE ################
-  useraccessor:
-    image: davidohhana/newsai_user-accessor:latest
-    container_name: user_accessor_newsAi
-    ports:
-      - '7002:7002'
-      - "5005:5005"
-    depends_on:
-      - postgres
+# # ########## SERVICE ################
+#   useraccessor:
+#     image: davidohhana/newsai_user-accessor:latest
+#     container_name: user_accessor_newsAi
+#     ports:
+#       - '7002:7002'
+#       - "5005:5005"
+#     depends_on:
+#       - postgres
 
-    networks:
-      - News_app_network
-    restart: unless-stopped
+#     networks:
+#       - News_app_network
+#     restart: unless-stopped
 
 
 
-# #######################################
-# # newsdata_io_accessor  SERVICE
-# ######################################
+# # #######################################
+# # # newsdata_io_accessor  SERVICE
+# # ######################################
   
-#   ########## SERVICE ###################
-  newsdataioaccessor:
-    image: davidohhana/news_data_io_accessor:latest
-    container_name:  newsdata_io_accessor_newsAi
-    ports:
-      - '7003:7003'
-      - "5008:5005"
-    networks:
-      - News_app_network
-    restart: unless-stopped
+# #   ########## SERVICE ###################
+#   newsdataioaccessor:
+#     image: davidohhana/news_data_io_accessor:latest
+#     container_name:  newsdata_io_accessor_newsAi
+#     ports:
+#       - '7003:7003'
+#       - "5008:5005"
+#     networks:
+#       - News_app_network
+#     restart: unless-stopped
 
 # ########################################
 # # llm_accessor SERVICE

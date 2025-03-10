@@ -36,32 +36,38 @@ public class CategoryController {
 
         return categoryService.saveCategory(category,new UserData(jwt));
     }
+
     @GetMapping("getPreferenceByCategory")
     public List<String> getPreferenceByCategory ( @RequestParam String category,@AuthenticationPrincipal Jwt jwt){
         log.info("getPreferenceByCategory");
         return categoryService.getPreferenceByCategory( category,new UserData(jwt));
     }
+
     @GetMapping("myCategories")
     public Map<String, List<String>> myCategories (@AuthenticationPrincipal Jwt jwt){
         log.info("get Category");
             return categoryService.myCategories(new UserData(jwt));
     }
+
     @DeleteMapping("deletePreference")
     public String deletePreference (@RequestBody Category category,@AuthenticationPrincipal Jwt jwt){
         log.info("delete Preference");
         return categoryService.deletePreference(category,new UserData(jwt));
 
     }
+
     @DeleteMapping("deleteCategory")
     public String deleteCategory (@RequestParam String category,@AuthenticationPrincipal Jwt jwt){
         log.info("delete Category");
         return categoryService.deleteCategory( category,new UserData(jwt));
     }
+
     @PutMapping("changeCategory")
     public String updateCategory(@RequestBody CategoryForChange category,@AuthenticationPrincipal Jwt jwt){
         log.info("updateCategory");
         return categoryService.updateCategory(category,new UserData(jwt));
     }
+
     @PutMapping("updatePreference")
     public String updatePreference(@RequestBody PreferenceForChange preference,@AuthenticationPrincipal Jwt jwt){
         log.info("updatePreference");

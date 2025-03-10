@@ -1,4 +1,4 @@
-package com.news_manger.news_manager.BL;
+package com.news_manger.news_manager.BL.servises;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -14,8 +14,11 @@ import com.news_manger.news_manager.kafka.Producer;
 import lombok.extern.log4j.Log4j2;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -32,6 +35,7 @@ import java.util.stream.Collectors;
 public class NewsAIAccessorService {
 
     @Autowired
+    @Qualifier("withoutToken")
     private RestTemplate restTemplate;
     @Value("${news.data.api}")
     private String newsDataUrl;
@@ -45,7 +49,7 @@ public class NewsAIAccessorService {
     Producer producer;
 
 
-    public void getLatestNews(DataForNews data) throws JsonProcessingException {
+    public ReturnData getLatestNews(DataForNews data) throws JsonProcessingException {
         log.info("getLatestNews");
         List<String> listOfLanguages= data.getLanguage();
         String langugesString=String.join(",",listOfLanguages);
@@ -56,36 +60,38 @@ public class NewsAIAccessorService {
         String results = restTemplate.getForObject(url.toUriString(), String.class);
 
         if (results == null)
-            producer.send("error",KafkaTopic.GET_NEWS_TOPIC);
+            throw new HttpServerErrorException( HttpStatus.INTERNAL_SERVER_ERROR);
 
         log.info("getLatestNews-success");
-        ReturnData returnData = new ReturnData(data,results);
         //data.put("article",Base64.getEncoder().encodeToString(results.getBytes()));
-        producer.send(returnData, KafkaTopic.GET_LIST_NEWS_TOPIC);
+        //producer.send(returnData, KafkaTopic.GET_LIST_NEWS_TOPIC);
+
+        return new ReturnData(data,results);
     }
 
-    public void getLatestNewsFromTopic(String category, DataForNewsWithOneCategory data) throws JsonProcessingException {
+    public ReturnData getLatestNewsFromTopic(DataForNewsWithOneCategory data) throws JsonProcessingException {
 
         log.info("getLatestNewsFromTopic");
         List<String> listOfLanguages= data.getLanguage();
         String langugesString=String.join(",",listOfLanguages);
         UriComponents url=UriComponentsBuilder.fromHttpUrl(newsDataUrl).
                 queryParam("apikey", newsDatakey).
-                queryParam("category", category)
+                queryParam("category", data.getCategory())
                 .queryParamIfPresent("language", Optional.of(langugesString).filter(s -> !s.isEmpty()))
                 .build();
 
         String results = restTemplate.getForObject(url.toUriString(), String.class);
 
         if (results == null)
-            producer.send("error",KafkaTopic.GET_NEWS_TOPIC);
+            throw new HttpServerErrorException( HttpStatus.INTERNAL_SERVER_ERROR);
         log.info("getLatestNewsFromTopic-success");
-        ReturnData returnData = new ReturnData(data,results);
         //data.put("article",Base64.getEncoder().encodeToString(results.getBytes()));
-        producer.send(returnData,KafkaTopic.GET_LIST_NEWS_TOPIC);
+       // producer.send(returnData,KafkaTopic.GET_LIST_NEWS_TOPIC);
+
+        return new ReturnData(data,results);
     }
 
-    public void getLatestListNewsFromCategories(DataForNewsWithCategory data) throws JsonProcessingException {
+    public ReturnData getLatestListNewsFromCategories(DataForNewsWithCategory data) throws JsonProcessingException {
         List<String> results=new LinkedList<>();
         List<String> listOfCategories= data.getDataForNews().getCategories();
         List<String> listOfLanguages= data.getLanguage();
@@ -102,10 +108,11 @@ public class NewsAIAccessorService {
                 String result = restTemplate.getForObject(url.toUriString(), String.class);
                     results.add(result);
                 });
-        ReturnData returnData = new ReturnData(data,results);
-       // data.put("article",String.join(results));
+        // data.put("article",String.join(results));
 
-        producer.send(returnData,KafkaTopic.GET_LIST_NEWS_TOPIC);
+      //  producer.send(returnData,KafkaTopic.GET_LIST_NEWS_TOPIC);
+
+        return new ReturnData(data,results);
 
     }
 

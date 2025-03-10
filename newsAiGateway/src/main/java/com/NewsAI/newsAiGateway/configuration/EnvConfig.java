@@ -1,6 +1,9 @@
-package com.news_manger.news_manager.configuration;
+package com.NewsAI.newsAiGateway.configuration;
 
+import jakarta.annotation.PostConstruct;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -8,6 +11,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.Arrays;
 import java.util.Properties;
 
 @Configuration
@@ -32,6 +36,15 @@ public class EnvConfig {
             }
         }
         return configure;
+    }
+
+    @Autowired
+    private ApplicationContext applicationContext;
+
+    @PostConstruct
+    public void printBeans() {
+        System.out.println("Beans in context:");
+        Arrays.stream(applicationContext.getBeanDefinitionNames()).forEach(System.out::println);
     }
 
 }

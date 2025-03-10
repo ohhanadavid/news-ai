@@ -8,7 +8,6 @@ import com.NewsAI.newsAiGateway.kafka.Producer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.log4j.Log4j2;
-import org.apache.kafka.clients.producer.KafkaProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -16,17 +15,16 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.core.Authentication;
 
 import static com.NewsAI.newsAiGateway.kafka.KafkaTopic.*;
 import static org.springframework.web.reactive.function.server.RequestPredicates.*;
@@ -77,7 +75,7 @@ public class GatewayConfig {
         return RouterFunctions
                 .route(POST("/authenticate"),this::handleRequestWithoutAuthorization)
                 .andRoute(POST("/saveUser"),this::handleRequestWithoutAuthorization)
-                .andRoute(PUT("/updateMail/{oldEmail}"), this::handleRequestToDataManagerWithoutBody)
+                .andRoute(PUT("/updateUser"), this::handleRequestToDataManagerWithoutBody)
                 .andRoute(PUT("/changePassword"), this::handleRequestToDataManagerWithBody)
 
                 .andRoute(POST("/saveCategory"), this::handleRequestToDataManagerWithBody)
@@ -91,15 +89,12 @@ public class GatewayConfig {
 
                 .andRoute(POST("/saveLanguage"), this::handleRequestToDataManagerWithBody)
                 .andRoute(GET("/getMyLanguages"), this::handleRequestToDataManagerWithoutBody)
-                .andRoute(GET("/getLanguagesCode"), this::handleRequestToDataManagerWithoutBody)
+                .andRoute(GET("/getMyLanguagesCode"), this::handleRequestToDataManagerWithoutBody)
                 .andRoute(DELETE("/deleteLanguage"), this::handleRequestToDataManagerWithBody)
-                .andRoute(PUT("/updateLanguage/{email}"), this::handleRequestToDataManagerWithBody)
+                .andRoute(PUT("/updateLanguage"), this::handleRequestToDataManagerWithBody)
 
-                .andRoute(GET("/getUser/{email}"), this::handleRequestToDataManagerWithoutBody)
+                .andRoute(GET("/getUser"), this::handleRequestToDataManagerWithoutBody)
                 .andRoute(DELETE("/deleteUser"), this::handleRequestToDataManagerWithoutBody)
-                .andRoute(PUT("/updateName"),this::handleRequestToDataManagerWithBody)
-
-
 
                 .andRoute(GET("/getLatestNews"), this::handleGetLatestNews)
                 .andRoute(GET("/getLatestNewsByCategory"), this::handleGetLatestNewsWithCategory)
@@ -188,87 +183,158 @@ public class GatewayConfig {
 
 
     private Mono<ServerResponse> handleGetLatestNews(ServerRequest request) {
+        return getJwtToken(request)
+                .flatMap(userData -> {
+                    UserRequest userRequest = new UserRequest();
+                    userRequest.setUserID(userData.getUserID());
+                    userRequest.setToken(userData.getToken());
+                    userRequest.setNumberOfArticles(
+                            request.queryParam("numberOfArticles").map(Integer::parseInt).orElse(3)
+                    );
 
-        return request.bodyToMono(String.class)
-
-                .flatMap(body -> {
-                        UserRequest userRequest = new UserRequest();
-                        UserData userData = getJwtToken();
-                        userRequest.setUserID(userData.getUserID());
-                        userRequest.setNumberOfArticles(
-                                request.queryParam("numberOfArticles")
-                                        .map(Integer::parseInt)
-                                        .orElse(3)
-                        );
-                        try {
-                            producer.send(userRequest, GET_LATEST_NEWS);
-                        } catch (JsonProcessingException e) {
-                            throw new RuntimeException(e);
-                        }
-                        log.info("handleGetLatestNews Sent message for {} to Kafka topic: {}",userData.getUserID(), GET_LATEST_NEWS);
-                        return ServerResponse.ok().bodyValue("The news send");
-
-                    });
+                    return Mono.fromRunnable(() -> {
+                                try {
+                                    producer.send(userRequest, GET_LATEST_NEWS);
+                                    log.info("Sent message for {} to Kafka topic: {}", userData.getUserID(), GET_LATEST_NEWS);
+                                } catch (JsonProcessingException e) {
+                                    throw new RuntimeException("Failed to serialize message", e);
+                                }
+                            })
+                            .then(ServerResponse.ok().bodyValue("The news was sent successfully"))
+                            .onErrorResume(e -> {
+                                log.error("Error sending message to Kafka", e);
+                                return ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                        .bodyValue("Failed to send news");
+                            });
+                });
+//        return request.bodyToMono(String.class)
+//                .flatMap(_ -> {
+//                        UserRequest userRequest = new UserRequest();
+//                        UserData userData = getJwtToken();
+//                        userRequest.setUserID(userData.getUserID());
+//                        userRequest.setNumberOfArticles(
+//                                request.queryParam("numberOfArticles")
+//                                        .map(Integer::parseInt)
+//                                        .orElse(3)
+//                        );
+//                        try {
+//                            producer.send(userRequest, GET_LATEST_NEWS);
+//                        } catch (JsonProcessingException e) {
+//                            throw new RuntimeException(e);
+//                        }
+//                        log.info("handleGetLatestNews Sent message for {} to Kafka topic: {}",userData.getUserID(), GET_LATEST_NEWS);
+//                        return ServerResponse.ok().bodyValue("The news send");
+//
+//                    });
 
     }
 
     private Mono<ServerResponse> handleGetLatestNewsWithCategory(ServerRequest request){
-
-        return request.bodyToMono(String.class)
-
-                .flatMap(body -> {
+        return getJwtToken(request)
+                .flatMap(userData -> {
                     UserRequestWithCategory userRequest = new UserRequestWithCategory();
-                    UserData userData = getJwtToken();
                     userRequest.setUserID(userData.getUserID());
+                    userRequest.setToken(userData.getToken());
                     userRequest.setNumberOfArticles(
-                            request.queryParam("numberOfArticles")
-                                    .map(Integer::parseInt)
-                                    .orElse(3)
+                            request.queryParam("numberOfArticles").map(Integer::parseInt).orElse(3)
                     );
                     userRequest.setCategory(
                             request.queryParam("category")
                                     .orElseThrow(() -> new IllegalArgumentException("Category is required"))
                     );
-                    try {
-                        producer.send(userRequest, GET_LATEST_NEWS_BY_CATEGORY);
-                    } catch (JsonProcessingException e) {
-                        throw new RuntimeException(e);
-                    }
-                    log.info("handleGetLatestNewsWithCategory Sent message for {} to Kafka topic: {}",userData.getUserID() ,GET_LATEST_NEWS_BY_CATEGORY);
-                    return ServerResponse.ok().bodyValue("The news send");
 
+                    return Mono.fromRunnable(() -> {
+                                try {
+                                    producer.send(userRequest, GET_LATEST_NEWS_BY_CATEGORY);
+                                    log.info("Sent message for {} to Kafka topic: {}", userData.getUserID(), GET_LATEST_NEWS);
+                                } catch (JsonProcessingException e) {
+                                    throw new RuntimeException("Failed to serialize message", e);
+                                }
+                            })
+                            .then(ServerResponse.ok().bodyValue("The news was sent successfully"))
+                            .onErrorResume(e -> {
+                                log.error("Error sending message to Kafka", e);
+                                return ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                        .bodyValue("Failed to send news");
+                            });
                 });
+//        return request.bodyToMono(String.class)
+//
+//                .flatMap(body -> {
+//                    UserRequestWithCategory userRequest = new UserRequestWithCategory();
+//                    UserData userData = getJwtToken();
+//                    userRequest.setUserID(userData.getUserID());
+//                    userRequest.setNumberOfArticles(
+//                            request.queryParam("numberOfArticles")
+//                                    .map(Integer::parseInt)
+//                                    .orElse(3)
+//                    );
+//                    userRequest.setCategory(
+//                            request.queryParam("category")
+//                                    .orElseThrow(() -> new IllegalArgumentException("Category is required"))
+//                    );
+//                    try {
+//                        producer.send(userRequest, GET_LATEST_NEWS_BY_CATEGORY);
+//                    } catch (JsonProcessingException e) {
+//                        throw new RuntimeException(e);
+//                    }
+//                    log.info("handleGetLatestNewsWithCategory Sent message for {} to Kafka topic: {}",userData.getUserID() ,GET_LATEST_NEWS_BY_CATEGORY);
+//                    return ServerResponse.ok().bodyValue("The news send");
+//
+//                });
     }
 
     private Mono<ServerResponse> handleGetLatestNewsWithMtCategories(ServerRequest request){
-
-        return request.bodyToMono(String.class)
-
-                .flatMap(body -> {
+        return getJwtToken(request)
+                .flatMap(userData -> {
                     UserRequest userRequest = new UserRequest();
-                    UserData userData = getJwtToken();
                     userRequest.setUserID(userData.getUserID());
+                    userRequest.setToken(userData.getToken());
                     userRequest.setNumberOfArticles(
-                            request.queryParam("numberOfArticles")
-                                    .map(Integer::parseInt)
-                                    .orElse(3)
+                            request.queryParam("numberOfArticles").map(Integer::parseInt).orElse(3)
                     );
-                    try {
-                        producer.send(userRequest, GET_LATEST_NEWS_BY_MY_CATEGORIES);
-                    } catch (JsonProcessingException e) {
-                        throw new RuntimeException(e);
-                    }
-                    log.info("handleGetLatestNewsWithMtCategories Sent message to Kafka topic: {}", GET_LATEST_NEWS_BY_MY_CATEGORIES);
-                    return ServerResponse.ok().bodyValue("The news send");
 
+                    return Mono.fromRunnable(() -> {
+                                try {
+                                    producer.send(userRequest, GET_LATEST_NEWS_BY_MY_CATEGORIES);
+                                    log.info("Sent message for {} to Kafka topic: {}", userData.getUserID(), GET_LATEST_NEWS);
+                                } catch (JsonProcessingException e) {
+                                    throw new RuntimeException("Failed to serialize message", e);
+                                }
+                            })
+                            .then(ServerResponse.ok().bodyValue("The news was sent successfully"))
+                            .onErrorResume(e -> {
+                                log.error("Error sending message to Kafka", e);
+                                return ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                        .bodyValue("Failed to send news");
+                            });
                 });
+//        return request.bodyToMono(String.class)
+//
+//                .flatMap(body -> {
+//                    UserRequest userRequest = new UserRequest();
+//                    UserData userData = getJwtToken();
+//                    userRequest.setUserID(userData.getUserID());
+//                    userRequest.setNumberOfArticles(
+//                            request.queryParam("numberOfArticles")
+//                                    .map(Integer::parseInt)
+//                                    .orElse(3)
+//                    );
+//                    try {
+//                        producer.send(userRequest, GET_LATEST_NEWS_BY_MY_CATEGORIES);
+//                    } catch (JsonProcessingException e) {
+//                        throw new RuntimeException(e);
+//                    }
+//                    log.info("handleGetLatestNewsWithMtCategories Sent message to Kafka topic: {}", GET_LATEST_NEWS_BY_MY_CATEGORIES);
+//                    return ServerResponse.ok().bodyValue("The news send");
+//
+//                });
     }
 
-    public UserData getJwtToken() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof Jwt) {
-            return new UserData((Jwt) authentication.getPrincipal());
-        }
-        return null;
+    Mono<UserData> getJwtToken(ServerRequest request) {
+        return request.principal()
+                .cast(JwtAuthenticationToken.class)
+                .map(auth -> new UserData((Jwt) auth.getToken()))
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing or invalid JWT token")));
     }
 }
