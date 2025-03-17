@@ -76,7 +76,7 @@ public class GatewayConfig {
         return RouterFunctions
                 .route(POST("/authenticate"),this::handleRequestWithoutAuthorization)
                 .andRoute(POST("/saveUser"),this::handleRequestWithoutAuthorization)
-                .andRoute(PUT("/updateUser"), this::handleRequestToDataManagerWithoutBody)
+                .andRoute(PUT("/updateUser"), this::handleRequestToDataManagerWithBody)
                 .andRoute(PUT("/changePassword"), this::handleRequestToDataManagerWithBody)
                 .andRoute(POST("/refreshToken"), this::handleRequestToDataManagerWithBody)
 
@@ -195,7 +195,7 @@ public class GatewayConfig {
                     );
                     userRequest.setOption(
                             SendOption.valueOf(request.queryParam("sendOption")
-                                    .orElse(String.valueOf(SendOption.EMAIL)))
+                                    .orElse(String.valueOf(SendOption.EMAIL)).toUpperCase())
                     );
 
                     return Mono.fromRunnable(() -> {
@@ -232,13 +232,13 @@ public class GatewayConfig {
                     );
                     userRequest.setOption(
                             SendOption.valueOf(request.queryParam("sendOption")
-                                    .orElse(String.valueOf(SendOption.EMAIL)))
+                                    .orElse(String.valueOf(SendOption.EMAIL)).toUpperCase())
                     );
 
                     return Mono.fromRunnable(() -> {
                                 try {
                                     producer.send(userRequest, GET_LATEST_NEWS_BY_CATEGORY);
-                                    log.info("Sent message for {} to Kafka topic: {}", userData.getUserID(), GET_LATEST_NEWS);
+                                    log.info("Sent message for {} to Kafka topic: {}", userData.getUserID(), GET_LATEST_NEWS_BY_CATEGORY);
                                 } catch (JsonProcessingException e) {
                                     throw new RuntimeException("Failed to serialize message", e);
                                 }
@@ -264,13 +264,13 @@ public class GatewayConfig {
                     );
                     userRequest.setOption(
                             SendOption.valueOf(request.queryParam("sendOption")
-                                    .orElse(String.valueOf(SendOption.EMAIL)))
+                                    .orElse(String.valueOf(SendOption.EMAIL)).toUpperCase())
                     );
 
                     return Mono.fromRunnable(() -> {
                                 try {
                                     producer.send(userRequest, GET_LATEST_NEWS_BY_MY_CATEGORIES);
-                                    log.info("Sent message for {} to Kafka topic: {}", userData.getUserID(), GET_LATEST_NEWS);
+                                    log.info("Sent message for {} to Kafka topic: {}", userData.getUserID(), GET_LATEST_NEWS_BY_MY_CATEGORIES);
                                 } catch (JsonProcessingException e) {
                                     throw new RuntimeException("Failed to serialize message", e);
                                 }

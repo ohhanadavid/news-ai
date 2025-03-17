@@ -4,32 +4,46 @@ import os
 import logging 
 import google.generativeai as genai
 from dotenv import load_dotenv
+import base64
+import os
+from google import genai
+from google.genai import types
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s')
 
-def geminiRequest():
-  load_dotenv()
+def geminiRequest(request)->str:
+    load_dotenv()
+    client = genai.Client(
+        api_key=os.environ.get("GEMINI_apiKEY"),
+    )
 
-  
-  genai.configure(api_key=os.getenv("GEMINI_apiKEY"))
-
-
-  generation_config = {
-    "temperature": 1,
-    "top_p": 0.95,
-    "top_k": 64,
-    "max_output_tokens": 8192,
-    "response_mime_type": "text/plain",
-  }
-
-  model = genai.GenerativeModel(
-    model_name="gemini-1.5-flash",
-    generation_config=generation_config,
-
-  )
-
-  chat_session = model.start_chat(
-    history=[
+    model = "gemini-2.0-flash"
+    contents = [
+        types.Content(
+            role="user",
+            parts=[
+                types.Part.from_text(text=request),
+            ],
+        ),
     ]
-  )
-  return chat_session
+    generate_content_config = types.GenerateContentConfig(
+        temperature=1,
+        top_p=0.95,
+        top_k=40,
+        max_output_tokens=8192,
+        response_mime_type="text/plain",
+    )
+
+    ans=""
+    for chunk in client.models.generate_content_stream(
+        model=model,
+        contents=contents,
+        config=generate_content_config,
+    ):
+        ans = ans+ chunk.text+ '/n'
+
+    return ans
+
+
+
+

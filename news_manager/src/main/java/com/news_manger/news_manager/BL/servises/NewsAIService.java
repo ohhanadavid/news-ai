@@ -5,7 +5,7 @@ import java.util.*;
 import com.news_manger.news_manager.BL.IChecking;
 import com.news_manger.news_manager.DAL.articals.*;
 import com.news_manger.news_manager.DAL.articalsToGet.*;
-import com.news_manger.news_manager.DAL.notification.MailData;
+import com.news_manger.news_manager.DAL.notification.NotificationData;
 import com.news_manger.news_manager.DAL.user.SendOption;
 import com.news_manger.news_manager.DAL.user.UserRequest;
 import com.news_manger.news_manager.DAL.user.UserRequestWithCategory;
@@ -70,7 +70,7 @@ public class NewsAIService {
 
         List<String> languagesCode = getLanguagesCode(user.getUserID());
 
-        DataForNewsWithOneCategory data=new DataForNewsWithOneCategory(user.getNumberOfArticles(),user.getUserID(),languagesCode,user.getCategory());
+        DataForNewsWithOneCategory data=new DataForNewsWithOneCategory(user.getNumberOfArticles(),user.getUserID(),user.getOption(),languagesCode,user.getCategory());
         ReturnData returnData= newsAccessor.getLatestNewsFromTopic(data);
 
         getListNews(returnData);
@@ -93,7 +93,7 @@ public class NewsAIService {
 
         DataLists dataForNews=new DataLists(new ArrayList<>(categories.keySet()));
 
-        DataForNewsWithCategory data=new DataForNewsWithCategory(user.getNumberOfArticles(),user.getUserID(),languagesCode,dataForNews);
+        DataForNewsWithCategory data=new DataForNewsWithCategory(user.getNumberOfArticles(),user.getUserID(),user.getOption(),languagesCode,dataForNews);
 
         ReturnData returnData=newsAccessor.getLatestListNewsFromCategories(data);
 
@@ -141,6 +141,7 @@ public class NewsAIService {
                 .setData(data);
 
 
+
             producer.send(articles,KafkaTopic.GET_MY_ARTICLE);
 
 
@@ -159,23 +160,37 @@ public class NewsAIService {
 
         data.getArticles().forEach(s -> articleToSend.append(s.toString()).append("\n"));
 
-        MailData mail=new MailData()
+        NotificationData mail=new NotificationData()
                 .setName(user.getName())
                 .setSubject("Articles from newsAI")
                 .setText(articleToSend.toString());
 
-        if(data.getOption()== SendOption.EMAIL) {
-            mail.setConnectInfo(user.getEmail());
-            producer.send(mail, KafkaTopic.SEND_EMAIL);
-        }
-        else if(data.getOption()== SendOption.SMS) {
-            mail.setConnectInfo(user.getPhone());
-            producer.send(mail, KafkaTopic.SEND_SMS);
-        }
+
+        sendToUser(data, mail, user);
 
 
-    }   
-    
+    }
+
+    private void sendToUser(ArticleFromLLm data, NotificationData mail, User user) throws JsonProcessingException {
+
+        switch (data.getOption()){
+
+            case SendOption.EMAIL:
+                mail.setConnectInfo(user.getEmail());
+                producer.send(mail, KafkaTopic.SEND_EMAIL);
+
+            case SendOption.SMS:
+                mail.setConnectInfo(user.getPhone());
+                producer.send(mail, KafkaTopic.SEND_SMS);
+
+            case SendOption.WHATSAPP:
+                mail.setConnectInfo(user.getPhone());
+                producer.send(mail, KafkaTopic.SEND_WHATSAPP);
+
+        }
+
+    }
+
     public List<String> getCategories() {
         log.info("getCategories");
         return  newsAccessor.getCategories();

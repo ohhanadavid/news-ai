@@ -21,12 +21,14 @@ public class ArticlesToFilter extends DataForNews {
     public ArticlesToFilter setData(DataForNews data){
         numberOfArticle=data.getNumberOfArticle();
         to= data.getTo();
+        option=data.getOption();
         return this;
     }
 
     public ArticlesToFilter setData(ReturnData data){
         numberOfArticle=data.getNumberOfArticle();
         to= data.getTo();
+        option=data.getOption();
         return this;
     }
 }

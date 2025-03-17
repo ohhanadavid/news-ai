@@ -1,7 +1,7 @@
 package com.mail_sender_engine.mail_sender_engine.BL;
 import java.io.IOException;
 
-import com.mail_sender_engine.mail_sender_engine.DAL.MailData;
+import com.mail_sender_engine.mail_sender_engine.DAL.NotificatioData;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ public class EmailService {
     @Value("${spring.sendgrid.api.key}")
     private  String api_key;
 
-    public Boolean sentEmail(MailData data)  {
+    public Boolean sentEmail(NotificatioData data)  {
         Email from = new Email("davidohhana@gmail.com");
         String subject = data.getSubject();
         Email to = new Email(data.getConnectInfo());

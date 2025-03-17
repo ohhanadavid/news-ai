@@ -24,6 +24,8 @@
 
  COPY target/data_manager.jar app.jar
 
+ COPY .env .env
+
  EXPOSE 7001
 
  ENTRYPOINT ["java", "--enable-preview","-jar","app.jar"]

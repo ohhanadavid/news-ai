@@ -25,14 +25,15 @@ def my_article(json_data):
         number_of_article=data.number_of_article
         preference=data.preference.copy()
         user=data.to
-        chat=LLM()
+        option=data.option
+
 
         while True:
             try:
-                response = chat.send_message(llm_reqeust_templet(article, number_of_article, preference))
+                text = LLM((llm_reqeust_templet(article, number_of_article, preference)))
                 logging.info(f'answer return from llm for {data.to}')
 
-                text=response.text
+
                 start=text.find('[')
                 end=text.find(']')
                 text=text[start:end+1]
@@ -41,7 +42,7 @@ def my_article(json_data):
                     logging.warning(f'Invalid JSON format received for user: {data.to}')
                     continue
                 data_to_send = checking_url(text, article)
-                response_data={"articles":data_to_send,"to":user}
+                response_data={"articles":data_to_send,"to":user,"option":option}
 
 
                 logging.info(f'Successfully filtered news for user: {data.to}')
@@ -58,7 +59,7 @@ def my_article(json_data):
 def llm_reqeust_templet(article, number_of_article, preference):
     data = (
     f"from this json {article} "
-    f"i want you to pick {number_of_article} articles "
+    f"i want you to pick exactly {number_of_article} articles "
     f"they need to be to most interesting and relevant for me base on {preference}"
     "if its empty or null, choice randomly."
     "Make sure the articles are different and not repetitive. "

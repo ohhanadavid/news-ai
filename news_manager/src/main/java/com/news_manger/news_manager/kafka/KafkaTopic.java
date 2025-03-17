@@ -3,6 +3,7 @@ package com.news_manger.news_manager.kafka;
 public enum KafkaTopic {
 
     SEND_EMAIL("api.sendMail"),
+    SEND_WHATSAPP("api.whatsApp"),
     SEND_SMS("api.sms"),
     GET_MY_ARTICLE("api.getMyArticle");
 

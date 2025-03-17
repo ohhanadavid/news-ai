@@ -33,6 +33,11 @@ public class KafkaTopicConfig {
     }
 
     @Bean
+    public NewTopic sendWhatsapp() {
+        return createTopic(SEND_WHATSAPP);
+    }
+
+    @Bean
     public NewTopic sendSms() {
         return createTopic(SEND_SMS);
     }

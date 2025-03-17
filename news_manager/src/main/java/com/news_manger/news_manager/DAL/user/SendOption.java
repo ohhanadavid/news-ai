@@ -3,7 +3,8 @@ package com.news_manger.news_manager.DAL.user;
 public enum SendOption {
 
     SMS("sms"),
-    EMAIL("email");
+    EMAIL("email"),
+    WHATSAPP("whatsapp");
 
 
     private final String option;

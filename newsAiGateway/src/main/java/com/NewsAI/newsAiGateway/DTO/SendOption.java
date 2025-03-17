@@ -3,7 +3,8 @@ package com.NewsAI.newsAiGateway.DTO;
 public enum SendOption {
 
     SMS("sms"),
-    EMAIL("email");
+    EMAIL("email"),
+    WHATSAPP("whatsapp");
 
 
     private final String option;
@@ -19,5 +20,14 @@ public enum SendOption {
     @Override
     public String toString() {
         return option;
+    }
+
+    public static SendOption fromString(String value) {
+        for (SendOption sendOption : values()) {
+            if (sendOption.option.equalsIgnoreCase(value)) {
+                return sendOption;
+            }
+        }
+        throw new IllegalArgumentException("Invalid send option: " + value);
     }
 }

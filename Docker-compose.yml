@@ -10,7 +10,6 @@ services:
     container_name: newsai_data_manager
     ports:
       - '7001:7001'
-      - "5006:5005"
     networks:
       - News_app_network
     restart: unless-stopped
@@ -18,20 +17,19 @@ services:
 
  
 
-# ########################################
-# # news manager MANAGER SERVICE
-# #######################################
+# # ########################################
+# # # news manager MANAGER SERVICE
+# # #######################################
   
-#   ############## SERVICE #################
-  newsmanager:
-    image: davidohhana/newsai_news-manager:latest
-    container_name: newsai_news_manager
-    ports:
-      - '7000:7000'
-      - "5000:5005"
-    networks:
-      - News_app_network
-    restart: unless-stopped
+# #   ############## SERVICE #################
+#   newsmanager:
+#     image: davidohhana/newsai_news-manager:latest
+#     container_name: newsai_news_manager
+#     ports:
+#       - '7000:7000'
+#     networks:
+#       - News_app_network
+#     restart: unless-stopped
 
 
 
@@ -51,6 +49,7 @@ services:
           KC_DB_USERNAME: postgres
           KC_DB_PASSWORD: postgres
           KC_HOSTNAME: localhost
+          KC_HOSTNAME_PORT: 8081
           KEYCLOAK_ADMIN: admin
           KEYCLOAK_ADMIN_PASSWORD: admin
       ports:
@@ -60,36 +59,6 @@ services:
       depends_on:
           - postgres
   
-# # ########## SERVICE ################
-#   useraccessor:
-#     image: davidohhana/newsai_user-accessor:latest
-#     container_name: user_accessor_newsAi
-#     ports:
-#       - '7002:7002'
-#       - "5005:5005"
-#     depends_on:
-#       - postgres
-
-#     networks:
-#       - News_app_network
-#     restart: unless-stopped
-
-
-
-# # #######################################
-# # # newsdata_io_accessor  SERVICE
-# # ######################################
-  
-# #   ########## SERVICE ###################
-#   newsdataioaccessor:
-#     image: davidohhana/news_data_io_accessor:latest
-#     container_name:  newsdata_io_accessor_newsAi
-#     ports:
-#       - '7003:7003'
-#       - "5008:5005"
-#     networks:
-#       - News_app_network
-#     restart: unless-stopped
 
 # ########################################
 # # llm_accessor SERVICE
@@ -113,25 +82,23 @@ services:
     container_name:  mail_sender_engine_newsAi
     ports:
       - '7005:7005'
-      - "5009:5005"
     networks:
       - News_app_network
     restart: unless-stopped
       
 
-# ########################################
-# # GATEWAY
-# #######################################
+# # ########################################
+# # # GATEWAY
+# # #######################################
 
-  gateway:
-    image: davidohhana/newsai_gateway:latest
-    container_name:  newsai_gateway
-    ports:
-      - '8080:8080'
-      
-    networks:
-      - News_app_network
-    restart: unless-stopped
+#   gateway:
+#     image: davidohhana/newsai_gateway:latest
+#     container_name:  newsai_gateway
+#     ports:
+#       - '8080:8080'
+#     networks:
+#       - News_app_network
+#     restart: unless-stopped
 # # ########################################
 # # # TINY URL
 # # #######################################
