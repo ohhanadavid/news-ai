@@ -60,6 +60,7 @@ class KafkaConfig:
             level=logging.INFO,
             format='%(asctime)s - %(levelname)s - %(message)s'
         )
+        logging.info("start run")
         consumer = self.create_consumer("newsAi")
         consumer.subscribe(["api.getMyArticle"])
         

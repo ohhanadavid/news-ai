@@ -1,11 +1,10 @@
 
 
-import os
-import logging 
-import google.generativeai as genai
+
+import logging
 from dotenv import load_dotenv
-import base64
 import os
+
 from google import genai
 from google.genai import types
 

@@ -22,14 +22,14 @@ services:
 # # #######################################
   
 # #   ############## SERVICE #################
-#   newsmanager:
-#     image: davidohhana/newsai_news-manager:latest
-#     container_name: newsai_news_manager
-#     ports:
-#       - '7000:7000'
-#     networks:
-#       - News_app_network
-#     restart: unless-stopped
+  newsmanager:
+    image: davidohhana/newsai_news-manager:latest
+    container_name: newsai_news_manager
+    ports:
+      - '7000:7000'
+    networks:
+      - News_app_network
+    restart: unless-stopped
 
 
 
@@ -39,25 +39,26 @@ services:
 # #######################################
 
   keycloak:
-      image: quay.io/keycloak/keycloak:latest
-      container_name: keycloak
-      restart: always
-      command: start-dev
-      environment:
-          KC_DB: postgres
-          KC_DB_URL: jdbc:postgresql://postgres/NewsAiDB
-          KC_DB_USERNAME: postgres
-          KC_DB_PASSWORD: postgres
-          KC_HOSTNAME: localhost
-          KC_HOSTNAME_PORT: 8081
-          KEYCLOAK_ADMIN: admin
-          KEYCLOAK_ADMIN_PASSWORD: admin
-      ports:
-          - "8081:8080"
-      networks:
-        - News_app_network
-      depends_on:
-          - postgres
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak
+    restart: always
+    #command: start-dev
+    environment:
+        KC_DB: postgres
+        KC_DB_URL: jdbc:postgresql://postgres/NewsAiDB
+        KC_DB_USERNAME: postgres
+        KC_DB_PASSWORD: postgres
+        KC_HOSTNAME: localhost
+        KC_HOSTNAME_PORT: 8081
+        KEYCLOAK_ADMIN: admin
+        KEYCLOAK_ADMIN_PASSWORD: admin
+    command: ["start-dev", "--http-port=8081"]
+    ports:
+        - "8081:8081"
+    networks:
+      - News_app_network
+    depends_on:
+      - postgres
   
 
 # ########################################
@@ -91,14 +92,14 @@ services:
 # # # GATEWAY
 # # #######################################
 
-#   gateway:
-#     image: davidohhana/newsai_gateway:latest
-#     container_name:  newsai_gateway
-#     ports:
-#       - '8080:8080'
-#     networks:
-#       - News_app_network
-#     restart: unless-stopped
+  gateway:
+    image: davidohhana/newsai_gateway:latest
+    container_name:  newsai_gateway
+    ports:
+      - '8080:8080'
+    networks:
+      - News_app_network
+    restart: unless-stopped
 # # ########################################
 # # # TINY URL
 # # #######################################

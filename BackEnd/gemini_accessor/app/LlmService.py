@@ -37,6 +37,7 @@ def my_article(json_data):
                 start=text.find('[')
                 end=text.find(']')
                 text=text[start:end+1]
+                text =text.replace('/n',"")
                 text=is_json_object(text)
                 if not text:
                     logging.warning(f'Invalid JSON format received for user: {data.to}')
@@ -58,19 +59,39 @@ def my_article(json_data):
 
 def llm_reqeust_templet(article, number_of_article, preference):
     data = (
-    f"from this json {article} "
-    f"i want you to pick exactly {number_of_article} articles "
-    f"they need to be to most interesting and relevant for me base on {preference}"
-    "if its empty or null, choice randomly."
-    "Make sure the articles are different and not repetitive. "
+
+
+
     "i want you return me the answer in this type:"
     "url: the article url here give me the exact same url "
     "title: the article title here"
     "summary: base on url,title and description put here the short article summery maximum 50 words"
-    "videoUrl: short url from video url if exists"
+    "videoUrl: the exact same url from video url if exists"
     "pubDate: the date from pubDate "
     "give me this in json format ready to insert into object"
     "make shore its json format without any error"
+    )
+    data = (
+        f"Given the following JSON data {article}, "
+        f"I need you to select exactly {number_of_article} articles. "
+        f"The articles should be the most interesting and relevant based on {preference}. "
+        "If the preference is empty or null, please select the articles randomly. "
+        "Ensure that exactly the requested number of articles are returned, with no repetitions. "
+        "Return the result in the following JSON format, without any additional characters or errors:"
+        "\n"
+        "{"
+        "\n  \"articles\": ["
+        "\n    {"
+        "\n      \"url\": \"<article_url>\","
+        "\n      \"title\": \"<article_title>\","
+        "\n      \"summary\": \"<base on url,title and description put here the short article summery maximum 50 words>\","
+        "\n      \"videoUrl\": \"<the exact same url from video url if exists if not exists return here null>\","
+        "\n      \"pubDate\": \"<publication_date>\""
+        "\n    }"
+        "\n  ]"
+        "\n}"
+        "\nMake sure the JSON format is correct with no extra commas or characters. "
+        "The JSON should be ready to be inserted into an object."
     )
     return data
 
