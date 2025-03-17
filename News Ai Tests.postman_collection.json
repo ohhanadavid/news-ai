@@ -1,0 +1,910 @@
+{
+	"info": {
+		"_postman_id": "b32ddf47-70a9-4a73-9bc5-4d36fa98f4a2",
+		"name": "News Ai Tests",
+		"description": "# 🚀 Get started here\n\nThis template guides you through CRUD operations (GET, POST, PUT, DELETE), variables, and tests.\n\n## 🔖 **How to use this template**\n\n#### **Step 1: Send requests**\n\nRESTful APIs allow you to perform CRUD operations using the POST, GET, PUT, and DELETE HTTP methods.\n\nThis collection contains each of these [request](https://learning.postman.com/docs/sending-requests/requests/) types. Open each request and click \"Send\" to see what happens.\n\n#### **Step 2: View responses**\n\nObserve the response tab for status code (200 OK), response time, and size.\n\n#### **Step 3: Send new Body data**\n\nUpdate or add new data in \"Body\" in the POST request. Typically, Body data is also used in PUT request.\n\n```\n{\n    \"name\": \"Add your name in the body\"\n}\n\n ```\n\n#### **Step 4: Update the variable**\n\nVariables enable you to store and reuse values in Postman. We have created a [variable](https://learning.postman.com/docs/sending-requests/variables/) called `base_url` with the sample request [https://postman-api-learner.glitch.me](https://postman-api-learner.glitch.me). Replace it with your API endpoint to customize this collection.\n\n#### **Step 5: Add tests in the \"Scripts\" tab**\n\nAdding tests to your requests can help you confirm that your API is working as expected. You can write test scripts in JavaScript and view the output in the \"Test Results\" tab.\n\n<img src=\"https://content.pstmn.io/fa30ea0a-373d-4545-a668-e7b283cca343/aW1hZ2UucG5n\" alt=\"\" height=\"1530\" width=\"2162\">\n\n## 💪 Pro tips\n\n- Use folders to group related requests and organize the collection.\n    \n- Add more [scripts](https://learning.postman.com/docs/writing-scripts/intro-to-scripts/) to verify if the API works as expected and execute workflows.\n    \n\n## 💡Related templates\n\n[API testing basics](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=e9a37a28-055b-49cd-8c7e-97494a21eb54&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)  \n[API documentation](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=e9c28f47-1253-44af-a2f3-20dce4da1f18&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)  \n[Authorization methods](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=31a9a6ed-4cdf-4ced-984c-d12c9aec1c27&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "34712602"
+	},
+	"item": [
+		{
+			"name": "authorization",
+			"item": [
+				{
+					"name": "creatUser",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// var jsonData = JSON.parse(responseBody);\r",
+									"// pm.collectionVariables.set(\"Access_token\", jsonData.token);\r",
+									"\r",
+									"// pm.test(\"Status code is 200\",function(){\r",
+									"//     pm.expect(pm.response.code).to.eql(200);\r",
+									"// })  ;\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userName\":{{username test 1}},\r\n   \"email\":{{test_email}},\r\n   \"firstName\":{{first name test 1}},\r\n    \"lastName\":{{last name test 1}},\r\n    \"phone\":{{test phone}},\r\n    \"password\":{{test_password}}\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{server_url}}/saveUser"
+					},
+					"response": []
+				},
+				{
+					"name": "authenticate",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"//     var jsonData = pm.response.json();\r",
+									"//     pm.collectionVariables.set(\"Access_token\", jsonData.token);\r",
+									"\r",
+									"\r",
+									"// pm.test(\"Status code is 200\",function(){\r",
+									"//     pm.expect(pm.response.code).to.eql(200);\r",
+									"// })  ;"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userIdentifier\":{{test_email}},\r\n    \"password\":{{test_password}}\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{server_url}}/authenticate"
+					},
+					"response": []
+				},
+				{
+					"name": "change password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// var jsonData = JSON.parse(responseBody);\r",
+									"// pm.collectionVariables.set(\"Access_token\", jsonData.token);\r",
+									"\r",
+									"// pm.test(\"Status code is 200\",function(){\r",
+									"//     pm.expect(pm.response.code).to.eql(200);\r",
+									"// })  ;"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{Access_token}}"
+							}
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n \"oldPassword\":{{test_password}},\r\n  \"newPassword\": {{test_password2}}\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{server_url}}/changePassword"
+					},
+					"response": []
+				},
+				{
+					"name": "change detls",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"//     var jsonData = pm.response.json();\r",
+									"//     pm.collectionVariables.set(\"Access_token\", jsonData.token);\r",
+									"\r",
+									"\r",
+									"// pm.test(\"Status code is 200\",function(){\r",
+									"//     pm.expect(pm.response.code).to.eql(200);\r",
+									"// })  ;"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{Access_token}}"
+							}
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":{{test_email}},\r\n    \"firstName\":\"'dggdfר\",\r\n    \"lastName\":\"fsdfsdfsd\",\r\n    \"phone\":\"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{server_url}}/updateUser"
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);\r",
+							"if (jsonData.hasOwnProperty(\"token\")) {\r",
+							"    pm.collectionVariables.set(\"Access_token\", jsonData.token);\r",
+							"}\r",
+							"   \r",
+							"\r",
+							"pm.test(\"Status code is 200\",function(){\r",
+							"    pm.expect(pm.response.code).to.eql(200);\r",
+							"})  ;"
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "user data",
+			"item": [
+				{
+					"name": "get user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\",function(){\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"})  ;"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{server_url}}/getUser"
+					},
+					"response": []
+				},
+				{
+					"name": "delete user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\",function(){\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"})  ;"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{server_url}}/deleteUser"
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": {
+					"token": "{{Access_token}}"
+				}
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							"pm.test(\"Status code is 200\",function(){\r",
+							"    pm.expect(pm.response.code).to.eql(200);\r",
+							"})  ;"
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "laguage data",
+			"item": [
+				{
+					"name": "save language",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"language\":\"Catalan\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{server_url}}/saveLanguage"
+					},
+					"response": []
+				},
+				{
+					"name": "get languages",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{server_url}}/getMyLanguages"
+					},
+					"response": []
+				},
+				{
+					"name": "get languages code",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{server_url}}/getMyLanguagesCode"
+					},
+					"response": []
+				},
+				{
+					"name": "delete languages",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"language\": \"Catalan\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{server_url}}/deleteLanguage"
+					},
+					"response": []
+				},
+				{
+					"name": "update language",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"oldLanguage\": {{test language Galician}},\r\n  \"newLanguage\": \"Catalan\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{server_url}}/updateLanguage"
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": {
+					"token": "{{Access_token}}"
+				}
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							"pm.test(\"Status code is 200\",function(){\r",
+							"    pm.expect(pm.response.code).to.eql(200);\r",
+							"})  ;"
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "category data",
+			"item": [
+				{
+					"name": "save category",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"category\": {\r\n    \"preference\": {{test prefernce food 2}},\r\n    \"category\": {{test category food}}\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{server_url}}/saveCategory"
+					},
+					"response": []
+				},
+				{
+					"name": "update Preference",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"category\": {{test category food}},\r\n  \"oldPreference\": {{test prefernce food 1}},\r\n  \"newPreference\": {{test prefernce food 2}}\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{server_url}}/updatePreference"
+					},
+					"response": []
+				},
+				{
+					"name": "update category",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"oldCategory\": {{test category food}},\r\n  \"newCategory\": {{test category sport}}\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{server_url}}/changeCategory"
+					},
+					"response": []
+				},
+				{
+					"name": "my categories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{server_url}}/myCategories"
+					},
+					"response": []
+				},
+				{
+					"name": "preferences by category",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{server_url}}/getPreferenceByCategory?category={{test category sport for query}}",
+							"host": [
+								"{{server_url}}"
+							],
+							"path": [
+								"getPreferenceByCategory"
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "{{test category sport for query}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete category",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{server_url}}/deleteCategory?category={{test category sport for query}}",
+							"host": [
+								"{{server_url}}"
+							],
+							"path": [
+								"deleteCategory"
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "{{test category sport for query}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete prefernce",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"category\": {\r\n    \"preference\": {{test prefernce food 1}},\r\n    \"category\": {{test category food}}\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{server_url}}/deletePreference"
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": {
+					"token": "{{Access_token}}"
+				}
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							"pm.test(\"Status code is 200\",function(){\r",
+							"    pm.expect(pm.response.code).to.eql(200);\r",
+							"})  ;"
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "news ai request",
+			"item": [
+				{
+					"name": "maximum languages",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{server_url}}/maximumLanguage"
+					},
+					"response": []
+				},
+				{
+					"name": "get languages",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{server_url}}/getLanguages"
+					},
+					"response": []
+				},
+				{
+					"name": "get categories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{server_url}}/getCategories"
+					},
+					"response": []
+				},
+				{
+					"name": "chack category",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{server_url}}/checkCategory?category=crimeA",
+							"host": [
+								"{{server_url}}"
+							],
+							"path": [
+								"checkCategory"
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "crimeA"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get language code",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{server_url}}/getLanguageCode?language={{test language Hebrew for query }}",
+							"host": [
+								"{{server_url}}"
+							],
+							"path": [
+								"getLanguageCode"
+							],
+							"query": [
+								{
+									"key": "language",
+									"value": "{{test language Hebrew for query }}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get latest news",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{server_url}}/getLatestNews?numberOfArticle=4",
+							"host": [
+								"{{server_url}}"
+							],
+							"path": [
+								"getLatestNews"
+							],
+							"query": [
+								{
+									"key": "numberOfArticle",
+									"value": "4"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get latest news with category",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{server_url}}/getLatestNewsByCategory?numberOfArticle=2&category={{test category food for query}}",
+							"host": [
+								"{{server_url}}"
+							],
+							"path": [
+								"getLatestNewsByCategory"
+							],
+							"query": [
+								{
+									"key": "numberOfArticle",
+									"value": "2"
+								},
+								{
+									"key": "category",
+									"value": "{{test category food for query}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get latest news by my categories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{server_url}}/getLatestListNewsByCategories?numberOfArticle=6",
+							"host": [
+								"{{server_url}}"
+							],
+							"path": [
+								"getLatestListNewsByCategories"
+							],
+							"query": [
+								{
+									"key": "numberOfArticle",
+									"value": "6"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": {
+					"token": "{{Access_token}}"
+				}
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							"pm.test(\"Status code is 200\",function(){\r",
+							"    pm.expect(pm.response.code).to.eql(200);\r",
+							"})  ;"
+						]
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "id",
+			"value": "1"
+		},
+		{
+			"key": "first name test 1",
+			"value": "avada",
+			"type": "string"
+		},
+		{
+			"key": "base_url",
+			"value": "https://postman-rest-api-learner.glitch.me/"
+		},
+		{
+			"key": "last name test 1",
+			"value": "kadabra",
+			"type": "string"
+		},
+		{
+			"key": "username test 1",
+			"value": "ddaadd",
+			"type": "string"
+		},
+		{
+			"key": "Access_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "server_url",
+			"value": "localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "test_name",
+			"value": "\"test\"",
+			"type": "string"
+		},
+		{
+			"key": "test_name2",
+			"value": "\"I change\"",
+			"type": "string"
+		},
+		{
+			"key": "test_password",
+			"value": "string",
+			"type": "string"
+		},
+		{
+			"key": "test_password2",
+			"value": "string1",
+			"type": "string"
+		},
+		{
+			"key": "test_email",
+			"value": "sustujbv167@gmail.com",
+			"type": "string"
+		},
+		{
+			"key": "test phone",
+			"value": "123456789",
+			"type": "string"
+		},
+		{
+			"key": "test_email_for_path",
+			"value": "sustujbv167@gmail.com",
+			"type": "string"
+		},
+		{
+			"key": "test_email2",
+			"value": "davidohhana@gmail.com",
+			"type": "string"
+		},
+		{
+			"key": "test_email2_for path",
+			"value": "davidohhana@gmail.com",
+			"type": "string"
+		},
+		{
+			"key": "test language English",
+			"value": "English\n",
+			"type": "string"
+		},
+		{
+			"key": "test language Hebrew",
+			"value": "Hebrew",
+			"type": "string"
+		},
+		{
+			"key": "test language Hebrew for query ",
+			"value": "Hebrew",
+			"type": "string"
+		},
+		{
+			"key": "test language Hungarian",
+			"value": "Hungarian",
+			"type": "string"
+		},
+		{
+			"key": "test language Galician",
+			"value": "Galician",
+			"type": "string"
+		},
+		{
+			"key": "test language Finnish",
+			"value": "Finnish",
+			"type": "string"
+		},
+		{
+			"key": "test category food",
+			"value": "food",
+			"type": "string"
+		},
+		{
+			"key": "test category food for query",
+			"value": "food",
+			"type": "string"
+		},
+		{
+			"key": "test category sport",
+			"value": "sports",
+			"type": "string"
+		},
+		{
+			"key": "test category sport for query",
+			"value": "sports",
+			"type": "string"
+		},
+		{
+			"key": "test category science",
+			"value": "science",
+			"type": "string"
+		},
+		{
+			"key": "test prefernce sport 1",
+			"value": "basktball",
+			"type": "string"
+		},
+		{
+			"key": "test prefernce sport 2",
+			"value": "football",
+			"type": "string"
+		},
+		{
+			"key": "test prefernce food 1",
+			"value": "pizza",
+			"type": "string"
+		},
+		{
+			"key": "test prefernce food 2",
+			"value": "burger",
+			"type": "string"
+		}
+	]
+}
