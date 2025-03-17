@@ -2,7 +2,7 @@
 setlocal enabledelayedexpansion
 
 echo Compiling Maven projects in directories containing pom.xml...
-
+call cd  ./BackEnd
 for /d %%d in (*) do (
     if exist "%%d\createDockerFileAndUplodeToHub.bat" (
         echo.

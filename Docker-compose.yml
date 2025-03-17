@@ -22,14 +22,14 @@ services:
 # # #######################################
   
 # #   ############## SERVICE #################
-#   newsmanager:
-#     image: davidohhana/newsai_news-manager:latest
-#     container_name: newsai_news_manager
-#     ports:
-#       - '7000:7000'
-#     networks:
-#       - News_app_network
-#     restart: unless-stopped
+  newsmanager:
+    image: davidohhana/newsai_news-manager:latest
+    container_name: newsai_news_manager
+    ports:
+      - '7000:7000'
+    networks:
+      - News_app_network
+    restart: unless-stopped
 
 
 
@@ -91,14 +91,14 @@ services:
 # # # GATEWAY
 # # #######################################
 
-#   gateway:
-#     image: davidohhana/newsai_gateway:latest
-#     container_name:  newsai_gateway
-#     ports:
-#       - '8080:8080'
-#     networks:
-#       - News_app_network
-#     restart: unless-stopped
+  gateway:
+    image: davidohhana/newsai_gateway:latest
+    container_name:  newsai_gateway
+    ports:
+      - '8080:8080'
+    networks:
+      - News_app_network
+    restart: unless-stopped
 # # ########################################
 # # # TINY URL
 # # #######################################
