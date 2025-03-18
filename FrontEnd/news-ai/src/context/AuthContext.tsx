@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
+import config from "../config"; // Adjust the path if necessary
 
 interface AuthContextType {
   user: any;
@@ -28,7 +29,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const fetchUser = async () => {
     try {
-      const res = await fetch("/api/getUser", {
+      const res = await fetch(`${config.baseURL}/getUser`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.status === 401) {
@@ -44,7 +45,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const login = async (email: string, password: string) => {
-    const res = await fetch("/api/authenticate", {
+    const res = await fetch(`${config.baseURL}/authenticate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userIdentifier: email, password }),
@@ -61,7 +62,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const handleRefreshToken = async () => {
     if (!refreshToken) return logout();
     try {
-      const res = await fetch("/api/refreshToken", {
+      const res = await fetch(`${config.baseURL}/refreshToken`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ refreshToken }),
@@ -76,7 +77,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const register = async (email: string, password: string) => {
-    const res = await fetch("/api/saveUser", {
+    const res = await fetch(`${config.baseURL}/saveUser`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
