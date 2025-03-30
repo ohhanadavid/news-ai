@@ -1,14 +1,25 @@
 import React, { useState, useEffect } from "react";
 import config from "../config";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext"; 
 
 const AddCategory = () => {
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [preference, setPreference] = useState("");
+  const navigate = useNavigate();
+  const { handleRefreshToken } = useAuth();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Fetch the list of categories from the backend
-    fetch(`${config.baseURL}/getCategories`)
+    const token = localStorage.getItem("token");
+    fetch(`${config.baseURL}/getCategories`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then(response => response.json())
       .then(data => {
         setCategories(data);
@@ -18,9 +29,39 @@ const AddCategory = () => {
       });
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission logic here
+
+    const token = localStorage.getItem("token");
+    const res = await fetch(`${config.baseURL}/saveCategory`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        category: {
+          preference,
+          category: selectedCategory,
+        },
+      }),
+    });
+
+    if (res.status === 401) {
+      await handleRefreshToken();
+      return;
+    }
+    if (res.status === 409) {
+      setError("Category already exists");
+      return;
+    }
+    if (res.status === 400) {
+      setError("Somthing went wrong, please try again later");
+      return;
+    }
+    if (!res.ok) throw new Error("Failed to save category");
+
+    navigate("/dashboard");
     console.log("Category added:", selectedCategory);
     console.log("Preference:", preference);
   };
@@ -52,8 +93,14 @@ const AddCategory = () => {
             onChange={(e) => setPreference(e.target.value)}
           />
         </label>
+        {error && <p className="text-red-500">{error}</p>}
         <br />
         <button type="submit">Add Category</button>
+        <div style={{ marginTop: "10px" }}>
+        <button type="button" onClick={() => navigate("/dashboard")}>
+          Cancel
+        </button>
+      </div>
       </form>
     </div>
   );

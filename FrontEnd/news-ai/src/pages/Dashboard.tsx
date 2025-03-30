@@ -1,11 +1,21 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import MyLanguage from "../componnent/MyLanguage";
+import MyCategoryies from "../componnent/MyCategory";
 
 const Dashboard = () => {
+  const { user } = useAuth();
   return (
     <div>
-      <h1>Dashboard</h1>
-      <p>Welcome to the Dashboard!</p>
+      <h1>NewsAI</h1>
+      <p>Welcome to the NewsAi APP!</p>
+      <div>
+        <h2>User Information <Link to="/updateUser">Update User</Link></h2>
+        <p><b>name:</b> {user.name}</p>
+        <p><b>email:</b> {user.email}</p>
+        <p><b>phone:</b> {user.phone}</p>
+      </div>
       <div>
         <h2>Quick Links</h2>
         <ul>
@@ -14,17 +24,14 @@ const Dashboard = () => {
           <li><Link to="/news-subscription">Manage News Subscriptions</Link></li>
         </ul>
       </div>
+      
       <div>
-        <h2>User Information</h2>
-        <p>Here you can display user-specific information or recent activity.</p>
+        <h2>My language</h2>
+        <MyLanguage />
       </div>
       <div>
-        <h2>Statistics</h2>
-        <p>Show relevant statistics or reports here.</p>
-      </div>
-      <div>
-        <h2>Notifications</h2>
-        <p>Display any notifications or alerts for the user.</p>
+        <h2>My categories</h2>
+        <MyCategoryies/>
       </div>
     </div>
   );
