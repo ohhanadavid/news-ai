@@ -7,10 +7,15 @@ import AddLanguage from "./pages/AddLanguage";
 import AddCategory from "./pages/AddCategory";
 import NewsSubscription from "./pages/NewsSubscription";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import UpdateUser from "./pages/UpdateUser";
 //import "./styles/globals.css";
 
 const PrivateRoute = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
+  if (user === undefined) {
+    return <p>Loading...</p>; // חוסם מעבר עד שהמשתמש נטען
+  }
+  
   return user ? children : <Navigate to="/login" replace />;
 };
 
@@ -25,6 +30,7 @@ function App() {
           <Route path="/add-language" element={<PrivateRoute><AddLanguage /></PrivateRoute>} />
           <Route path="/add-category" element={<PrivateRoute><AddCategory /></PrivateRoute>} />
           <Route path="/news-subscription" element={<PrivateRoute><NewsSubscription /></PrivateRoute>} />
+          <Route path="/updateUser" element={<PrivateRoute><UpdateUser /></PrivateRoute>} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </AuthProvider>

@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState<string>("");
+  const [userIdentifier, setUserIdentifier] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -12,12 +12,14 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      await login(email, password);
-      navigate("/dashboard");
+      await login(userIdentifier, password);
+      console.log("Login successful! Redirecting...");
+     
     } catch (err) {
+      console.error(err);
       setError("Failed to login. Please check your credentials.");
     }
-    console.log("Email:", email);
+    console.log("UserIdentifier:", userIdentifier);
     console.log("Password:", password);
   };
 
@@ -28,11 +30,11 @@ const Login: React.FC = () => {
         {error && <p className="text-red-500">{error}</p>}
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-gray-700">Email</label>
+            <label className="block text-gray-700">Email or user name</label>
             <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="string"
+              value={userIdentifier}
+              onChange={(e) => setUserIdentifier(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded mt-1"
               required
             />
