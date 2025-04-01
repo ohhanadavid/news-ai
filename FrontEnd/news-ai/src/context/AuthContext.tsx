@@ -5,6 +5,8 @@ import config from "../config"; // Adjust the path if necessary
 interface AuthContextType {
   user: any;
   login: (userIdentifier: string, password: string) => Promise<void>;
+  deleteUser: () => Promise<void>;
+  changePassword: (oldPassword: string, newPassword: string) => Promise<void>;
   register: ({
     userName,
     firstName,
@@ -87,7 +89,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (!res.ok) throw new Error("Login failed");
     
     const data = await res.json();
-    console.log(data);
+    console.log(`Login response: token? ${data.token?true:false} refresh token? ${data.refreshToken?true:false}`); // Log the response for debugging
     setUser(data.user);
     setToken(data.token);
     setRefreshToken(data.refreshToken);
@@ -97,7 +99,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const handleRefreshToken = async () => {
-    if (!refreshToken) return logout();
+    console.log("Refreshing token...");
+    if (!refreshToken){
+      console.log("No refresh token found, logging out...");
+      setRefreshToken(localStorage.getItem("refreshToken"));
+      if (!refreshToken) 
+        return logout();
+    } 
     try {
       const res = await fetch(`${config.baseURL}/refreshToken`, {
         method: "POST",
@@ -106,7 +114,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
       if (!res.ok) throw new Error("Refresh token failed");
       const data = await res.json();
+      console.log(`Login response: token? ${data.token?true:false} refresh token? ${data.refreshToken?true:false}`);
       setToken(data.token);
+      localStorage.setItem("token", data.token);
+      if (data.refreshToken) {
+        setRefreshToken(data.refreshToken); 
+        localStorage.setItem("refreshToken", data.refreshToken);
+      }
       localStorage.setItem("token", data.token);
     } catch {
       logout();
@@ -168,9 +182,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     navigate("/login");
   };
 
+  const deleteUser = async () => {
+    const res = await fetch(`${config.baseURL}/deleteUser`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!res.ok) throw new Error("Failed to delete user");
+    logout();
+  };
+
+  const changePassword = async (oldPassword: string, newPassword: string) => {
+    const res = await fetch(`${config.baseURL}/changePassword`, {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ oldPassword, newPassword }),
+    });
+
+    if (!res.ok) throw new Error("Failed to change password");
+    console.log("Password changed successfully");
+  };
+
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout ,handleRefreshToken,updateUser}}>
+    <AuthContext.Provider value={{ user, login, register, logout ,handleRefreshToken,updateUser,deleteUser,changePassword}}>
       {children}
     </AuthContext.Provider>
   );

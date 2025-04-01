@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import config from "../config";
 import { useAuth } from "../context/AuthContext";
+import { FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { MdCategory, MdCheckCircle, MdDelete } from "react-icons/md";
 
 const MyCategoryies = () => {
   const [categories, setCategories] = useState<Map<string, string[]>>(new Map());
   const [error, setError] = useState<string | null>(null);
   const [visibleCategories, setVisibleCategories] = useState<Set<string>>(new Set());
-  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set()); // Track selected items
   const { handleRefreshToken } = useAuth();
 
   useEffect(() => {
@@ -40,6 +41,7 @@ const MyCategoryies = () => {
       .then((data) => {
         if (data) {
           setCategories(new Map(Object.entries(data))); // Convert object to Map
+          setError(null); // Clear error if the fetch is successful
         } else {
           setError("No categories found.");
         }
@@ -62,92 +64,137 @@ const MyCategoryies = () => {
     });
   };
 
-  const toggleItemSelection = (item: string, category?: string) => {
-    setSelectedItems((prev) => {
-      const updated = new Set(prev);
-      if (updated.has(item)) {
-        updated.delete(item); // Unselect the item
-      } else {
-        updated.add(item); // Select the item
+  const handleDeleteCategory = async (category: string) => {
+    console.log("Selected items to delete:", category);
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(
+        `${config.baseURL}/deleteCategory?category=${encodeURIComponent(category)}&preference=${encodeURIComponent(category)}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error("Failed to delete selected items");
       }
-      return updated;
-    });
+      setCategories((prev) => {
+        const updated = new Map(prev);
+        updated.delete(category);
+        return updated;
+      });
+
+      setError(null); // Clear error if the delete is successful
+    } catch (error) {
+      console.error("Error deleting items:", error);
+      setError("Failed to delete selected items.");
+    }
   };
 
-  const handleDelete = async () => {
-    console.log("Selected items to delete:", );
-    // const token = localStorage.getItem("token");
-    // const itemsToDelete = Array.from(selectedItems);
+  const handleDeletePrefference = async (category: string, preference: string) => {
+    console.log("Selected items to delete:", category, preference);
+    const token = localStorage.getItem("token");
 
-    // try {
-    //   const res = await fetch(`${config.baseURL}/deleteCategories`, {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //       Authorization: `Bearer ${token}`,
-    //     },
-    //     body: JSON.stringify({ items: itemsToDelete }),
-    //   });
+    try {
+      const res = await fetch(`${config.baseURL}/deletePreference`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          category: {
+            preference,
+            category,
+          },
+        }),
+      });
 
-    //   if (!res.ok) {
-    //     throw new Error("Failed to delete selected items");
-    //   }
+      if (!res.ok) {
+        throw new Error("Failed to delete selected items");
+      }
 
-    //   // Remove deleted items from the state
-    //   setCategories((prev) => {
-    //     const updated = new Map(prev);
-    //     itemsToDelete.forEach((item) => {
-    //       updated.forEach((values, key) => {
-    //         if (key === item) {
-    //           updated.delete(key); // Remove category
-    //         } else {
-    //           updated.set(key, values.filter((value) => value !== item)); // Remove item
-    //         }
-    //       });
-    //     });
-    //     return updated;
-    //   });
+      // Remove deleted items from the state
+      setCategories((prev) => {
+        const updated = new Map(prev);
+        updated.forEach((values, key) => {
+          if (key === category) {
+            updated.set(key, values.filter((value) => value !== preference)); // Remove preference
+          }
+        });
+        return updated;
+      });
 
-    //   setSelectedItems(new Set()); // Clear selected items
-    // } catch (error) {
-    //   console.error("Error deleting items:", error);
-    //   setError("Failed to delete selected items.");
-    // }
+      setError(null); // Clear error if the delete is successful
+    } catch (error) {
+      console.error("Error deleting items:", error);
+      setError("Failed to delete selected items.");
+    }
   };
 
   return (
     <div>
-      {error ? (
-        <p>{error}</p>
-      ) : categories.size > 0 ? (
+      {error && <p className="text-red-500">{error}</p>}
+      {categories.size > 0 ? (
         <div>
           <ul>
             {Array.from(categories.entries()).map(([category, items], index) => (
-              <li key={index}>
-                <strong>
-                  <input
-                    type="checkbox"
-                    checked={selectedItems.has(category)}
-                    onChange={() => toggleItemSelection(category)}
-                  />
-                  {category}
-                </strong>
+              <li key={index} style={{  alignItems: "center" }}>
+                <MdCategory style={{ marginRight: "10px" }} />
+                <strong>{category}</strong>
                 <button
-                  style={{ marginLeft: "10px" }}
+                  onClick={() => handleDeleteCategory(category)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    fontSize: "24px",
+                    cursor: "pointer",
+                    marginLeft: "10px",
+                  }}
+                  aria-label="delete category"
+                  className="delete-button"
+                >
+                  <MdDelete />
+                </button>
+                <button
+                  style={{
+                    background: "none",
+                    border: "none",
+                    fontSize: "24px",
+                    cursor: "pointer",
+                    marginLeft: "10px",
+                  }}
+                  aria-label="Toggle visibility"
+                  className="toggle-button"
                   onClick={() => toggleCategoryVisibility(category)}
                 >
-                  {visibleCategories.has(category) ? "Hide Items" : "Show Items"}
+                  {visibleCategories.has(category) ? <FaChevronUp /> : <FaChevronDown />}
                 </button>
                 {visibleCategories.has(category) && (
-                  <ul>
+                  <ul style={{ marginLeft: "0px", marginBottom: "10px" }}>
                     {items.map((item, subIndex) => (
-                      <li key={subIndex}>
-                        <input
-                          type="checkbox"
-                          checked={selectedItems.has(item)}
-                          onChange={() => toggleItemSelection(item, category)} // Pass both item and category
-                        />
+                      <li key={subIndex} style={{ display: "block", marginTop: "15px" }}>
+                        <MdCheckCircle style={{ marginRight: "10px" }} />
                         {item}
+                        <button
+                          onClick={() => handleDeletePrefference(category, item)}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            fontSize: "24px",
+                            cursor: "pointer",
+                            marginLeft: "10px",
+                          }}
+                          aria-label="delete preference"
+                          className="delete-button"
+                        >
+                          <MdDelete />
+                        </button>
                       </li>
                     ))}
                   </ul>
@@ -155,9 +202,6 @@ const MyCategoryies = () => {
               </li>
             ))}
           </ul>
-          <button onClick={handleDelete} style={{ marginTop: "20px" }}>
-            Delete Selected
-          </button>
         </div>
       ) : (
         <p>No categories found.</p>

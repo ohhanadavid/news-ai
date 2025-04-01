@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import config from "../config";
-import { useAuth } from "../context/AuthContext"; 
+import { useAuth } from "../context/AuthContext";
+import { useLanguages } from "../context/LanguagesContext"; // ✅ ייבוא ה-Context
+import { TbMessageLanguage } from "react-icons/tb";
+import { MdDelete } from "react-icons/md";
 
 const MyLanguage = () => {
-  const [languages, setLanguages] = useState<string[]>([]);
+  const { MyLanguages: languages, setMyLanguages } = useLanguages(); // ✅ שימוש ב-Context
   const [error, setError] = useState<string | null>(null);
-   const { handleRefreshToken } = useAuth();
+  const { handleRefreshToken } = useAuth();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-
     if (!token) {
       setError("Token not found, please log in again.");
       return;
@@ -22,50 +24,94 @@ const MyLanguage = () => {
         Authorization: `Bearer ${token}`,
       },
     })
-      .then(response => {
+      .then((response) => {
         if (response.status === 401) {
-          handleRefreshToken();  // אם הסטטוס הוא 401, נבצע רענון טוקן
-          
+          handleRefreshToken();
+          return null;
         }
         if (!response.ok) {
           throw new Error(`Failed to fetch languages, status: ${response.status}`);
         }
-        
-        // בדוק אם יש גוף תגובה
-        if (response.status === 204) {
-          return null;  // במקרה שאין תוכן
-        }
-
-        return response.json();  // אחרת, קריאה ל-JSON
+        return response.json();
       })
-      .then(data => {
+      .then((data) => {
         if (data) {
-          setLanguages(data);  // אם יש נתונים, הצג אותם
+          setMyLanguages(data); // ✅ עדכון הסטייט הגלובלי
+          setError(null);
         } else {
           setError("No languages found.");
         }
       })
-      .catch(error => {
+      .catch((error) => {
         setError("There was an error fetching the languages: " + error.message);
-        console.error("There was an error fetching the languages!", error);
       });
-  }, []);
+  }, [setMyLanguages]); // ✅ עכשיו הסטייט הגלובלי יתעדכן אוטומטית
+
+  const handleDeleteLanguage = async (language: string) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(`${config.baseURL}/deleteLanguage`, {
+        body: JSON.stringify({ language }),
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          handleRefreshToken();
+          return null;
+        }
+        throw new Error("Failed to delete selected items");
+      }
+
+      setMyLanguages((prev) => prev.filter((item) => item !== language)); // ✅ עדכון גלובלי
+
+      setError(null);
+    } catch (error) {
+      setError("Failed to delete selected items.");
+    }
+  };
 
   return (
     <div>
-      {error ? (
-        <p>{error}</p>
-      ) : languages.length > 0 ? (
+      {error && <p className="text-red-500">{error}</p>}
+     
+      {languages.length > 0 ? (
         <ul>
           {languages.map((language, index) => (
-            <li key={index}>{language}</li>
+            
+            <li key={index} style={{ display: "flex", alignItems: "center" }}>
+              <TbMessageLanguage style={{ marginRight: "10px" }} />
+              {language}
+              <button
+                onClick={() => handleDeleteLanguage(language)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  fontSize: "24px",
+                  cursor: "pointer",
+                  marginLeft: "10px",
+                  marginTop: "20px",
+                }}
+                aria-label="delete category"
+                className="delete-button"
+              >
+                <MdDelete />
+              </button>
+            </li>
           ))}
         </ul>
       ) : (
-        <p>No languages selected yet.</p>
+        !error && <p>No languages selected yet.</p>
       )}
     </div>
   );
 };
 
 export default MyLanguage;
+
+

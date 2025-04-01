@@ -7,22 +7,27 @@ import AddLanguage from "./pages/AddLanguage";
 import AddCategory from "./pages/AddCategory";
 import NewsSubscription from "./pages/NewsSubscription";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import UpdateUser from "./pages/UpdateUser";
-//import "./styles/globals.css";
+import Update from "./pages/Update";
+import { LanguagesProvider } from "./context/LanguagesContext";
+import  DeleteUser  from "./pages/DeleteUser";
+import { CategoryProvider } from "./context/CategoryContext";
 
 const PrivateRoute = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
+
   if (user === undefined) {
-    return <p>Loading...</p>; // חוסם מעבר עד שהמשתמש נטען
+    return <p>Loading...</p>; // מוודא שהמשתמש נטען לפני מעבר
   }
-  
+
   return user ? children : <Navigate to="/login" replace />;
 };
 
 function App() {
   return (
     <Router>
-      <AuthProvider>
+    <AuthProvider> {/* ✅ הזזנו את זה מחוץ ל-Router */}
+    <LanguagesProvider> {/* ✅ ספק השפות */}
+      <CategoryProvider>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
@@ -30,22 +35,16 @@ function App() {
           <Route path="/add-language" element={<PrivateRoute><AddLanguage /></PrivateRoute>} />
           <Route path="/add-category" element={<PrivateRoute><AddCategory /></PrivateRoute>} />
           <Route path="/news-subscription" element={<PrivateRoute><NewsSubscription /></PrivateRoute>} />
-          <Route path="/updateUser" element={<PrivateRoute><UpdateUser /></PrivateRoute>} />
+          <Route path="/update" element={<PrivateRoute><Update /></PrivateRoute>} />
+          <Route path="/deleteUser" element={<PrivateRoute><DeleteUser /></PrivateRoute>} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
-      </AuthProvider>
+      </CategoryProvider> {/* ✅ ספק הקטגוריות */}
+    </LanguagesProvider> {/* ✅ ספק השפות */}
+    </AuthProvider>
     </Router>
   );
 }
 
 export default App;
-
-
-
-
-
-
-
-
-
 

@@ -1,32 +1,45 @@
 import React, { useState, useEffect } from "react";
 import config from "../config";
+import { useCategory } from "../context/CategoryContext";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext"; 
 
 const NewsSubscription = () => {
-  const [categories, setCategories] = useState<string[]>([]);
+  const { categories } = useCategory();
   const [selectedOption, setSelectedOption] = useState("getLatestNews");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState<string[]>([]);
   const [articleCount, setArticleCount] = useState(1);
+   const { handleRefreshToken } = useAuth();
+   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Fetch the list of categories from the backend
-    fetch(`${config.baseURL}/getCategories`)
-      .then(response => response.json())
-      .then(data => {
-        setCategories(data);
-      })
-      .catch(error => {
-        console.error("There was an error fetching the categories!", error);
-      });
-  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission logic here
     console.log("Option selected:", selectedOption);
     console.log("Category selected:", selectedCategory);
     console.log("Delivery methods:", deliveryMethod);
     console.log("Article count:", articleCount);
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    // Call the appropriate function based on the selected option
+    switch (selectedOption) {   
+      case "getLatestNews":
+        getLatestNews(token, deliveryMethod.join(','), articleCount, handleRefreshToken);
+        break;
+      case "getLatestListNewsByCategories":
+        getLatestNewsByMyCategories(token, deliveryMethod.join(','), articleCount, handleRefreshToken);
+        break;
+      case "getLatestNewsByCategory":
+        getLatestNewsByCategory(token, deliveryMethod.join(','), selectedCategory, articleCount, handleRefreshToken);
+        break;
+      default:
+        break;
+    }
+
+   
+    navigate("/dashboard"); // Redirect to the dashboard after submission
   };
 
   const handleDeliveryMethodChange = (method: string) => {
@@ -121,3 +134,114 @@ const NewsSubscription = () => {
 };
 
 export default NewsSubscription;
+
+function getLatestNews(
+  token: string,
+  deliveryMethod: string,
+  articleCount: number,
+  handleRefreshToken: () => Promise<void>,
+  
+) {
+  // Construct the base URL
+  let url = `${config.baseURL}/getLatestNews?numberOfArticles=${articleCount}`;
+
+  // Add category to the query parameters if the selected option requires it
+  if (deliveryMethod) {
+    url += `&sendOption=${encodeURIComponent(deliveryMethod)}`;
+  }
+ 
+  fetch(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((response) => {
+      if (response.status === 401) {
+        handleRefreshToken();
+        return null;
+      }
+      if (!response.ok) {
+        throw new Error("Failed to fetch news");
+      }
+      return response.text(); // Use .text() to log the raw response
+    })
+    
+    .catch((error) => console.error("Error fetching news:", error));
+}
+
+function getLatestNewsByMyCategories(
+  token: string,
+  deliveryMethod: string,
+  articleCount: number,
+  handleRefreshToken: () => Promise<void>,
+  
+) {
+  // Construct the base URL
+  let url = `${config.baseURL}/getLatestListNewsByCategories?numberOfArticles=${articleCount}`;
+
+  // Add category to the query parameters if the selected option requires it
+  if (deliveryMethod ) {
+    url += `&sendOption=${encodeURIComponent(deliveryMethod)}`;
+  }
+
+  fetch(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((response) => {
+      if (response.status === 401) {
+        handleRefreshToken();
+        return null;
+      }
+      if (!response.ok) {
+        throw new Error("Failed to fetch news");
+      }
+      return response.text(); // Use .text() to log the raw response
+    })
+    
+    .catch((error) => console.error("Error fetching news:", error));
+}
+
+function getLatestNewsByCategory(
+  token: string,
+  deliveryMethod: string,
+  selectedCategory: string,
+  articleCount: number,
+  handleRefreshToken: () => Promise<void>,
+) {
+  // Construct the base URL
+  let url = `${config.baseURL}/getLatestNewsByCategory?numberOfArticles=${articleCount}`;
+
+  // Add category to the query parameters if the selected option requires it
+  if (deliveryMethod ) {
+    url += `&sendOption=${encodeURIComponent(deliveryMethod)}`;
+  }
+  if (selectedCategory ) {
+    url += `&category=${encodeURIComponent(selectedCategory)}`;
+  }
+
+  fetch(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((response) => {
+      if (response.status === 401) {
+        handleRefreshToken();
+        return null;
+      }
+      if (!response.ok) {
+        throw new Error("Failed to fetch news");
+      }
+      return response.text(); // Use .text() to log the raw response
+    })
+   
+    .catch((error) => console.error("Error fetching news:", error));
+}

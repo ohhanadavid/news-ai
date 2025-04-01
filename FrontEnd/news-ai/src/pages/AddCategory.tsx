@@ -2,32 +2,18 @@ import React, { useState, useEffect } from "react";
 import config from "../config";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext"; 
+import { MdCancel } from "react-icons/md";
+import { useCategory } from "../context/CategoryContext";
 
 const AddCategory = () => {
-  const [categories, setCategories] = useState<string[]>([]);
+  
   const [selectedCategory, setSelectedCategory] = useState("");
   const [preference, setPreference] = useState("");
   const navigate = useNavigate();
   const { handleRefreshToken } = useAuth();
   const [error, setError] = useState<string | null>(null);
+  const { categories } = useCategory();
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    fetch(`${config.baseURL}/getCategories`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then(response => response.json())
-      .then(data => {
-        setCategories(data);
-      })
-      .catch(error => {
-        console.error("There was an error fetching the categories!", error);
-      });
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,8 +83,17 @@ const AddCategory = () => {
         <br />
         <button type="submit">Add Category</button>
         <div style={{ marginTop: "10px" }}>
-        <button type="button" onClick={() => navigate("/dashboard")}>
-          Cancel
+        <button type="button" onClick={() => navigate("/dashboard")}
+        style={{
+                background: "none",
+                border: "none",
+                fontSize: "24px",
+                cursor: "pointer",
+                color: "red",
+              }}
+              aria-label="Cancel"
+            >
+        <MdCancel />
         </button>
       </div>
       </form>

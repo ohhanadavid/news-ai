@@ -2,7 +2,7 @@ import React, { useState, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-const SignUp: React.FC = () => {
+const UpdateUser: React.FC = () => {
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -30,7 +30,7 @@ const SignUp: React.FC = () => {
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
       <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-        <h2 className="text-2xl font-bold mb-4">Sign Up</h2>
+       
         {error && <p className="text-red-500">{error}</p>}
         {success && <p className="text-green-500">{success}</p>}
         <form onSubmit={handleSubmit}>
@@ -79,18 +79,14 @@ const SignUp: React.FC = () => {
           <button type="submit" className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600">
             Update
           </button>
-          <div style={{ marginTop: "10px" }}>
-        <button type="button" onClick={() => navigate("/dashboard")}>
-          Cancel
-        </button>
-      </div>
+      
         </form>
       </div>
     </div>
   );
 };
 
-export default SignUp;
+export default UpdateUser;
 
 
 
