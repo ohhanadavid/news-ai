@@ -10,42 +10,42 @@ const MyLanguage = () => {
   const [error, setError] = useState<string | null>(null);
   const { handleRefreshToken } = useAuth();
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setError("Token not found, please log in again.");
-      return;
-    }
+  // useEffect(() => {
+  //   const token = localStorage.getItem("token");
+  //   if (!token) {
+  //     setError("Token not found, please log in again.");
+  //     return;
+  //   }
 
-    fetch(`${config.baseURL}/getMyLanguages`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((response) => {
-        if (response.status === 401) {
-          handleRefreshToken();
-          return null;
-        }
-        if (!response.ok) {
-          throw new Error(`Failed to fetch languages, status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        if (data) {
-          setMyLanguages(data); // ✅ עדכון הסטייט הגלובלי
-          setError(null);
-        } else {
-          setError("No languages found.");
-        }
-      })
-      .catch((error) => {
-        setError("There was an error fetching the languages: " + error.message);
-      });
-  }, [setMyLanguages]); // ✅ עכשיו הסטייט הגלובלי יתעדכן אוטומטית
+  //   fetch(`${config.baseURL}/getMyLanguages`, {
+  //     method: "GET",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       Authorization: `Bearer ${token}`,
+  //     },
+  //   })
+  //     .then((response) => {
+  //       if (response.status === 401) {
+  //         handleRefreshToken();
+  //         return null;
+  //       }
+  //       if (!response.ok) {
+  //         throw new Error(`Failed to fetch languages, status: ${response.status}`);
+  //       }
+  //       return response.json();
+  //     })
+  //     .then((data) => {
+  //       if (data) {
+  //         setMyLanguages(data); // ✅ עדכון הסטייט הגלובלי
+  //         setError(null);
+  //       } else {
+  //         setError("No languages found.");
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       setError("There was an error fetching the languages: " + error.message);
+  //     });
+  // }, [setMyLanguages]); // ✅ עכשיו הסטייט הגלובלי יתעדכן אוטומטית
 
   const handleDeleteLanguage = async (language: string) => {
     const token = localStorage.getItem("token");
@@ -84,7 +84,7 @@ const MyLanguage = () => {
         <ul>
           {languages.map((language, index) => (
             
-            <li key={index} style={{ display: "flex", alignItems: "center" }}>
+            <li key={index} style={{ display: "flex", alignItems: "center",marginRight: "50px",marginTop: "0px" }}>
               <TbMessageLanguage style={{ marginRight: "10px" }} />
               {language}
               <button
@@ -94,8 +94,8 @@ const MyLanguage = () => {
                   border: "none",
                   fontSize: "24px",
                   cursor: "pointer",
-                  marginLeft: "10px",
-                  marginTop: "20px",
+                  marginLeft: "30px",
+                  //marginTop: "20px",
                 }}
                 aria-label="delete category"
                 className="delete-button"
