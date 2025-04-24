@@ -1,13 +1,27 @@
-import React, { useState, FormEvent } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import React, { useState, FormEvent, useEffect } from "react";
+import {  Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const Login: React.FC = () => {
   const [userIdentifier, setUserIdentifier] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
+ 
   const { login } = useAuth();
+
+  useEffect(() => {
+    // שמירה על הרקע הקודם
+    const previousBackground = document.body.style.backgroundColor;
+
+    // שינוי הרקע
+    document.body.style.backgroundImage = "url(/login.png)";
+    document.body.style.backgroundSize = "cover";
+
+    // ניקוי – החזרת הרקע כשהקומפוננטה יוצאת
+    return () => {
+      document.body.style.backgroundColor = previousBackground;
+    };
+  }, []);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -24,10 +38,16 @@ const Login: React.FC = () => {
   };
 
   return (
-    // <div className="flex justify-center items-center h-screen bg-gray-100">
-    //   <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-     <div className="flex justify-center items-center min-h-screen bg-gray-100">
-   <div className="bg-white p-8 rounded-xl shadow-xl w-full max-w-md">
+   
+     <div className="flex justify-center items-center min-h-screen"
+    //  style=
+    //  {{backgroundColor: "rgba(240, 240, 240, 0.8)",
+    //    padding: "20px" ,borderRadius: "20px"}}
+     >
+   <div className="bg-white p-8 rounded-xl shadow-xl w-full max-w-md"
+      style=
+    {{backgroundColor: "rgba(240, 240, 240, 0.9)",
+      padding: "20px" ,borderRadius: "20px"}}>
         <h2 className="text-2xl font-bold mb-4">Login</h2>
         {error && <p className="text-red-500">{error}</p>}
         <form onSubmit={handleSubmit}>
@@ -60,6 +80,7 @@ const Login: React.FC = () => {
         </p>
       </div>
     </div>
+    
   );
 };
 

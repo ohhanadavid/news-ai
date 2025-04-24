@@ -1,12 +1,27 @@
 
-
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 #root {
   max-width: 1280px; 
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  
 }
-
+.red-background {
+  background-color: red;
+  min-height: 100vh; /* גובה של 100% מהחלון */
+  margin: 0;
+}
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  
+}
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -41,4 +56,18 @@
 
 .read-the-docs {
   color: #888;
+}
+.custom-dialog {
+  font-size: 1.2em;
+  line-height: 1.5;
+  margin: 0 auto;
+  max-width: 600px;
+  width: 50% !important;
+}
+
+@font-face {
+  font-family: 'Algerian'; 
+  font-style: normal;
+  font-weight: normal;  
+  src: url('/fonts/ALGER.TTF') format('truetype');
 }

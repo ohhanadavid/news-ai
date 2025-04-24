@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import config from "../config";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext"; 
 import { useLanguages } from "../context/LanguagesContext";
 
@@ -21,26 +20,28 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { MdCancel, MdClose } from "react-icons/md";
+import { MdCancel } from "react-icons/md";
 
 
 
 interface AddLanguageProps {
   isOpen: boolean;
   onClose: () => void;
+  token: string | null; // Add token prop
 }
 
-const AddLanguage: React.FC<AddLanguageProps> = ({ isOpen, onClose }) => {
+const AddLanguage: React.FC<AddLanguageProps> = ({ isOpen, onClose ,token}) => {
   const [languages, setLanguages] = useState<string[]>([]);
   const [maxLanguages, setMaxLanguages] = useState<number>(0);
   const { MyLanguages, refreshLanguages } = useLanguages();
-  const navigate = useNavigate();
+  
   const { handleRefreshToken } = useAuth();
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    // const token = localStorage.getItem("token");
+    console.log("Token:", token);
     getLanguages(token, setLanguages);
     getMaxLanguages(token, setMaxLanguages);
   }, []);
@@ -51,7 +52,7 @@ const AddLanguage: React.FC<AddLanguageProps> = ({ isOpen, onClose }) => {
       setError("Please select a language");
       return;
     }
-    const token = localStorage.getItem("token");
+    // const token = localStorage.getItem("token");
     const res = await fetch(`${config.baseURL}/saveLanguage`, {
       method: "POST",
       headers: {
@@ -83,31 +84,19 @@ const AddLanguage: React.FC<AddLanguageProps> = ({ isOpen, onClose }) => {
     setError(null);
 
     onClose();
-    // navigate("/dashboard");
+    
   };
-  // const handleExit = () => {
-  //   onClose();
-  //   navigate("/dashboard");
-  // };
+
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="w-1/2">
         <DialogHeader>
           <DialogTitle>Add Language</DialogTitle>
           <DialogDescription>
             The maximum languages allowed is {maxLanguages}. You have {MyLanguages.length}.
           </DialogDescription>
-          {/* <div className="absolute top-0 right-0">
-            <button
-              type="button"
-              onClick={handleExit}
-              className="rounded-full p-2 text-red-500 hover:text-red-700 hover:bg-gray-100 transition-colors"
-              aria-label="Exit"
-            >
-              <MdClose size={24} />
-            </button>
-          </div> */}
+         
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -162,30 +151,91 @@ const AddLanguage: React.FC<AddLanguageProps> = ({ isOpen, onClose }) => {
 
 // Helper functions
 function getLanguages(token: string | null, setLanguages: React.Dispatch<React.SetStateAction<string[]>>) {
+  if (!token) {
+    console.error("No token provided for getLanguages");
+    return;
+  }
+
+  console.log("Fetching languages with token:", token ? "Token exists" : "No token");
+  
   fetch(`${config.baseURL}/getLanguages`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      "Authorization": `Bearer ${token}`,
     },
   })
-    .then(response => response.json())
-    .then(data => setLanguages(data))
+    .then(async response => {
+      console.log("Languages response status:", response.status);
+      console.log("Languages response headers:", Object.fromEntries(response.headers.entries()));
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Server error response:", errorText.substring(0, 150));
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+      
+      
+      const text = await response.text();
+      console.log("Raw response:", text.substring(0, 100));
+      
+      
+      if (!text) throw new Error("Empty response");
+      try {
+        const data = JSON.parse(text);
+        console.log("Languages parsed:", data);
+        setLanguages(data);
+      } catch (parseError) {
+        console.error("JSON parse error:", parseError);
+        throw parseError;
+      }
+    })
     .catch(error => console.error("Error fetching languages:", error));
 }
 
 function getMaxLanguages(token: string | null, setMaxLanguages: React.Dispatch<React.SetStateAction<number>>) {
+  if (!token) {
+    console.error("No token provided for getMaxLanguages");
+    return;
+  }
+
+  console.log("Fetching max languages with token:", token ? "Token exists" : "No token");
+  
   fetch(`${config.baseURL}/maximumLanguage`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      "Authorization": `Bearer ${token}`,
     },
   })
-    .then(response => response.json())
-    .then(data => setMaxLanguages(data))
+    .then(async response => {
+      console.log("Max languages response status:", response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Server error response:", errorText.substring(0, 150));
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+      
+      
+      const text = await response.text();
+      console.log("Raw response:", text.substring(0, 100));
+      
+     
+      
+      if (!text) throw new Error("Empty response");
+      try {
+        const data = JSON.parse(text);
+        console.log("Max languages parsed:", data);
+        setMaxLanguages(data);
+      } catch (parseError) {
+        console.error("JSON parse error:", parseError);
+        throw parseError;
+      }
+    })
     .catch(error => console.error("Error fetching max languages:", error));
 }
+
 
 export default AddLanguage;
 

@@ -10,7 +10,7 @@ interface DeleteUserDialogProps {
 const DeleteUserDialog: React.FC<DeleteUserDialogProps> = ({ open, onClose, onConfirm }) => {
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md" aria-describedby={undefined}>
+      <DialogContent className="w-1/4" aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle>Delete Account</DialogTitle>
          

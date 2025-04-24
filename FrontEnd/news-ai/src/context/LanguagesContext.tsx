@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import config from "../config";
-import { useAuth } from "../context/AuthContext";
+
 
 interface LanguagesContextType {
   MyLanguages: string[];
@@ -16,14 +16,16 @@ const LanguagesContext = createContext<LanguagesContextType>({
 
 export const LanguagesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [myLanguages, setMyLanguages] = useState<string[]>([]);
-  const { handleRefreshToken } = useAuth();
+  
 
 
   const refreshLanguages = async () => {
     try {
       const token = localStorage.getItem("token");
-      if (!token) return;
-
+      if (!token) {
+        console.error("No token found");
+        return;}
+      console.log("geting languages");
       const response = await fetch(`${config.baseURL}/getMyLanguages`, {
         method: "GET",
         headers: {
@@ -44,6 +46,7 @@ export const LanguagesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   useEffect(() => {
+    console.log("LanguagesProvider mounted");
     refreshLanguages();
   }, []);
 

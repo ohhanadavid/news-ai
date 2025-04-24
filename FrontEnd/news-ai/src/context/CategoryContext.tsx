@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import config from "../config";
-import { useAuth } from "../context/AuthContext";
+
 
 type CategoryType = Map<string, string[]>; // Updated to use Map for categories
 
@@ -21,7 +21,7 @@ const CategoryContext = createContext<CategoryContextType>({
 export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [categories, setCategories] = useState<string[]>([]);
   const [myCategories, setMyCategories] = useState<CategoryType>(new Map());
-  const { handleRefreshToken } = useAuth();
+ 
 
   const refreshCategories = async () => {
     try {
@@ -70,6 +70,7 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   useEffect(() => {
+    console.log("Refreshing categories on mount...");
     refreshCategories();
   }, []);
 

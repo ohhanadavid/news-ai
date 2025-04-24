@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode, FormEvent } from "react";
-import { useNavigate, Navigate } from "react-router-dom";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
 import config from "../config"; // Adjust the path if necessary
 
 interface AuthContextType {
@@ -52,8 +52,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      // Fetch user data or set user state
-      fetchUser();
+      setToken(token); // ודא שהטוקן נטען ל-state
+      fetchUser(); // טען את פרטי המשתמש
+    } else {
+      navigate("/login"); // אם אין טוקן, נווט לדף ההתחברות
     }
   }, []);
 
@@ -69,14 +71,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.status === 401) {
-        await handleRefreshToken();
+        await handleRefreshToken(); // רענן את הטוקן אם מתקבלת שגיאה 401
         return;
       }
       if (!res.ok) throw new Error("Failed to fetch user");
       const data = await res.json();
       setUser(data);
     } catch {
-      logout();
+      logout(); // אם לא ניתן לרענן את הטוקן, בצע התנתקות
     }
   };
 
@@ -90,12 +92,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     
     const data = await res.json();
     console.log(`Login response: token? ${data.token?true:false} refresh token? ${data.refreshToken?true:false}`); // Log the response for debugging
-    setUser(data.user);
+    setUser(data);
     setToken(data.token);
     setRefreshToken(data.refreshToken);
     localStorage.setItem("token", data.token);
     localStorage.setItem("refreshToken", data.refreshToken);
-    navigate("/dashboard");
+    console.log(` token? ${localStorage.getItem("token")?true:false}`); // Log the response for debugging
+    console.log("nevigating to dashboard...");
+    navigate("/dashboard" ,{state:{token:data.token}});
   };
 
   const handleRefreshToken = async () => {
@@ -104,15 +108,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log("No refresh token found, logging out...");
       setRefreshToken(localStorage.getItem("refreshToken"));
       if (!refreshToken) 
+        console.log("No refresh token found, logging out...");
         return logout();
     } 
     try {
       const res = await fetch(`${config.baseURL}/refreshToken`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json" },
         body: JSON.stringify({ refreshToken }),
       });
-      if (!res.ok) throw new Error("Refresh token failed");
+
+      if (!res.ok){
+        console.log("Refresh token failed, logging out...");
+         throw new Error("Refresh token failed");
+
+      }
       const data = await res.json();
       console.log(`Login response: token? ${data.token?true:false} refresh token? ${data.refreshToken?true:false}`);
       setToken(data.token);
@@ -122,7 +134,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         localStorage.setItem("refreshToken", data.refreshToken);
       }
       localStorage.setItem("token", data.token);
-    } catch {
+    } catch (error) {
+      console.error("Token refresh failed:", error);
       logout();
     }
   };
@@ -202,7 +215,81 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (!res.ok) throw new Error("Failed to change password");
     console.log("Password changed successfully");
   };
+// טיפוסים
+interface JwtPayload {
+  exp: number;
+  [key: string]: any;
+}
 
+
+
+// פונקציה לפענוח הטוקן ללא צורך בספריות חיצוניות
+const parseJwt = (token: string): JwtPayload | null => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64).split('').map(c => {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error("Error parsing JWT:", error);
+    return null;
+  }
+};
+
+// פונקציה לבדיקה האם הטוקן עומד לפוג בקרוב
+const isTokenExpiringSoon = (token: string | null): boolean => {
+  if (!token) return false;
+  
+  const decoded = parseJwt(token);
+  if (!decoded || !decoded.exp) return false;
+  
+  // המרה למילישניות ובדיקה אם נותרה פחות מדקה
+  const expirationTime = decoded.exp * 1000;
+  const currentTime = Date.now();
+  const timeRemaining = expirationTime - currentTime;
+  
+  // מחזיר אמת אם נותר פחות מדקה (60000 מילישניות)
+  return timeRemaining > 0 && timeRemaining < 60000*1;
+};
+
+
+// פונקציה לבדיקה תקופתית של תוקף הטוקן
+let tokenCheckInterval: NodeJS.Timeout | undefined;
+
+const startTokenExpirationChecker = (): void => {
+  // ניקוי האינטרוול הקודם אם קיים
+  if (tokenCheckInterval) {
+    clearInterval(tokenCheckInterval);
+  }
+  
+  // בדיקה כל 30 שניות אם הטוקן עומד לפוג
+  tokenCheckInterval = setInterval(() => {
+    const currentToken = localStorage.getItem("token");
+    
+    if (isTokenExpiringSoon(currentToken)) {
+      console.log("Token is about to expire in less than a minute, refreshing...");
+      handleRefreshToken();
+    }
+  }, 30000); // בדיקה כל 30 שניות
+};
+
+// התחלת המנגנון כשהקומפוננטה נטענת
+useEffect(() => {
+  const currentToken = localStorage.getItem("token");
+  if (currentToken) {
+    startTokenExpirationChecker();
+  }
+
+  return () => {
+    if (tokenCheckInterval) {
+      clearInterval(tokenCheckInterval);
+    }
+  };
+}, []);
 
   return (
     <AuthContext.Provider value={{ user, login, register, logout ,handleRefreshToken,updateUser,deleteUser,changePassword}}>
@@ -219,10 +306,8 @@ export const useAuth = (): AuthContextType => {
   return context;
 };
 
-const PrivateRoute = ({ children }: { children: ReactNode }) => {
-  const { user } = useAuth();
 
-  return user ? children : <Navigate to="/login" replace />;
-};
+
+
 
 

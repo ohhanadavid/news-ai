@@ -1,9 +1,9 @@
 
 import React, { useState } from "react";
 import config from "../config";
-import { useNavigate } from "react-router-dom";
+
 import { useAuth } from "../context/AuthContext"; 
-import { MdCancel, MdClose } from "react-icons/md";
+
 import { useCategory } from "../context/CategoryContext";
 
 import {
@@ -33,11 +33,11 @@ interface AddCategoryProps {
 const AddCategory: React.FC<AddCategoryProps> = ({ isOpen, onClose }) => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [preference, setPreference] = useState("");
-  const navigate = useNavigate();
+  
   const { handleRefreshToken } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const { categories, refreshCategories } = useCategory();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -62,7 +62,7 @@ const AddCategory: React.FC<AddCategoryProps> = ({ isOpen, onClose }) => {
         },
       }),
     });
-    setIsSubmitting(false);
+    
     if (res.status === 401) {
       await handleRefreshToken();
       return;
@@ -89,14 +89,10 @@ const AddCategory: React.FC<AddCategoryProps> = ({ isOpen, onClose }) => {
     onClose();
   };
 
-  const handleExit = () => {
-    onClose();
-    navigate("/dashboard");
-  };
-
+ 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="max-w-[50%]">
         <DialogHeader className="relative">
           <DialogTitle>Add Category</DialogTitle>
           <DialogDescription>

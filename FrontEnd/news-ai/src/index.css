@@ -61,11 +61,19 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  
 }
 
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
+}
+.custom-dialog {
+  font-size: 1.2em;
+  line-height: 1.5;
+  margin: 0 auto;
+  max-width: 600px;
+  width: 50% !important;
 }
 
 button {
@@ -253,5 +261,12 @@ button:focus-visible {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@font-face {
+  font-family: 'Algerian'; 
+  font-style: normal;
+  font-weight: normal;  
+  src: url('/fonts/ALGER.TTF') format('truetype');
 }
 

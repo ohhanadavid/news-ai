@@ -1,4 +1,4 @@
-import React, { useState, FormEvent } from "react";
+import React, { useState, FormEvent, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,20 @@ const SignUp: React.FC = () => {
   const [success, setSuccess] = useState<string | null>(null);
   const navigate = useNavigate();
   const { register } = useAuth();
+
+  useEffect(() => {
+      // שמירה על הרקע הקודם
+      const previousBackground = document.body.style.backgroundColor;
+  
+      // שינוי הרקע
+      document.body.style.backgroundImage = "url(/SignIn.png)";
+      document.body.style.backgroundSize = "cover";
+  
+      // ניקוי – החזרת הרקע כשהקומפוננטה יוצאת
+      return () => {
+        document.body.style.backgroundColor = previousBackground;
+      };
+    }, []);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -62,8 +76,13 @@ const SignUp: React.FC = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4">
-      <Card className="w-full max-w-md">
+    
+    <div className="flex justify-center items-center min-h-screen bg-gray-100 " 
+    style={{
+      borderRadius: "20px",
+      backgroundColor: "rgba(240, 240, 240, 0.6)",
+    }}>
+      <Card className="w-full max-w-md" style={{ borderRadius: "20px", backgroundColor: "rgba(240, 240, 240, 0.8)" }}>
         <CardHeader>
           <CardTitle className="text-center">Sign Up</CardTitle>
         </CardHeader>
@@ -155,6 +174,7 @@ const SignUp: React.FC = () => {
         </CardContent>
       </Card>
     </div>
+    
   );
 };
 

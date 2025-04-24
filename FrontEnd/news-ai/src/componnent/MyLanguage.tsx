@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import config from "../config";
 import { useAuth } from "../context/AuthContext";
 import { useLanguages } from "../context/LanguagesContext"; // ✅ ייבוא ה-Context
@@ -9,43 +9,18 @@ const MyLanguage = () => {
   const { MyLanguages: languages, setMyLanguages } = useLanguages(); // ✅ שימוש ב-Context
   const [error, setError] = useState<string | null>(null);
   const { handleRefreshToken } = useAuth();
+  const {refreshLanguages} = useLanguages(); 
 
-  // useEffect(() => {
-  //   const token = localStorage.getItem("token");
-  //   if (!token) {
-  //     setError("Token not found, please log in again.");
-  //     return;
-  //   }
+ useEffect(() => {
+    if(!languages){
+      console.log("languages is null");
+      refreshLanguages(); 
+    }
+    else
+ 
+      console.log("languages is not null");
 
-  //   fetch(`${config.baseURL}/getMyLanguages`, {
-  //     method: "GET",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       Authorization: `Bearer ${token}`,
-  //     },
-  //   })
-  //     .then((response) => {
-  //       if (response.status === 401) {
-  //         handleRefreshToken();
-  //         return null;
-  //       }
-  //       if (!response.ok) {
-  //         throw new Error(`Failed to fetch languages, status: ${response.status}`);
-  //       }
-  //       return response.json();
-  //     })
-  //     .then((data) => {
-  //       if (data) {
-  //         setMyLanguages(data); // ✅ עדכון הסטייט הגלובלי
-  //         setError(null);
-  //       } else {
-  //         setError("No languages found.");
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       setError("There was an error fetching the languages: " + error.message);
-  //     });
-  // }, [setMyLanguages]); // ✅ עכשיו הסטייט הגלובלי יתעדכן אוטומטית
+ }, []); // Check if languages is null or empty
 
   const handleDeleteLanguage = async (language: string) => {
     const token = localStorage.getItem("token");
@@ -77,14 +52,14 @@ const MyLanguage = () => {
   };
 
   return (
-    <div>
+    <div >
       {error && <p className="text-red-500">{error}</p>}
      
       {languages.length > 0 ? (
-        <ul>
+        <ul style={{ listStyleType: "none", padding: "0px", margin: "0" }}>
           {languages.map((language, index) => (
             
-            <li key={index} style={{ display: "flex", alignItems: "center",marginRight: "50px",marginTop: "0px" }}>
+            <li key={index} style={{ display: "flex", alignItems: "center",marginRight: "0px",marginTop: "0px" }}>
               <TbMessageLanguage style={{ marginRight: "10px" }} />
               {language}
               <button
@@ -97,7 +72,7 @@ const MyLanguage = () => {
                   marginLeft: "30px",
                   //marginTop: "20px",
                 }}
-                aria-label="delete category"
+                aria-label="delete language"
                 className="delete-button"
               >
                 <MdDelete />

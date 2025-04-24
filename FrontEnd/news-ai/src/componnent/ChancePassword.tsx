@@ -36,8 +36,24 @@ const ChancePassword: React.FC = () => {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+    <div className="flex justify-center items-center h-screen "  style={{
+      backgroundColor: "rgba(240, 240, 240, 0.7)",
+      
+      
+      
+      display: "flex",
+      flexDirection: "column",
+      
+    }}>
+      <div className="bg-white p-6 rounded-lg shadow-lg w-96"  style={{
+      backgroundColor: "rgba(240, 240, 240, 0.7)",
+      
+      
+      
+      display: "flex",
+      flexDirection: "column",
+      
+    }}>
         
         {error && <p className="text-red-500">{error}</p>}
         {success && <p className="text-green-500">{success}</p>}

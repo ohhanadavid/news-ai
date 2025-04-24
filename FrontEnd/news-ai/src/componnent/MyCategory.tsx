@@ -1,6 +1,6 @@
 
 
-import React, { useState } from "react";
+import  { useEffect, useState } from "react";
 import { useCategory } from "../context/CategoryContext";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { MdCategory, MdCheckCircle, MdDelete } from "react-icons/md";
@@ -9,6 +9,16 @@ import config from "../config";
 const MyCategories = () => {
   const { myCategories, refreshCategories } = useCategory(); // Access categories from context
   const [visibleCategories, setVisibleCategories] = useState<Set<string>>(new Set());
+
+
+  useEffect(() => {
+    if (!myCategories) {
+      console.log("myCategories is null");
+      refreshCategories();
+    } else 
+      console.log("myCategories is not null");
+    
+  }, [myCategories, refreshCategories]); // Check if myCategories is null or empty
 
   // Toggle visibility of a category
   const toggleCategoryVisibility = (category: string) => {
