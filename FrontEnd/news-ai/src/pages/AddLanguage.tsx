@@ -40,11 +40,12 @@ const AddLanguage: React.FC<AddLanguageProps> = ({ isOpen, onClose ,token}) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // const token = localStorage.getItem("token");
+    if (!token) return; // Wait until the token is available
+
     console.log("Token:", token);
     getLanguages(token, setLanguages);
     getMaxLanguages(token, setMaxLanguages);
-  }, []);
+  }, [token]); // Add token as a dependency
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

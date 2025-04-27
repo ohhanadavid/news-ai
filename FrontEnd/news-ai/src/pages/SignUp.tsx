@@ -24,7 +24,7 @@ const SignUp: React.FC = () => {
       const previousBackground = document.body.style.backgroundColor;
   
       // שינוי הרקע
-      document.body.style.backgroundImage = "url(/SignIn.png)";
+      document.body.style.backgroundImage = "url('/Images/SignIn.webp')";
       document.body.style.backgroundSize = "cover";
   
       // ניקוי – החזרת הרקע כשהקומפוננטה יוצאת

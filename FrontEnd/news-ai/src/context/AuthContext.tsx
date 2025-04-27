@@ -1,9 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import config from "../config"; // Adjust the path if necessary
 
 interface AuthContextType {
   user: any;
+  loading: boolean;
   login: (userIdentifier: string, password: string) => Promise<void>;
   deleteUser: () => Promise<void>;
   changePassword: (oldPassword: string, newPassword: string) => Promise<void>;
@@ -23,7 +24,7 @@ interface AuthContextType {
     password: string;
   }) => Promise<void>;
   logout: () => void;
-  handleRefreshToken: () => Promise<void>;
+  handleRefreshToken: () => Promise<boolean>;
   updateUser:({
     firstName,
     lastName,
@@ -48,97 +49,433 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
   const [refreshToken, setRefreshToken] = useState<string | null>(localStorage.getItem("refreshToken"));
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
+  const location = useLocation();
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      setToken(token); // ודא שהטוקן נטען ל-state
-      fetchUser(); // טען את פרטי המשתמש
-    } else {
-      navigate("/login"); // אם אין טוקן, נווט לדף ההתחברות
-    }
-  }, []);
+  // useEffect(() => {
+  //   const token = localStorage.getItem("token");
+  //   if (token) {
+  //     setToken(token); // ודא שהטוקן נטען ל-state
+  //     fetchUser(); // טען את פרטי המשתמש
+  //   } else {
+  //     navigate("/login"); // אם אין טוקן, נווט לדף ההתחברות
+  //   }
+  // }, []);
+  // useEffect(() => {
+  //   const checkAuth = async () => {
+  //     setLoading(true);
+      
+  //     try {
+  //       const storedToken = localStorage.getItem("token");
+        
+  //       if (!storedToken) {
+  //         console.log("No token found in localStorage");
+  //         if (location.pathname !== '/login' && location.pathname !== '/signup') {
+  //           navigate("/login");
+  //         }
+  //         setLoading(false);
+  //         return;
+  //       }
+        
+  //       setToken(storedToken);
+  //       const userFetched = await fetchUser();
+        
+  //       if (!userFetched) {
+  //         console.log("Failed to fetch user, trying token refresh");
+  //         const refreshSuccessful = await handleRefreshToken();
+          
+  //         if (!refreshSuccessful && location.pathname !== '/login' && location.pathname !== '/signup') {
+  //           console.log("Refresh failed, redirecting to login");
+  //           logout();
+  //         }
+  //       }
+  //     } catch (error) {
+  //       console.error("Auth check error:", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-  useEffect(() => {
-    if (token) {
-      fetchUser();
-    }
-  }, [token]);
+  //   checkAuth();
+  // }, []);
 
-  const fetchUser = async () => {
-    try {
-      const res = await fetch(`${config.baseURL}/getUser`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.status === 401) {
-        await handleRefreshToken(); // רענן את הטוקן אם מתקבלת שגיאה 401
-        return;
-      }
-      if (!res.ok) throw new Error("Failed to fetch user");
-      const data = await res.json();
-      setUser(data);
-    } catch {
-      logout(); // אם לא ניתן לרענן את הטוקן, בצע התנתקות
-    }
-  };
 
-  const login = async (userIdentifier: string, password: string) => {
-    const res = await fetch(`${config.baseURL}/authenticate`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userIdentifier: userIdentifier, password }),
-    });
-    if (!res.ok) throw new Error("Login failed");
+  // useEffect(() => {
+  //   if (token) {
+  //     fetchUser();
+  //   }
+  // }, [token]);
+
+  // useEffect(() => {
+  //   const checkAuth = async () => {
+  //     setLoading(true);
+      
+  //     try {
+  //       const storedToken = localStorage.getItem("token");
+        
+  //       if (!storedToken) {
+  //         console.log("No token found in localStorage");
+  //         if (location.pathname !== '/login' && location.pathname !== '/signup') {
+  //           navigate("/login");
+  //         }
+  //         return;
+  //       }
+        
+  //       // setToken(storedToken);
+  //     } catch (error) {
+  //       console.error("Auth check error:", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  
+  //   checkAuth();
+  // }, []);
+  
+  // useEffect(() => {
+  //   const getUserData = async () => {
+  //     if (!token) return;
+      
+  //     setLoading(true);
+  //     try {
+  //       const userFetched = await fetchUser(); 
+        
+  //       if (!userFetched) {
+  //         console.log("Failed to fetch user, trying token refresh");
+  //         const refreshSuccessful = await handleRefreshToken();
+          
+  //         if (!refreshSuccessful && location.pathname !== '/login' && location.pathname !== '/signup') {
+  //           console.log("Refresh failed, redirecting to login");
+  //           logout();
+  //         }
+  //       }
+  //     } catch (error) {
+  //       console.error("User fetch error:", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
     
-    const data = await res.json();
-    console.log(`Login response: token? ${data.token?true:false} refresh token? ${data.refreshToken?true:false}`); // Log the response for debugging
-    setUser(data);
-    setToken(data.token);
-    setRefreshToken(data.refreshToken);
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("refreshToken", data.refreshToken);
-    console.log(` token? ${localStorage.getItem("token")?true:false}`); // Log the response for debugging
-    console.log("nevigating to dashboard...");
-    navigate("/dashboard" ,{state:{token:data.token}});
-  };
+  //   getUserData();
+  // }, [token]);
+  // // const fetchUser = async () => {
+  // //   try {
+  // //     const res = await fetch(`${config.baseURL}/getUser`, {
+  // //       headers: { Authorization: `Bearer ${token}` },
+  // //     });
+  // //     if (res.status === 401) {
+  // //       await handleRefreshToken(); // רענן את הטוקן אם מתקבלת שגיאה 401
+  // //       return;
+  // //     }
+  // //     if (!res.ok) throw new Error("Failed to fetch user");
+  // //     const data = await res.json();
+  // //     setUser(data);
+  // //   } catch {
+  // //     logout(); // אם לא ניתן לרענן את הטוקן, בצע התנתקות
+  // //   }
+  // // };
 
-  const handleRefreshToken = async () => {
+
+  // const fetchUser = async (shouldRetryOnRefresh = true) => {
+    
+  //   try {
+  //     console.log("Fetching user data with token:", token?.substring(0, 15) + "...");
+      
+  //     const res = await fetch(`${config.baseURL}/getUser`, {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     });
+      
+  //     if (res.status === 401 && shouldRetryOnRefresh) {
+  //       console.log("401 received during fetchUser, trying to refresh token");
+  //       const refreshSuccessful = await handleRefreshToken();
+  //       if (refreshSuccessful) {
+  //         // במקום לקרוא לפונקציה עצמה, נקרא לגרסה חדשה שלה עם דגל שמונע ניסיון נוסף
+  //         return fetchUser(false); // ניסיון אחד בלבד אחרי רענון
+  //       }
+  //       throw new Error("Authentication failed");
+  //     }
+      
+  //     if (!res.ok) {
+  //       console
+        
+  //       throw new Error(`Failed to fetch user - Status: ${res.status}`)};
+      
+  //     const data = await res.json();
+  //     setUser(data);
+  //     return true;
+  //   } catch (error) {
+  //     console.error("Error fetching user:", error);
+  //     return false;
+  //   }
+  // };
+  // const fetchUser = async () => {
+  //   try {
+  //     console.log("Fetching user data with token:", token?.substring(0, 15) + "...");
+      
+  //     const res = await fetch(`${config.baseURL}/getUser`, {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     });
+      
+  //     if (res.status === 401) {
+  //       console.log("401 received during fetchUser, trying to refresh token");
+  //       // נסה לרענן את הטוקן ואז נסה שוב לטעון משתמש
+  //       const refreshSuccessful = await handleRefreshToken();
+  //       if (refreshSuccessful) {
+  //         return fetchUser(); // נסה שוב לאחר רענון
+  //       }
+  //       throw new Error("Authentication failed");
+  //     }
+      
+  //     if (!res.ok) throw new Error("Failed to fetch user");
+      
+  //     const data = await res.json();
+  //     setUser(data);
+  //     return true;
+  //   } catch (error) {
+  //     console.error("Error fetching user:", error);
+  //     // אל תתנתק אוטומטית, רק תחזיר שגיאה
+  //     return false;
+  //   }
+  // };
+  const logout = useCallback(() => {
+    localStorage.removeItem('token');
+    localStorage.removeItem("refreshToken");
+    setToken(null);
+    setRefreshToken(null);
+    setUser(null);
+    navigate('/login');
+  }, [navigate]);
+
+  const handleRefreshToken = useCallback(async (): Promise<boolean> => {
     console.log("Refreshing token...");
-    if (!refreshToken){
-      console.log("No refresh token found, logging out...");
-      setRefreshToken(localStorage.getItem("refreshToken"));
-      if (!refreshToken) 
-        console.log("No refresh token found, logging out...");
-        return logout();
-    } 
+    const currentRefreshToken = refreshToken || localStorage.getItem("refreshToken");
+    
+    if (!currentRefreshToken) {
+      console.log("No refresh token found");
+      return false;
+    }
+    
     try {
       const res = await fetch(`${config.baseURL}/refreshToken`, {
         method: "POST",
         headers: { 
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json" },
-        body: JSON.stringify({ refreshToken }),
+          "Content-Type": "application/json" 
+        },
+        body: JSON.stringify({ refreshToken: currentRefreshToken }),
       });
 
-      if (!res.ok){
-        console.log("Refresh token failed, logging out...");
-         throw new Error("Refresh token failed");
-
+      if (!res.ok) {
+        console.log("Refresh token request failed");
+        return false;
       }
+      
       const data = await res.json();
-      console.log(`Login response: token? ${data.token?true:false} refresh token? ${data.refreshToken?true:false}`);
+      console.log(`Token refresh response: token? ${data.token ? true : false}`);
+      
       setToken(data.token);
       localStorage.setItem("token", data.token);
+      
       if (data.refreshToken) {
-        setRefreshToken(data.refreshToken); 
+        setRefreshToken(data.refreshToken);
         localStorage.setItem("refreshToken", data.refreshToken);
       }
-      localStorage.setItem("token", data.token);
+      
+      return true;
     } catch (error) {
       console.error("Token refresh failed:", error);
-      logout();
+      return false;
+    }
+  }, [token, refreshToken]);
+
+  const fetchUser = useCallback(async (shouldRetryOnRefresh = true) => {
+    if (!token) return false;
+    
+    try {
+      console.log("Fetching user data with token:");
+      
+      const res = await fetch(`${config.baseURL}/getUser`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      
+      if (res.status === 401 && shouldRetryOnRefresh) {
+        console.log("401 received during fetchUser, trying to refresh token");
+        const refreshSuccessful = await handleRefreshToken();
+        if (refreshSuccessful) {
+          // Try once more with the new token
+          return fetchUser(false);
+        }
+        throw new Error("Authentication failed");
+      }
+      
+      if (!res.ok) {
+        console.log("Failed to fetch user, status:", res.status);
+        throw new Error(`Failed to fetch user - Status: ${res.status}`);
+      }
+      
+      const data = await res.json();
+      setUser(data);
+      return true;
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      return false;
+    }
+  }, [token, handleRefreshToken]);
+
+  // Handle initial authentication check
+  useEffect(() => {
+    const checkAuthentication = async () => {
+      if (!token) return;
+      
+      setLoading(true);
+      try {
+        const userFetched = await fetchUser();
+        
+        if (!userFetched && 
+            location.pathname !== '/login' && 
+            location.pathname !== '/signup') {
+          console.log("Failed to fetch user, redirecting to login");
+          logout();
+        }
+      } catch (error) {
+        console.error("User fetch error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    checkAuthentication();
+  }, [token, fetchUser, logout, location.pathname]);
+
+
+  const login = async (userIdentifier: string, password: string) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${config.baseURL}/authenticate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userIdentifier: userIdentifier, password }),
+      });
+      
+      if (!res.ok) throw new Error("Login failed");
+      
+      const data = await res.json();
+      console.log(`Login response: token received: ${!!data.token}`);
+      
+      setUser(data);
+      setToken(data.token);
+      setRefreshToken(data.refreshToken);
+      
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("refreshToken", data.refreshToken);
+      
+      console.log("Navigating to dashboard...");
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Login error:", error);
+      throw error;
+    } finally {
+      setLoading(false);
     }
   };
+  // const login = async (userIdentifier: string, password: string) => {
+  //   const res = await fetch(`${config.baseURL}/authenticate`, {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify({ userIdentifier: userIdentifier, password }),
+  //   });
+  //   if (!res.ok) throw new Error("Login failed");
+    
+  //   const data = await res.json();
+  //   console.log(`Login response: token? ${data.token?true:false} refresh token? ${data.refreshToken?true:false}`); // Log the response for debugging
+  //   setUser(data);
+  //   setToken(data.token);
+  //   setRefreshToken(data.refreshToken);
+  //   localStorage.setItem("token", data.token);
+  //   localStorage.setItem("refreshToken", data.refreshToken);
+  //   console.log(` token? ${localStorage.getItem("token")?true:false}`); // Log the response for debugging
+  //   console.log("nevigating to dashboard...");
+  //   navigate("/dashboard" ,{state:{token:data.token}});
+  // };
+
+  // const handleRefreshToken = async () => {
+  //   console.log("Refreshing token...");
+  //   if (!refreshToken){
+  //     console.log("No refresh token found, logging out...");
+  //     setRefreshToken(localStorage.getItem("refreshToken"));
+  //     if (!refreshToken) 
+  //       console.log("No refresh token found, logging out...");
+  //       return logout();
+  //   } 
+  //   try {
+  //     const res = await fetch(`${config.baseURL}/refreshToken`, {
+  //       method: "POST",
+  //       headers: { 
+  //         Authorization: `Bearer ${token}`,
+  //         "Content-Type": "application/json" },
+  //       body: JSON.stringify({ refreshToken }),
+  //     });
+
+  //     if (!res.ok){
+  //       console.log("Refresh token failed, logging out...");
+  //        throw new Error("Refresh token failed");
+
+  //     }
+  //     const data = await res.json();
+  //     console.log(`Login response: token? ${data.token?true:false} refresh token? ${data.refreshToken?true:false}`);
+  //     setToken(data.token);
+  //     localStorage.setItem("token", data.token);
+  //     if (data.refreshToken) {
+  //       setRefreshToken(data.refreshToken); 
+  //       localStorage.setItem("refreshToken", data.refreshToken);
+  //     }
+  //     localStorage.setItem("token", data.token);
+  //   } catch (error) {
+  //     console.error("Token refresh failed:", error);
+  //     logout();
+  //   }
+  // };
+  // const handleRefreshToken = async (): Promise<boolean> => {
+  //   console.log("Refreshing token...");
+  //   const currentRefreshToken = refreshToken || localStorage.getItem("refreshToken");
+    
+  //   if (!currentRefreshToken) {
+  //     console.log("No refresh token found");
+  //     return false;
+  //   }
+    
+  //   try {
+  //     const res = await fetch(`${config.baseURL}/refreshToken`, {
+  //       method: "POST",
+  //       headers: { 
+  //         Authorization: `Bearer ${token}`,
+  //         "Content-Type": "application/json" 
+  //       },
+  //       body: JSON.stringify({ refreshToken: currentRefreshToken }),
+  //     });
+
+  //     if (!res.ok) {
+  //       console.log("Refresh token request failed");
+  //       return false;
+  //     }
+      
+  //     const data = await res.json();
+  //     console.log(`Token refresh response: token? ${data.token ? true : false}`);
+      
+  //     setToken(data.token);
+  //     localStorage.setItem("token", data.token);
+      
+  //     if (data.refreshToken) {
+  //       setRefreshToken(data.refreshToken);
+  //       localStorage.setItem("refreshToken", data.refreshToken);
+  //     }
+      
+  //     return true;
+  //   } catch (error) {
+  //     console.error("Token refresh failed:", error);
+  //     return false;
+  //   }
+  // };
 
   const register = async ({    userName,    firstName,    lastName,    email,    phone,    password,  }: {
     userName: string;
@@ -186,14 +523,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   };
 
-  const logout = () => {
-    setUser(null);
-    setToken(null);
-    setRefreshToken(null);
-    localStorage.removeItem("token");
-    localStorage.removeItem("refreshToken");
-    navigate("/login");
-  };
+  // const logout = () => {
+  //   setUser(null);
+  //   setToken(null);
+  //   setRefreshToken(null);
+  //   localStorage.removeItem("token");
+  //   localStorage.removeItem("refreshToken");
+  //   navigate("/login");
+  // };
+
+  // const logout = () => {
+  //   console.log("Logging out...");
+  //   setUser(null);
+  //   setToken(null);
+  //   setRefreshToken(null);
+  //   localStorage.removeItem("token");
+  //   localStorage.removeItem("refreshToken");
+    
+  //   // בדוק את הנתיב הנוכחי לפני הניווט
+  //   if (location.pathname !== '/login') {
+  //     navigate("/login");
+  //   }
+  // };
+
+ 
 
   const deleteUser = async () => {
     const res = await fetch(`${config.baseURL}/deleteUser`, {
@@ -215,7 +568,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (!res.ok) throw new Error("Failed to change password");
     console.log("Password changed successfully");
   };
-// טיפוסים
+
 interface JwtPayload {
   exp: number;
   [key: string]: any;
@@ -292,7 +645,7 @@ useEffect(() => {
 }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout ,handleRefreshToken,updateUser,deleteUser,changePassword}}>
+    <AuthContext.Provider value={{ user,loading, login, register, logout ,handleRefreshToken,updateUser,deleteUser,changePassword}}>
       {children}
     </AuthContext.Provider>
   );

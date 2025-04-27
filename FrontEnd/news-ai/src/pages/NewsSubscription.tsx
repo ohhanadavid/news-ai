@@ -162,7 +162,7 @@ function getLatestNews(
   token: string,
   deliveryMethod: string,
   articleCount: number,
-  handleRefreshToken: () => Promise<void>,
+  handleRefreshToken: () => Promise<boolean>,
 ) {
   // Construct the base URL
   let url = `${config.baseURL}/getLatestNews?numberOfArticles=${articleCount}`;
@@ -196,7 +196,7 @@ function getLatestNewsByMyCategories(
   token: string,
   deliveryMethod: string,
   articleCount: number,
-  handleRefreshToken: () => Promise<void>,
+  handleRefreshToken: () => Promise<boolean>,
 ) {
   // Construct the base URL
   let url = `${config.baseURL}/getLatestListNewsByCategories?numberOfArticles=${articleCount}`;
@@ -231,7 +231,7 @@ function getLatestNewsByCategory(
   deliveryMethod: string,
   selectedCategory: string,
   articleCount: number,
-  handleRefreshToken: () => Promise<void>,
+  handleRefreshToken: () => Promise<boolean>,
 ) {
   // Construct the base URL
   let url = `${config.baseURL}/getLatestNewsByCategory?numberOfArticles=${articleCount}`;

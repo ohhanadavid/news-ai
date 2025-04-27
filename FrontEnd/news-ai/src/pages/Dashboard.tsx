@@ -13,9 +13,10 @@ import { Button } from "@/components/ui/button";
 import NewsSubscription from "./NewsSubscription";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { RiMailSendLine } from "react-icons/ri";
+import config from "../config.ts";
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [isDialogNewsSubscribeOpen, setIsDialogNewsSubscribeOpen] = React.useState(false);
@@ -28,15 +29,63 @@ const Dashboard = () => {
   // גש לטוקן מה-state
   const token = location.state?.token;
 
+  // useEffect(() => {
+  //   const fetchDashboardData = async () => {
+  //     // const token = localStorage.getItem("token");
+  //   //   try {
+  //   //     const response = await fetch(`${config.baseURL}/dashboard`, {
+  //   //       headers: {
+  //   //         Authorization: `Bearer ${token}`,
+  //   //       },
+  //   //     });
+        
+  //   //     if (response.ok) {
+  //   //        await response.json();
+  //   //     }
+  //   //   } catch (error) {
+  //   //     console.error("Error fetching dashboard data:", error);
+  //   //   }
+  //   // };
+
+  //   if (user) {
+  //     const previousBackground = document.body.style.backgroundColor;
+  //     console.log("log in previousBackground:", previousBackground);
+  //     // שינוי הרקע
+  //     document.body.style.backgroundImage = "url('/Images/login.webp')";
+  //     document.body.style.backgroundSize = "cover";
+  //     fetchDashboardData();
+  //     return () => {
+  //       document.body.style.backgroundColor = previousBackground;
+  //     }
+  //   }
+  // }, [user]);
+
+  // if (loading) {
+  //   return <div>טוען...</div>;
+  // }
+  
   useEffect(() => {
-    if (!user) {
+    const token = localStorage.getItem("token");
+    if (!user && !token) {
       navigate("/login"); // נווט לדף ההתחברות אם המשתמש לא מחובר
     }
+    const previousBackground = document.body.style.backgroundColor;
+    console.log("log in previousBackground:", previousBackground);
+    // שינוי הרקע
+    document.body.style.backgroundImage = "url('/Images/login.webp')";
+    document.body.style.backgroundSize = "cover";
+     return () => {
+        document.body.style.backgroundColor = previousBackground;
+      }
   }, [user, navigate]);
 
+  if (loading) {
+    return <div>טוען...</div>;  
+  }
+
   return (
-    <body style={{ backgroundImage: "url('/background.png')", backgroundSize: "cover" }}>
-        <div style={{ display: "flex", padding: "20px" }}>
+  
+    <div style={{ display: "flex", padding: "20px" }}>
     {/* Sidebar קבוע בצד שמאל */}
     <div
       style={{
@@ -108,13 +157,13 @@ const Dashboard = () => {
      
       <div style={{ marginTop: "10px" }}>
         <p>
-          <b>name:</b> {user.name}
+          <b>name:</b> {user.name? user.name : "No name"}
         </p>
         <p>
-          <b>email:</b> {user.email}
+          <b>email:</b> {user.email ? user.email : "No email"}
         </p>
         <p>
-          <b>phone:</b> {user.phone}
+          <b>phone:</b> {user.phone ? user.phone : "No phone"}
         </p>
       </div>
       
@@ -169,7 +218,9 @@ const Dashboard = () => {
             token={token} // Pass the token to AddLanguage
           />
         </h2>
-        {isMyLanguageVisible && <MyLanguage />} {/* Conditionally render MyLanguage */}
+        <div style={{ display: isMyLanguageVisible ? "block" : "none" }}>
+         <MyLanguage />
+         </div>
       </div>
 
       <div style={{ marginTop: "20px" }}>
@@ -194,8 +245,9 @@ const Dashboard = () => {
             onClose={() => setIsCategoryDialogOpen(false)}
           />
         </h2>
-       
-       { isMyCategoryVisible &&<MyCategoryies   />}
+       <div style={{ display: isMyCategoryVisible ? "block" : "none" }}>
+       <MyCategoryies />
+       </div>
       </div>
 
       <div style={{ marginTop: "20px" }}>
@@ -207,7 +259,7 @@ const Dashboard = () => {
         </div>
       </div>
     </div>
-    </body>
+          
     
   );
 };

@@ -11,11 +11,14 @@ const Login: React.FC = () => {
 
   useEffect(() => {
     // שמירה על הרקע הקודם
+    
+    console.log("login useEffect called");
     const previousBackground = document.body.style.backgroundColor;
-
+    console.log("log in previousBackground:", previousBackground);
     // שינוי הרקע
-    document.body.style.backgroundImage = "url(/login.png)";
+    document.body.style.backgroundImage = "url('/Images/login.webp')";
     document.body.style.backgroundSize = "cover";
+    console.log("log in document.body.style.backgroundImage:", document.body.style.backgroundImage);
 
     // ניקוי – החזרת הרקע כשהקומפוננטה יוצאת
     return () => {
