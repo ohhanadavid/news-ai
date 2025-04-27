@@ -16,7 +16,7 @@ const Update = () => {
       const previousBackground = document.body.style.backgroundColor;
   
       // שינוי הרקע
-      document.body.style.backgroundImage = "url(/public/update.png)";
+      document.body.style.backgroundImage = "url('/Images/update.webp')";
       document.body.style.backgroundSize = "cover";
   
       // ניקוי – החזרת הרקע כשהקומפוננטה יוצאת
