@@ -32,6 +32,7 @@ class ArticleToGetFilter:
     url: str
     title: str
     summary: str = ""
+    language: Optional[str] = None
     video_url: Optional[str] = None
     pub_date: Optional[str] = None
     description: Optional[str] = None
@@ -39,6 +40,7 @@ class ArticleToGetFilter:
     @classmethod
     def from_article(cls, article):
         return cls(
+            language=article.language,
             url=article.link,
             title=article.title,
             video_url=article.video_url,
@@ -51,6 +53,7 @@ class ArticleToGetFilter:
     def from_json(cls, json_data: dict) -> 'ArticleToGetFilter':
         return cls(
             url=json_data['url'],
+            language=json_data.get('language'),
             title=json_data['title'],
             summary=json_data.get('summary', ""),
             video_url=json_data.get('video_url'),
@@ -63,7 +66,8 @@ class ArticleToGetFilter:
                f"title: {self.title}\n" \
                f"   summary: {self.summary}\n" \
                f"   video url: {self.video_url}\n" \
-               f"   publish date: {self.pub_date}\n"
+               f"   publish date: {self.pub_date}\n"\
+                f"  language: {self.language}\n"
 
 
 @dataclass
@@ -115,7 +119,8 @@ class ArticlesToFilter(DataForNews):
                     'summary': article.summary,
                     'videoUrl': article.video_url,
                     'pubDate': article.pub_date,
-                    'description': article.description
+                    'description': article.description,
+                    'language': article.language
                 }
                 for article in self.article_return_list
             ],

@@ -16,6 +16,7 @@ import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @RestController("dataManager/userData")
+@RequestMapping("api")
 public class UserController {
     @Autowired
     UserService userService;

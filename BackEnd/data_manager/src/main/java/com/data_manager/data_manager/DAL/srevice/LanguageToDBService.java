@@ -22,7 +22,6 @@ import java.util.List;
 public class LanguageToDBService implements IUser {
     @Autowired
     private LanguageRepository languageRepository;
- 
 
     public void saveLanguage(LanguageToDB language){
         log.info("Save language for {}",language.getLanguageKey().getUserID());
@@ -35,16 +34,19 @@ public class LanguageToDBService implements IUser {
         languageRepository.save(language);
 
     }
+
     public List<String> getLanguages(String userID){
         log.info("get languages for {}",userID);
         return languageRepository.getMyLanguages(userID);
 
     }
+
     public List<String> getLanguagesCode(String userID){
         log.info("get languages code for {}",userID);
         return languageRepository.getMyLanguagesCode(userID);
 
     }
+
     public void deleteLanguage(LanguageKey language){
         log.info("delete language for {}",language.getUserID());
         if(!languageRepository.existsById(language))
@@ -53,6 +55,7 @@ public class LanguageToDBService implements IUser {
         languageRepository.deleteById(language);
 
     }
+
     @Async
     @Override
     public void deleteUser(String userID){
@@ -74,7 +77,8 @@ public class LanguageToDBService implements IUser {
 
 
     }
-   public int numberOfMyLanguages(String userID) {
+
+    public int numberOfMyLanguages(String userID) {
         log.info("numberOfMyLanguages for {}",userID);
         return languageRepository.countByUserID(userID);
 

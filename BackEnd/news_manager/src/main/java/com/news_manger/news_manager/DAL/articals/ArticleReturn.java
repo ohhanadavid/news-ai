@@ -22,6 +22,7 @@ public class ArticleReturn {
     private String title;
     private String summary;
     private String videoUrl;
+    private String language;
     //@JsonDeserialize(using= ArticalDataTimeFormatter.class)
     private String pubDate;
     private String description;
@@ -33,6 +34,7 @@ public class ArticleReturn {
         this.summary="";
         this.pubDate=artical.getPubDate();
         this.description=artical.getDescription();
+        this.language=artical.getLanguage();
 
     }
 

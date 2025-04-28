@@ -30,6 +30,6 @@ public class UserUpdate {
         return Optional.ofNullable(firstName);
     }
     public Optional<String> getLastName() {
-        return Optional.ofNullable(firstName);
+        return Optional.ofNullable(lastName);
     }
 }

@@ -114,7 +114,7 @@ public class UserService  {
 
     public void updateUser(UserData userData, UserUpdate userUpdate) {
 
-        log.info("update user  request for {}",userData.getUserID());
+        log.info("update user  request for {} data {}",userData.getUserID() ,userUpdate.toString());
         RealmResource realmResource = getRealm();
         UserResource userResource = realmResource.users().get(userData.getUserID());
 
@@ -132,7 +132,8 @@ public class UserService  {
     }
 
     public JwtResponse changePassword(ChangePassword data, UserData user){
-
+        log.info("changePassword request for {}",user.getUserID());
+        log.info("changePassword request for {}",data.toString());
         CredentialRepresentation password = new CredentialRepresentation();
         password.setType(CredentialRepresentation.PASSWORD);
         password.setValue(data.getNewPassword());

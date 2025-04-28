@@ -15,31 +15,13 @@ import lombok.extern.log4j.Log4j2;
 
 @RestController("newsManager")
 @Log4j2
+@RequestMapping("api")
 public class NewsController {
     @Autowired
     private NewsAIService newsDataService;
     private final String defaultForArticle ="3";
    
-//    @GetMapping("getLatestNews")
-//    public ResponseEntity<?> getLatestNews(@RequestParam String email,@RequestParam (required = false,defaultValue = defaultForArticle)int numberOfArticle) throws JsonProcessingException {
-//        log.info("getLatestNews");
-//        return newsDataService.getLatestNews( email, numberOfArticle);
-//
-//    }
 
-//    @GetMapping("getLatestNewsByCategory")
-//    public ResponseEntity<?> getLatestNewsByCategory(@RequestParam String email,@RequestParam String category,@RequestParam (required = false,defaultValue = defaultForArticle)int numberOfArticle) throws JsonProcessingException {
-//        log.info("getLatestNewsByCategory");
-//        return newsDataService.getLatestNewsByCategory(email,category,numberOfArticle);
-//
-//    }
-//
-//    @GetMapping("getLatestListNewsByCategories")
-//    public ResponseEntity<?> getLatestListNewsFromCategories(String email,@RequestParam (required = false,defaultValue = defaultForArticle)int numberOfArticle) throws JsonProcessingException {
-//        log.info("getLatestListNewsByCategories");
-//        return newsDataService.getLatestListNewsFromCategories(email,numberOfArticle);
-//
-//    }
 
 
     @GetMapping("getCategories")

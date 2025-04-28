@@ -1,6 +1,7 @@
 package com.NewsAI.newsAiGateway.jwt;
 
 
+import lombok.extern.log4j.Log4j2;
 import org.keycloak.adapters.springsecurity.KeycloakConfiguration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -26,8 +27,10 @@ import org.springframework.security.oauth2.jwt.ReactiveJwtDecoders;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
 import reactor.core.publisher.Mono;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -38,58 +41,57 @@ import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClient
 
 @Configuration
 @EnableWebFluxSecurity
-//@EnableReactiveMethodSecurity
-//@KeycloakConfiguration
+@Log4j2
 public class SecurityConfig {
 
-    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
-    private String issuerUri;
-    @Value("${keycloak.client-id}")
-    String clientId;
-    @Value("${keycloak.client-secret}")
-    String clientSecret;
-
-//
-//    @Bean
-//    public ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider() {
-//        return ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
-//                .clientCredentials()
-//                .build();
-//    }
-//    @Bean
-//    public ReactiveOAuth2AuthorizedClientManager reactiveOAuth2AuthorizedClientManager(
-//            ReactiveClientRegistrationRepository clientRegistrationRepository,
-//            ServerOAuth2AuthorizedClientRepository authorizedClientRepository,
-//            ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider) {
-//
-//        DefaultReactiveOAuth2AuthorizedClientManager authorizedClientManager =
-//                new DefaultReactiveOAuth2AuthorizedClientManager(clientRegistrationRepository, authorizedClientRepository);
-//
-//        authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
-//
-//        return authorizedClientManager;
-//    }
-//
-//    @Bean
-//    public ServerOAuth2AuthorizedClientRepository authorizedClientRepository() {
-//        return new WebSessionServerOAuth2AuthorizedClientRepository();
-//    }
-//
-//
-//
-//    @Bean
-//    public ReactiveJwtDecoder reactiveJwtDecoder() {
-//        return ReactiveJwtDecoders.fromIssuerLocation(issuerUri);
-//    }
+//    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
+//    private String issuerUri;
+//    @Value("${keycloak.client-id}")
+//    String clientId;
+//    @Value("${keycloak.client-secret}")
+//    String clientSecret;
 
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http
+                .cors(cors -> cors.configurationSource(request -> {
+                    CorsConfiguration config = new CorsConfiguration();
+                    config.setAllowedOrigins(List.of("http://localhost:5173","http://localhost:5174","http://localhost:5175","http://localhost:8080"
+                    ,"http://10.0.0.3:5173","http://10.0.0.3:5174","http://10.0.0.3:5175"));
+                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+                    config.setAllowedHeaders(List.of("*"));
+                    config.setAllowCredentials(true);
+                    config.setMaxAge(3600L);
+                    config.setAllowCredentials(true);
+                    return config;
+                }))
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/public/**",
-                                "/saveUser",
-                                "/authenticate",
+                        .pathMatchers(
+                                "/",
+                                "/index.html",
+                                "/static/**",
+                                "/fonts/**",
+                                "/dist/**",
+                                "/dashboard",
+                                "/update",
+                                "/background.png",
+                                "/Images/**",
+                                "/login.png",
+                                "/login.webp",
+                                "/SignIn.png",
+                                "/update.png",
+                                "/icon.jpeg",
+                                "/icon.png",
+                                "/assets/**",
+                                "/favicon.ico",
+                                "/manifest.json",
+                                "/*.js",
+                                "/*.css",
+                                "/public/**",
+                                "api/saveUser",
+                                "api/authenticate",
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
@@ -104,26 +106,25 @@ public class SecurityConfig {
                         .jwt(jwt -> jwt
                                 .jwtAuthenticationConverter(new ReactiveKeycloakJwtAuthenticationConverter())
                         )
+
+                )    .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint((exchange, ex) -> {
+                            String url = exchange.getRequest().getURI().toString();
+                            boolean token = exchange.getRequest().getHeaders().containsKey("Authorization");
+                            log.error("401 Unauthorized error at URL: {} token? {}" , url,token);
+                            return Mono.error(ex);
+                        })
+
+                .accessDeniedHandler((exchange, ex) -> {
+                            String url = exchange.getRequest().getURI().toString();
+                            log.error("403 Forbidden error at URL: {}" , url);
+                            return Mono.error(ex);
+                        })
+
                 );
 
         return http.build();
     }
-
-
-//
-//    @Bean
-//    public ReactiveClientRegistrationRepository clientRegistrationRepository() {
-//        ClientRegistration clientRegistration = ClientRegistration.withRegistrationId("keycloak")
-//                .clientId(clientId)
-//                .clientSecret(clientSecret)
-//                .authorizationGrantType(org.springframework.security.oauth2.core.AuthorizationGrantType.CLIENT_CREDENTIALS)
-//                .scope("openid")
-//                .issuerUri(issuerUri)
-//                .build();
-//
-//        return new InMemoryReactiveClientRegistrationRepository(clientRegistration);
-//    }
-
 
 
     public static class ReactiveKeycloakJwtAuthenticationConverter

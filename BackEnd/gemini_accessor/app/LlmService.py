@@ -28,6 +28,7 @@ def my_article(json_data):
         option=data.option
 
 
+
         while True:
             try:
                 text = LLM((llm_reqeust_templet(article, number_of_article, preference)))
@@ -59,24 +60,12 @@ def my_article(json_data):
 
 def llm_reqeust_templet(article, number_of_article, preference):
     data = (
-
-
-
-    "i want you return me the answer in this type:"
-    "url: the article url here give me the exact same url "
-    "title: the article title here"
-    "summary: base on url,title and description put here the short article summery maximum 50 words"
-    "videoUrl: the exact same url from video url if exists"
-    "pubDate: the date from pubDate "
-    "give me this in json format ready to insert into object"
-    "make shore its json format without any error"
-    )
-    data = (
         f"Given the following JSON data {article}, "
         f"I need you to select exactly {number_of_article} articles. "
         f"The articles should be the most interesting and relevant based on {preference}. "
         "If the preference is empty or null, please select the articles randomly. "
         "Ensure that exactly the requested number of articles are returned, with no repetitions. "
+        "The articles should be in the same language as the original articles."
         "Return the result in the following JSON format, without any additional characters or errors:"
         "\n"
         "{"
@@ -84,7 +73,8 @@ def llm_reqeust_templet(article, number_of_article, preference):
         "\n    {"
         "\n      \"url\": \"<article_url>\","
         "\n      \"title\": \"<article_title>\","
-        "\n      \"summary\": \"<base on url,title and description put here the short article summery maximum 50 words>\","
+        "\n      \"summary\": \"<based on the url, title, and description, write a short summary of the article, with a maximum of 50 words. The summary must be in the same language as specified in the 'language' field of the article>\","
+        #"\n      \"summary\": \"<base on url,title and description put here the short article summery maximum 50 words the summery must have at the same language (the language base on language field >\","
         "\n      \"videoUrl\": \"<the exact same url from video url if exists if not exists return here null>\","
         "\n      \"pubDate\": \"<publication_date>\""
         "\n    }"

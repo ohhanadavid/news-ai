@@ -13,26 +13,31 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.web.reactive.config.ResourceHandlerRegistry;
+import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.RouterFunctions;
-import org.springframework.web.reactive.function.server.ServerRequest;
-import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.web.reactive.function.server.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 import org.springframework.security.oauth2.jwt.Jwt;
 
+import java.util.concurrent.TimeUnit;
+
 import static com.NewsAI.newsAiGateway.kafka.KafkaTopic.*;
 import static org.springframework.web.reactive.function.server.RequestPredicates.*;
+import static org.springframework.web.reactive.function.server.RouterFunctions.route;
+
 //
 @Configuration
 @Log4j2
-public class GatewayConfig {
+public class GatewayConfig implements WebFluxConfigurer {
 
 
     @Value("${DATA_MANAGER_URL}")
@@ -47,7 +52,7 @@ public class GatewayConfig {
     @Autowired
     Producer producer;
 
-    private final WebClient webClient;
+    private final WebClient webClient  ;
 
     @Autowired
     public GatewayConfig() {
@@ -58,7 +63,13 @@ public class GatewayConfig {
                 })
                 .build();
     }
-
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // טיפול בקבצים סטטיים
+        registry.addResourceHandler("/**")
+                .addResourceLocations("classpath:/static/")
+                .setCacheControl(CacheControl.maxAge(365, TimeUnit.DAYS));
+    }
     @PostConstruct
     public void logConfiguration() {
         log.info("=== Gateway Configuration ===");
@@ -73,41 +84,49 @@ public class GatewayConfig {
         log.info("in RouterFunction<ServerResponse> gatewayRoutes()");
         log.info("data url: {}",dataManagerURL);
         log.info("news url: {}",newsManagerURL);
-        return RouterFunctions
-                .route(POST("/authenticate"),this::handleRequestWithoutAuthorization)
-                .andRoute(POST("/saveUser"),this::handleRequestWithoutAuthorization)
-                .andRoute(PUT("/updateUser"), this::handleRequestToDataManagerWithBody)
-                .andRoute(PUT("/changePassword"), this::handleRequestToDataManagerWithBody)
-                .andRoute(POST("/refreshToken"), this::handleRequestToDataManagerWithBody)
+        return
+                route(RequestPredicates.GET("/{path:^(?!api|v3|swagger-ui|assets|fonts).*$}"),
+                        req -> ServerResponse.ok().contentType(MediaType.TEXT_HTML)
+                                .bodyValue(new ClassPathResource("static/index.html")))
+                        .andRoute(RequestPredicates.GET("/"),
+                                req -> ServerResponse.ok().contentType(MediaType.TEXT_HTML)
+                                        .bodyValue(new ClassPathResource("static/index.html")))
 
-                .andRoute(POST("/saveCategory"), this::handleRequestToDataManagerWithBody)
-                .andRoute(GET("/getPreferenceByCategory"),this::handleRequestToDataManagerWithoutBody)
-                .andRoute(GET("/myCategories"), this::handleRequestToDataManagerWithoutBody)
-                .andRoute(DELETE("/deletePreference"), this::handleRequestToDataManagerWithBody)
-                .andRoute(DELETE("/deleteCategory"), this::handleRequestToDataManagerWithoutBody)
-                .andRoute(PUT("/changeCategory"), this::handleRequestToDataManagerWithBody)
-                .andRoute(PUT("/updatePreference"), this::handleRequestToDataManagerWithBody)
-                .andRoute(PUT("/updateCategory"),this::handleRequestToDataManagerWithBody)
 
-                .andRoute(POST("/saveLanguage"), this::handleRequestToDataManagerWithBody)
-                .andRoute(GET("/getMyLanguages"), this::handleRequestToDataManagerWithoutBody)
-                .andRoute(GET("/getMyLanguagesCode"), this::handleRequestToDataManagerWithoutBody)
-                .andRoute(DELETE("/deleteLanguage"), this::handleRequestToDataManagerWithBody)
-                .andRoute(PUT("/updateLanguage"), this::handleRequestToDataManagerWithBody)
+                .andRoute(POST("api/authenticate"),this::handleRequestWithoutAuthorization)
+                .andRoute(POST("api/saveUser"),this::handleRequestWithoutAuthorization)
+                .andRoute(PUT("api/updateUser"), this::handleRequestToDataManagerWithBody)
+                .andRoute(PUT("api/changePassword"), this::handleRequestToDataManagerWithBody)
+                .andRoute(POST("api/refreshToken"), this::handleRequestToDataManagerWithBody)
 
-                .andRoute(GET("/getUser"), this::handleRequestToDataManagerWithoutBody)
-                .andRoute(DELETE("/deleteUser"), this::handleRequestToDataManagerWithoutBody)
+                .andRoute(POST("api/saveCategory"), this::handleRequestToDataManagerWithBody)
+                .andRoute(GET("api/getPreferenceByCategory"),this::handleRequestToDataManagerWithoutBody)
+                .andRoute(GET("api/myCategories"), this::handleRequestToDataManagerWithoutBody)
+                .andRoute(DELETE("api/deletePreference"), this::handleRequestToDataManagerWithBody)
+                .andRoute(DELETE("api/deleteCategory"), this::handleRequestToDataManagerWithoutBody)
+                .andRoute(PUT("api/changeCategory"), this::handleRequestToDataManagerWithBody)
+                .andRoute(PUT("api/updatePreference"), this::handleRequestToDataManagerWithBody)
+                .andRoute(PUT("api/updateCategory"),this::handleRequestToDataManagerWithBody)
 
-                .andRoute(GET("/getLatestNews"), this::handleGetLatestNews)
-                .andRoute(GET("/getLatestNewsByCategory"), this::handleGetLatestNewsWithCategory)
-                .andRoute(GET("/getLatestListNewsByCategories"), this::handleGetLatestNewsWithMtCategories)
+                .andRoute(POST("api/saveLanguage"), this::handleRequestToDataManagerWithBody)
+                .andRoute(GET("api/getMyLanguages"), this::handleRequestToDataManagerWithoutBody)
+                .andRoute(GET("api/getMyLanguagesCode"), this::handleRequestToDataManagerWithoutBody)
+                .andRoute(DELETE("api/deleteLanguage"), this::handleRequestToDataManagerWithBody)
+                .andRoute(PUT("api/updateLanguage"), this::handleRequestToDataManagerWithBody)
 
-                .andRoute(GET("/getCategories"), this::handleRequestToNewsManagerWithoutBody)
-                .andRoute(GET("/getLanguages"), this::handleRequestToNewsManagerWithoutBody)
+                .andRoute(GET("api/getUser"), this::handleRequestToDataManagerWithoutBody)
+                .andRoute(DELETE("api/deleteUser"), this::handleRequestToDataManagerWithoutBody)
 
-                .andRoute(GET("/checkCategory"), this::handleRequestToNewsManagerWithoutBody)
-                .andRoute(GET("/getLanguageCode"), this::handleRequestToNewsManagerWithoutBody)
-                .andRoute(GET("/maximumLanguage"), this::handleRequestToNewsManagerWithoutBody)
+                .andRoute(GET("api/getLatestNews"), this::handleGetLatestNews)
+                .andRoute(GET("api/getLatestNewsByCategory"), this::handleGetLatestNewsWithCategory)
+                .andRoute(GET("api/getLatestListNewsByCategories"), this::handleGetLatestNewsWithMtCategories)
+
+                .andRoute(GET("api/getCategories"), this::handleRequestToNewsManagerWithoutBody)
+                .andRoute(GET("api/getLanguages"), this::handleRequestToNewsManagerWithoutBody)
+
+                .andRoute(GET("api/checkCategory"), this::handleRequestToNewsManagerWithoutBody)
+                .andRoute(GET("api/getLanguageCode"), this::handleRequestToNewsManagerWithoutBody)
+                .andRoute(GET("api/maximumLanguage"), this::handleRequestToNewsManagerWithoutBody)
 
                 .andRoute(GET("/test"), request -> {
                     log.info("Handling test request");

@@ -18,14 +18,16 @@ import java.util.List;
 
 @RestController("dataManager/userLanguages")
 @Log4j2
+@RequestMapping("api")
 public class LanguageController {
     @Autowired
     LanguageService languageService;
     
     @PostMapping("saveLanguage")
     public ResponseEntity<?> saveLanguage(@RequestBody LanguageUser Language, @AuthenticationPrincipal Jwt jwt){
-        log.info("Save Language");
-        languageService.saveLanguage(Language,new UserData(jwt));
+        UserData userData = new UserData(jwt);
+        log.info("{} Save Language {}",userData.getUserID(),Language.getLanguage());
+        languageService.saveLanguage(Language,userData);
         return new ResponseEntity<>(HttpStatus.OK);
 
     }

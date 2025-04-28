@@ -172,20 +172,24 @@ public class NewsAIService {
     }
 
     private void sendToUser(ArticleFromLLm data, NotificationData mail, User user) throws JsonProcessingException {
-
+        log.info("sendToUser for {} send in {}",user.getName(),data.getOption());
         switch (data.getOption()){
 
             case SendOption.EMAIL:
                 mail.setConnectInfo(user.getEmail());
                 producer.send(mail, KafkaTopic.SEND_EMAIL);
+                break;
 
             case SendOption.SMS:
                 mail.setConnectInfo(user.getPhone());
                 producer.send(mail, KafkaTopic.SEND_SMS);
 
+                break;
+
             case SendOption.WHATSAPP:
                 mail.setConnectInfo(user.getPhone());
                 producer.send(mail, KafkaTopic.SEND_WHATSAPP);
+                break;
 
         }
 
