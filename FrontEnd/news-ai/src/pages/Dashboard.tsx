@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import NewsSubscription from "./NewsSubscription";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { RiMailSendLine } from "react-icons/ri";
-import config from "../config.ts";
+
 
 const Dashboard = () => {
   const { user, loading } = useAuth();

@@ -177,6 +177,18 @@ services:
     networks:
       - News_app_network
 
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - "8082:8082"  
+    environment:
+      - SERVER_PORT=8082              
+      - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
+      - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
+    networks:
+      - News_app_network
+
 #########################################
 # DOCKER-COMPOSE CONFIGURATIONS
 #########################################

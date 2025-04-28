@@ -12,7 +12,7 @@ const MyLanguage = () => {
   const {refreshLanguages} = useLanguages(); 
 
  useEffect(() => {
-    if(!languages){
+    if(!languages || languages.length === 0) {
       console.log("languages is null");
       refreshLanguages(); 
     }

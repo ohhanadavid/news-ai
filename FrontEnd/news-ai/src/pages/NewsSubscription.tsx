@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import config from "../config";
 import { useCategory } from "../context/CategoryContext";
-import { useNavigate } from "react-router-dom";
+
 import { useAuth } from "../context/AuthContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,7 @@ const NewsSubscription: React.FC <NewsSubscriptionProps>= ({ isOpen, onClose }) 
   const [deliveryMethod, setDeliveryMethod] = useState<string[]>([]);
   const [articleCount, setArticleCount] = useState(1);
   const { handleRefreshToken } = useAuth();
-  const navigate = useNavigate();
+  
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,8 +44,8 @@ const NewsSubscription: React.FC <NewsSubscriptionProps>= ({ isOpen, onClose }) 
       default:
         break;
     }
-
-    navigate("/dashboard"); // Redirect to the dashboard after submission
+    onClose(); 
+     // Redirect to the dashboard after submission
   };
 
   const handleDeliveryMethodChange = (method: string) => {
@@ -54,6 +54,7 @@ const NewsSubscription: React.FC <NewsSubscriptionProps>= ({ isOpen, onClose }) 
         ? prevMethods.filter((m) => m !== method)
         : [...prevMethods, method]
     );
+    
   };
 
   return (

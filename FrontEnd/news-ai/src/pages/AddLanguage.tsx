@@ -30,22 +30,25 @@ interface AddLanguageProps {
   token: string | null; // Add token prop
 }
 
-const AddLanguage: React.FC<AddLanguageProps> = ({ isOpen, onClose ,token}) => {
+const AddLanguage: React.FC<AddLanguageProps> = ({ isOpen, onClose, token: propToken }) => {
+  const token = propToken || localStorage.getItem("token") || null; 
   const [languages, setLanguages] = useState<string[]>([]);
   const [maxLanguages, setMaxLanguages] = useState<number>(0);
   const { MyLanguages, refreshLanguages } = useLanguages();
-  
   const { handleRefreshToken } = useAuth();
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!token) return; // Wait until the token is available
+    if (!token) {
+      console.error("Token is not available in AddLanguage component");
+      return; // חכה עד שהטוקן יהיה זמין
+    }
 
-    console.log("Token:", token);
+    
     getLanguages(token, setLanguages);
     getMaxLanguages(token, setMaxLanguages);
-  }, [token]); // Add token as a dependency
+  }, [token]); // הוספת token כתלות
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,7 +97,8 @@ const AddLanguage: React.FC<AddLanguageProps> = ({ isOpen, onClose ,token}) => {
       <DialogContent className="w-1/2">
         <DialogHeader>
           <DialogTitle>Add Language</DialogTitle>
-          <DialogDescription>
+          <DialogDescription 
+          style={{ color: maxLanguages > MyLanguages.length ? "green" : "red" }}>
             The maximum languages allowed is {maxLanguages}. You have {MyLanguages.length}.
           </DialogDescription>
          
@@ -152,6 +156,7 @@ const AddLanguage: React.FC<AddLanguageProps> = ({ isOpen, onClose ,token}) => {
 
 // Helper functions
 function getLanguages(token: string | null, setLanguages: React.Dispatch<React.SetStateAction<string[]>>) {
+  console.log("getLanguages call");
   if (!token) {
     console.error("No token provided for getLanguages");
     return;
@@ -195,6 +200,7 @@ function getLanguages(token: string | null, setLanguages: React.Dispatch<React.S
 }
 
 function getMaxLanguages(token: string | null, setMaxLanguages: React.Dispatch<React.SetStateAction<number>>) {
+  console.log("maxLaguages call");
   if (!token) {
     console.error("No token provided for getMaxLanguages");
     return;
