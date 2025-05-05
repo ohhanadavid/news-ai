@@ -12,7 +12,7 @@ const MyCategories = () => {
 
 
   useEffect(() => {
-    if (!myCategories) {
+    if (!myCategories || myCategories.size === 0) {
       console.log("myCategories is null");
       refreshCategories();
     } else 

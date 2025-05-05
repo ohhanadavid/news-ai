@@ -57,11 +57,13 @@ public class NotificationConsumer {
 
     @KafkaListener(topics = {"api.whatsApp"})
     public void whatsAppAll(ConsumerRecord<?, ?> record) throws JsonProcessingException {
+        log.info("getting whatsApp");
         Optional<?> kafkaMessage = Optional.ofNullable(record.value());
         if (kafkaMessage.isPresent()) {
 
             Object message = kafkaMessage.get();
             NotificatioData data = om.readValue(message.toString(), NotificatioData.class);
+            log.info("getting whatsApp to {} ", data.getConnectInfo());
             whatsAppService.sendWhatsAppMessage(data);
             log.info("whatsApp to {} send", data.getConnectInfo());
         }

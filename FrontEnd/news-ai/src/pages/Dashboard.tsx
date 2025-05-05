@@ -29,40 +29,6 @@ const Dashboard = () => {
   // גש לטוקן מה-state
   const token = location.state?.token;
 
-  // useEffect(() => {
-  //   const fetchDashboardData = async () => {
-  //     // const token = localStorage.getItem("token");
-  //   //   try {
-  //   //     const response = await fetch(`${config.baseURL}/dashboard`, {
-  //   //       headers: {
-  //   //         Authorization: `Bearer ${token}`,
-  //   //       },
-  //   //     });
-        
-  //   //     if (response.ok) {
-  //   //        await response.json();
-  //   //     }
-  //   //   } catch (error) {
-  //   //     console.error("Error fetching dashboard data:", error);
-  //   //   }
-  //   // };
-
-  //   if (user) {
-  //     const previousBackground = document.body.style.backgroundColor;
-  //     console.log("log in previousBackground:", previousBackground);
-  //     // שינוי הרקע
-  //     document.body.style.backgroundImage = "url('/Images/login.webp')";
-  //     document.body.style.backgroundSize = "cover";
-  //     fetchDashboardData();
-  //     return () => {
-  //       document.body.style.backgroundColor = previousBackground;
-  //     }
-  //   }
-  // }, [user]);
-
-  // if (loading) {
-  //   return <div>טוען...</div>;
-  // }
   
   useEffect(() => {
     const token = localStorage.getItem("token");

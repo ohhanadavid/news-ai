@@ -606,7 +606,7 @@ const isTokenExpiringSoon = (token: string | null): boolean => {
   const timeRemaining = expirationTime - currentTime;
   
   // מחזיר אמת אם נותר פחות מדקה (60000 מילישניות)
-  return timeRemaining > 0 && timeRemaining < 60000*1;
+  return timeRemaining > 0 && timeRemaining < 60000*3;
 };
 
 
