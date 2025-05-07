@@ -257,6 +257,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     
     try {
       const res = await fetch(`${config.baseURL}/refreshToken`, {
+        
         method: "POST",
         headers: { 
           Authorization: `Bearer ${token}`,
@@ -266,7 +267,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
 
       if (!res.ok) {
-        console.log("Refresh token request failed");
+        console.log(`Refresh token request failed with status: ${res.status}`);
         return false;
       }
       
@@ -283,7 +284,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       return true;
     } catch (error) {
-      console.error("Token refresh failed:", error);
+      console.error(`Token refresh failed: status code `, error);
       return false;
     }
   }, [token, refreshToken]);
@@ -378,105 +379,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setLoading(false);
     }
   };
-  // const login = async (userIdentifier: string, password: string) => {
-  //   const res = await fetch(`${config.baseURL}/authenticate`, {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify({ userIdentifier: userIdentifier, password }),
-  //   });
-  //   if (!res.ok) throw new Error("Login failed");
-    
-  //   const data = await res.json();
-  //   console.log(`Login response: token? ${data.token?true:false} refresh token? ${data.refreshToken?true:false}`); // Log the response for debugging
-  //   setUser(data);
-  //   setToken(data.token);
-  //   setRefreshToken(data.refreshToken);
-  //   localStorage.setItem("token", data.token);
-  //   localStorage.setItem("refreshToken", data.refreshToken);
-  //   console.log(` token? ${localStorage.getItem("token")?true:false}`); // Log the response for debugging
-  //   console.log("nevigating to dashboard...");
-  //   navigate("/dashboard" ,{state:{token:data.token}});
-  // };
-
-  // const handleRefreshToken = async () => {
-  //   console.log("Refreshing token...");
-  //   if (!refreshToken){
-  //     console.log("No refresh token found, logging out...");
-  //     setRefreshToken(localStorage.getItem("refreshToken"));
-  //     if (!refreshToken) 
-  //       console.log("No refresh token found, logging out...");
-  //       return logout();
-  //   } 
-  //   try {
-  //     const res = await fetch(`${config.baseURL}/refreshToken`, {
-  //       method: "POST",
-  //       headers: { 
-  //         Authorization: `Bearer ${token}`,
-  //         "Content-Type": "application/json" },
-  //       body: JSON.stringify({ refreshToken }),
-  //     });
-
-  //     if (!res.ok){
-  //       console.log("Refresh token failed, logging out...");
-  //        throw new Error("Refresh token failed");
-
-  //     }
-  //     const data = await res.json();
-  //     console.log(`Login response: token? ${data.token?true:false} refresh token? ${data.refreshToken?true:false}`);
-  //     setToken(data.token);
-  //     localStorage.setItem("token", data.token);
-  //     if (data.refreshToken) {
-  //       setRefreshToken(data.refreshToken); 
-  //       localStorage.setItem("refreshToken", data.refreshToken);
-  //     }
-  //     localStorage.setItem("token", data.token);
-  //   } catch (error) {
-  //     console.error("Token refresh failed:", error);
-  //     logout();
-  //   }
-  // };
-  // const handleRefreshToken = async (): Promise<boolean> => {
-  //   console.log("Refreshing token...");
-  //   const currentRefreshToken = refreshToken || localStorage.getItem("refreshToken");
-    
-  //   if (!currentRefreshToken) {
-  //     console.log("No refresh token found");
-  //     return false;
-  //   }
-    
-  //   try {
-  //     const res = await fetch(`${config.baseURL}/refreshToken`, {
-  //       method: "POST",
-  //       headers: { 
-  //         Authorization: `Bearer ${token}`,
-  //         "Content-Type": "application/json" 
-  //       },
-  //       body: JSON.stringify({ refreshToken: currentRefreshToken }),
-  //     });
-
-  //     if (!res.ok) {
-  //       console.log("Refresh token request failed");
-  //       return false;
-  //     }
-      
-  //     const data = await res.json();
-  //     console.log(`Token refresh response: token? ${data.token ? true : false}`);
-      
-  //     setToken(data.token);
-  //     localStorage.setItem("token", data.token);
-      
-  //     if (data.refreshToken) {
-  //       setRefreshToken(data.refreshToken);
-  //       localStorage.setItem("refreshToken", data.refreshToken);
-  //     }
-      
-  //     return true;
-  //   } catch (error) {
-  //     console.error("Token refresh failed:", error);
-  //     return false;
-  //   }
-  // };
-
+  
   const register = async ({    userName,    firstName,    lastName,    email,    phone,    password,  }: {
     userName: string;
     firstName: string;
@@ -522,30 +425,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
 
   };
-
-  // const logout = () => {
-  //   setUser(null);
-  //   setToken(null);
-  //   setRefreshToken(null);
-  //   localStorage.removeItem("token");
-  //   localStorage.removeItem("refreshToken");
-  //   navigate("/login");
-  // };
-
-  // const logout = () => {
-  //   console.log("Logging out...");
-  //   setUser(null);
-  //   setToken(null);
-  //   setRefreshToken(null);
-  //   localStorage.removeItem("token");
-  //   localStorage.removeItem("refreshToken");
-    
-  //   // בדוק את הנתיב הנוכחי לפני הניווט
-  //   if (location.pathname !== '/login') {
-  //     navigate("/login");
-  //   }
-  // };
-
  
 
   const deleteUser = async () => {

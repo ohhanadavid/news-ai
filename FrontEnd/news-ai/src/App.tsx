@@ -7,7 +7,9 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import Update from "./pages/Update";
 import { LanguagesProvider } from "./context/LanguagesContext";
 import { CategoryProvider } from "./context/CategoryContext";
+
 import "./App.css";
+import {Toaster} from "sonner";
 
 const PrivateRoute = ({ children }: { children: ReactNode }) => {
   console.log("PrivateRoute rendered"); 
@@ -35,9 +37,11 @@ const PrivateRoute = ({ children }: { children: ReactNode }) => {
 function App() {
   return (
     <Router>
-    <AuthProvider> {/* ✅ הזזנו את זה מחוץ ל-Router */}
-    <LanguagesProvider> {/* ✅ ספק השפות */}
+    <AuthProvider>
+
+    <LanguagesProvider>
       <CategoryProvider>
+        <Toaster></Toaster>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
@@ -47,8 +51,9 @@ function App() {
           
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
-      </CategoryProvider> {/* ✅ ספק הקטגוריות */}
-    </LanguagesProvider> {/* ✅ ספק השפות */}
+      </CategoryProvider>
+    </LanguagesProvider>
+
     </AuthProvider>
     </Router>
   );

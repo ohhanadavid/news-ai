@@ -6,21 +6,19 @@ import { useLanguages } from "../context/LanguagesContext";
 import {
   Dialog,
   DialogContent,
+  DialogContentWithoutClosing,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogClose,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import { Button } from "@/components/ui/button";
-import { MdCancel } from "react-icons/md";
+
+import {toast} from "sonner";
+import LanguageList from "./LanguageList";
+import { DialogClose } from "@radix-ui/react-dialog";
+
 
 
 
@@ -38,6 +36,7 @@ const AddLanguage: React.FC<AddLanguageProps> = ({ isOpen, onClose, token: propT
   const { handleRefreshToken } = useAuth();
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [languageListOpent, setlanguageListOpent] = React.useState(false);
 
   useEffect(() => {
     if (!token) {
@@ -48,7 +47,11 @@ const AddLanguage: React.FC<AddLanguageProps> = ({ isOpen, onClose, token: propT
     
     getLanguages(token, setLanguages);
     getMaxLanguages(token, setMaxLanguages);
-  }, [token]); // הוספת token כתלות
+  }, [token]);
+
+  useEffect(() => {
+    console.log(isOpen);
+  }, [isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,31 +74,61 @@ const AddLanguage: React.FC<AddLanguageProps> = ({ isOpen, onClose, token: propT
       return;
     }
     if (res.status === 409) {
-      setError("Language already exists");
+      errorMessage("Language already exists");
+      
       return;
     }
     if (res.status === 400) {
-      setError("You have already reached the maximum number of languages");
+      errorMessage("You have already reached the maximum number of languages");
       return;
     }
     if (!res.ok) {
-      setError("Failed to add language");
+      errorMessage("Failed to add language");
       return;
     }
 
     await refreshLanguages();
-    setSelectedLanguage("");
+
     setError(null);
+    toast("language added successfully",{
+          description:`language ${selectedLanguage} added successfully`,
+          position: "top-right",
+          duration: 3000,
+          closeButton: true,
+         
+  });
+    setSelectedLanguage("");
 
     onClose();
     
   };
 
+  const errorMessage= async(error: string | null)=> {
+    toast.error("ERROR", {
+      description: error,
+      position: "top-right",
+      duration: 5000,
+      closeButton: true,
+      style: {
+        color: "red",
+        
+    }
+    });
+  
+};
+
+
+const handleDialogClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  console.log("Dialog clicked");
+  if (e.currentTarget === e.target) {
+    e.stopPropagation();
+  }
+};
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-1/2">
-        <DialogHeader>
+    <Dialog open={isOpen} onOpenChange={onClose}  >
+      <DialogContentWithoutClosing className="w-fit max-w-full  " onClick={handleDialogClick}>
+        <DialogHeader  >
           <DialogTitle>Add Language</DialogTitle>
           <DialogDescription 
           style={{ color: maxLanguages > MyLanguages.length ? "green" : "red" }}>
@@ -104,41 +137,29 @@ const AddLanguage: React.FC<AddLanguageProps> = ({ isOpen, onClose, token: propT
          
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" onClick={(e)=>e.stopPropagation()}>
           <div className="space-y-2">
             <label htmlFor="language" className="text-sm font-medium">
               Language
             </label>
-            <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a language" />
-              </SelectTrigger>
-              <SelectContent>
-                {languages.map((language, index) => (
-                  <SelectItem key={index} value={language}>
-                    {language}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+
+      
+            <LanguageList
+              languages={languages}
+              language={selectedLanguage}
+              setLanguage={setSelectedLanguage}
+              setOpen={setlanguageListOpent}
+              open={languageListOpent} 
+              />
+         
           </div>
           
           {error && <p className="text-red-500 text-sm">{error}</p>}
           
           <DialogFooter className="flex justify-end space-x-2">
-            <DialogClose asChild>
-              <Button type="button" variant="outline"
-              style={{
-                                background: "none",
-                                border: "none",
-                                fontSize: "35px",
-                                cursor: "pointer",
-                                color: "red",
-                              }}
-                              aria-label="Cancel"
-                            >
-              
-                <MdCancel />
+          <DialogClose asChild className="bg-red-500 ring-offset-background focus:ring-ring  data-[state=open]:text-muted-foreground   rounded-xs opacity-70 transition-opacity hover:opacity-500 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4">
+              <Button type="button" variant="outline">
+                Cancel
               </Button>
             </DialogClose>
             <Button 
@@ -147,9 +168,10 @@ const AddLanguage: React.FC<AddLanguageProps> = ({ isOpen, onClose, token: propT
             >
               Add Language
             </Button>
+           
           </DialogFooter>
         </form>
-      </DialogContent>
+      </DialogContentWithoutClosing>
     </Dialog>
   );
 };

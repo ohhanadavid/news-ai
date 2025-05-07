@@ -1,6 +1,7 @@
 import React, { useState, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { toast } from "sonner";
 
 const ChancePassword: React.FC = () => {
   const [oldPassword, setOldPassword] = useState<string>("");
@@ -27,16 +28,42 @@ const ChancePassword: React.FC = () => {
     try {
       
       await changePassword( oldPassword,newPassword);
-      setSuccess("Registration successful! Redirecting...");
+      setSuccess("password change successfuly! Redirecting...");
+      sucsessMessage("password change successfuly! Redirecting...");
       navigate("/dashboard"); // Redirect to dashboard immediately
     } catch (err: any) {
       // Handle specific error messages if available
-      setError(err.message || "Failed to register. Please try again.");
+      errorMessage(err.message || "Failed to change password. Please try again.");
     }
   };
 
+  const errorMessage= async(error: string | null)=> {
+    toast.error("ERROR", {
+      description: error,
+      position: "top-right",
+      duration: 5000,
+      closeButton: true,
+      style: {
+        color: "red",
+        
+    }
+    });
+  }
+  const sucsessMessage= async(success: string | null)=> {
+    toast.success("SUCCESS", {
+      description: success,
+      position: "top-right",
+      duration: 5000,
+      closeButton: true,
+      style: {
+        color: "green",
+        
+    }
+    });
+  }
+
   return (
-    <div className="flex justify-center items-center h-screen "  style={{
+    <div className="w-fit max-w-full "  style={{
       backgroundColor: "rgba(240, 240, 240, 0.7)",
       
       
@@ -90,7 +117,7 @@ const ChancePassword: React.FC = () => {
             />
           </div>
           <button type="submit" className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600">
-            Sign Up
+            change password
           </button>
         </form>
       </div>

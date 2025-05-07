@@ -14,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogClose,
+  DialogContentWithoutClosing,
 } from "@/components/ui/dialog";
 import {
   Select,
@@ -24,6 +25,8 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
+import CategoriesList from "./CategoryList";
 
 interface AddCategoryProps {
   isOpen: boolean;
@@ -37,6 +40,7 @@ const AddCategory: React.FC<AddCategoryProps> = ({ isOpen, onClose }) => {
   const { handleRefreshToken } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const { categories, refreshCategories } = useCategory();
+   const [categoiesListOpent, setCategoiesListOpent] = React.useState(false);
   
   
 
@@ -68,31 +72,55 @@ const AddCategory: React.FC<AddCategoryProps> = ({ isOpen, onClose }) => {
       return;
     }
     if (res.status === 409) {
-      setError("Category already exists");
+      errorMessage("Category already exists");
       return;
     }
     if (res.status === 400) {
-      setError("Something went wrong, please try again later");
+      errorMessage("Something went wrong, please try again later");
       return;
     }
     if (!res.ok) {
-      setError("Failed to save category");
+      errorMessage("Failed to save category");
       return;
     }
 
     await refreshCategories();
     
-    // Reset form and close dialog
+    sucsessMessage("Category added successfully");
     setSelectedCategory("");
     setPreference("");
     setError(null);
     onClose();
   };
 
- 
+  const errorMessage= async(error: string | null)=> {
+    toast.error("ERROR", {
+      description: error,
+      position: "top-right",
+      duration: 5000,
+      closeButton: true,
+      style: {
+        color: "red",
+        
+    }
+    });
+  }
+  const sucsessMessage= async(success: string | null)=> {
+    toast.success("SUCCESS", {
+      description: success,
+      position: "top-right",
+      duration: 5000,
+      closeButton: true,
+      style: {
+        color: "green",
+        
+    }
+    });
+  }
+    
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[50%]">
+      <DialogContentWithoutClosing className="w-fit max-w-full">
         <DialogHeader className="relative">
           <DialogTitle>Add Category</DialogTitle>
           <DialogDescription>
@@ -107,30 +135,35 @@ const AddCategory: React.FC<AddCategoryProps> = ({ isOpen, onClose }) => {
             <label htmlFor="category" className="text-sm font-medium">
               Category
             </label>
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((category, index) => (
-                  <SelectItem key={index} value={category}>
-                    {category}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        
+            <CategoriesList
+              categories={categories}
+              category={selectedCategory}
+              setCategory={setSelectedCategory}
+              open={categoiesListOpent}
+              setOpen={setCategoiesListOpent}
+            />
           </div>
           
-          <div className="space-y-2">
+          <div className="space-y-2  inline-flex">
             <label htmlFor="preference" className="text-sm font-medium">
               Preference
             </label>
-            <Input
+            <textarea
               id="preference"
-              type="text"
+              rows={1}
               value={preference}
               onChange={(e) => setPreference(e.target.value)}
               placeholder="Enter your preference"
+              className="w-fit max-w-full"
+              onInput={(e) => {
+                e.currentTarget.style.height = "auto";
+                e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`;
+              }}
+              style={{
+                marginLeft: "15px",
+                fontSize: "20px",
+              }}
             />
           </div>
           
@@ -144,7 +177,7 @@ const AddCategory: React.FC<AddCategoryProps> = ({ isOpen, onClose }) => {
             </DialogClose>
             <Button 
               type="submit" 
-              disabled={!selectedCategory}
+              disabled={!selectedCategory || (preference.trim() === "")}
             >
               Add Category
             </Button>
@@ -153,7 +186,7 @@ const AddCategory: React.FC<AddCategoryProps> = ({ isOpen, onClose }) => {
         
         
         
-      </DialogContent>
+      </DialogContentWithoutClosing>
     </Dialog>
   );
 };

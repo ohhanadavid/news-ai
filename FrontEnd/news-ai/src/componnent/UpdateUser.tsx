@@ -1,13 +1,13 @@
 import React, { useState, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { toast } from "sonner";
 
 const UpdateUser: React.FC = () => {
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
-  const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const navigate = useNavigate();
   const { updateUser } = useAuth();
@@ -19,37 +19,57 @@ const UpdateUser: React.FC = () => {
         firstName,lastName,email,phone
       });
       setSuccess("User updated successfully!");
+      sucsessMessage("User updated successfully!");
       console.log("Login successful! Redirecting...");
      
     } catch (err) {
       console.error(err);
-      setError("Failed to login. Please check your credentials.");
+      errorMessage("Failed to login. Please check your credentials.");
     }
     navigate("/dashboard");
   };
 
+  const errorMessage= async(error: string | null)=> {
+    toast.error("ERROR", {
+      description: error,
+      position: "top-right",
+      duration: 5000,
+      closeButton: true,
+      style: {
+        color: "red",
+        
+    }
+    });
+  }
+  const sucsessMessage= async(success: string | null)=> {
+    toast.success("SUCCESS", {
+      description: success,
+      position: "top-right",
+      duration: 5000,
+      closeButton: true,
+      style: {
+        color: "green",
+        
+    }
+    });
+  }
+
   return (
-    <div className="flex justify-center items-center h-screen "
+    <div className=" w-fit max-w-full "
     style={{
       backgroundColor: "rgba(240, 240, 240, 0.7)",
-      
-      
-      
       display: "flex",
       flexDirection: "column",
       
     }}>
       <div className="bg-white p-6 rounded-lg shadow-lg w-96" style={{
       backgroundColor: "rgba(240, 240, 240, 0.5)",
-      
-      
-      
       display: "flex",
       flexDirection: "column",
       
     }}>
        
-        {error && <p className="text-red-500">{error}</p>}
+        
         {success && <p className="text-green-500">{success}</p>}
         <form onSubmit={handleSubmit}>
         

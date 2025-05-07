@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { useLanguages } from "../context/LanguagesContext"; // ✅ ייבוא ה-Context
 import { TbMessageLanguage } from "react-icons/tb";
 import { MdDelete } from "react-icons/md";
+import { toast } from "sonner";
 
 const MyLanguage = () => {
   const { MyLanguages: languages, setMyLanguages } = useLanguages(); // ✅ שימוש ב-Context
@@ -40,6 +41,7 @@ const MyLanguage = () => {
           handleRefreshToken();
           return null;
         }
+        errorMessage("Failed to delete selected items");
         throw new Error("Failed to delete selected items");
       }
 
@@ -49,7 +51,32 @@ const MyLanguage = () => {
     } catch (error) {
       setError("Failed to delete selected items.");
     }
+    sucsessMessage(`Language ${language} deleted successfully!`);
   };
+  const errorMessage= async(error: string | null)=> {
+    toast.error("ERROR", {
+      description: error,
+      position: "top-right",
+      duration: 5000,
+      closeButton: true,
+      style: {
+        color: "red",
+        
+    }
+    });
+  }
+  const sucsessMessage= async(success: string | null)=> {
+    toast.success("SUCCESS", {
+      description: success,
+      position: "top-right",
+      duration: 5000,
+      closeButton: true,
+      style: {
+        color: "green",
+        
+    }
+    });
+  }
 
   return (
     <div >

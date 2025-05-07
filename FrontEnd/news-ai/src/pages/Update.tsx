@@ -30,8 +30,8 @@ const Update = () => {
    
   
    
-    <div className="flex flex-col items-center justify-center flex-1 p-8">
-      <div className="bg-white/90 p-6 rounded-2xl shadow-lg w-full max-w-md flex flex-col items-center">
+    <div className=" w-fit max-w-full">
+      <div className="bg-white/90 p-6 rounded-2xl shadow-lg w-full max-w-md flex flex-col items-center w-fit max-w-full">
         {/* Update User */}
         <h2
           className={`text-2xl font-bold mb-4 cursor-pointer ${

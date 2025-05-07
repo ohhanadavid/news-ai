@@ -5,6 +5,7 @@ import { useCategory } from "../context/CategoryContext";
 import { useAuth } from "../context/AuthContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface NewsSubscriptionProps {
   isOpen: boolean;
@@ -16,7 +17,7 @@ const NewsSubscription: React.FC <NewsSubscriptionProps>= ({ isOpen, onClose }) 
   const { categories } = useCategory();
   const [selectedOption, setSelectedOption] = useState("getLatestNews");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [deliveryMethod, setDeliveryMethod] = useState<string[]>([]);
+  const [deliveryMethod, setDeliveryMethod] = useState<string>("");
   const [articleCount, setArticleCount] = useState(1);
   const { handleRefreshToken } = useAuth();
   
@@ -33,34 +34,26 @@ const NewsSubscription: React.FC <NewsSubscriptionProps>= ({ isOpen, onClose }) 
     // Call the appropriate function based on the selected option
     switch (selectedOption) {
       case "getLatestNews":
-        getLatestNews(token, deliveryMethod.join(","), articleCount, handleRefreshToken);
+        getLatestNews(token, deliveryMethod, articleCount, handleRefreshToken);
         break;
       case "getLatestListNewsByCategories":
-        getLatestNewsByMyCategories(token, deliveryMethod.join(","), articleCount, handleRefreshToken);
+        getLatestNewsByMyCategories(token, deliveryMethod, articleCount, handleRefreshToken);
         break;
       case "getLatestNewsByCategory":
-        getLatestNewsByCategory(token, deliveryMethod.join(","), selectedCategory, articleCount, handleRefreshToken);
+        getLatestNewsByCategory(token, deliveryMethod, selectedCategory, articleCount, handleRefreshToken);
         break;
       default:
         break;
     }
+    massageSucces(deliveryMethod);
     onClose(); 
-     // Redirect to the dashboard after submission
-  };
-
-  const handleDeliveryMethodChange = (method: string) => {
-    setDeliveryMethod((prevMethods) =>
-      prevMethods.includes(method)
-        ? prevMethods.filter((m) => m !== method)
-        : [...prevMethods, method]
-    );
     
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
     
-      <DialogContent className="max-w-[50%]">
+      <DialogContent className="w-fit max-w-full">
         <DialogHeader>
           <DialogTitle className="font-algerian text-3xl !font-['algerian']">News Subscription</DialogTitle>
         </DialogHeader>
@@ -101,37 +94,40 @@ const NewsSubscription: React.FC <NewsSubscriptionProps>= ({ isOpen, onClose }) 
             
           </label>
           <div>
-              <label >
-                <input
-                  type="checkbox"
-                  value="email"
-                  checked={deliveryMethod.includes("email")}
-                  onChange={() => handleDeliveryMethodChange("email")}
-                  style={{ marginRight: "5px" }}
-                />
-                Email
-              </label>
-              <label style={{ marginLeft: "15px" }}>
-                <input
-                  type="checkbox"
-                  value="sms"
-                  checked={deliveryMethod.includes("sms")}
-                  onChange={() => handleDeliveryMethodChange("sms")}
-                  style={{ marginRight: "5px" }}
-                />
-                SMS
-              </label>
-              <label style={{ marginLeft: "15px" }}>
-                <input
-                  type="checkbox"
-                  value="whatsapp"
-                  checked={deliveryMethod.includes("whatsapp")}
-                  onChange={() => handleDeliveryMethodChange("whatsapp")}
-                  style={{ marginRight: "5px" }}
-                />
-                WhatsApp
-              </label>
-            </div>
+            <label>
+              <input
+                type="radio"
+                name="deliveryMethod"
+                value="email"
+                checked={deliveryMethod === "email"}
+                onChange={() => setDeliveryMethod("email")}
+                style={{ marginRight: "5px" }}
+              />
+              Email
+            </label>
+            <label style={{ marginLeft: "15px" }}>
+              <input
+                type="radio"
+                name="deliveryMethod"
+                value="sms"
+                checked={deliveryMethod === "sms"}
+                onChange={() => setDeliveryMethod("sms")}
+                style={{ marginRight: "5px" }}
+              />
+              SMS
+            </label>
+            <label style={{ marginLeft: "15px" }}>
+              <input
+                type="radio"
+                name="deliveryMethod"
+                value="whatsapp"
+                checked={deliveryMethod === "whatsapp"}
+                onChange={() => setDeliveryMethod("whatsapp")}
+                style={{ marginRight: "5px" }}
+              />
+              WhatsApp
+            </label>
+          </div>
           <br />
           <label>
             Number of Articles (max 10):
@@ -190,7 +186,8 @@ function getLatestNews(
       }
       return response.text(); // Use .text() to log the raw response
     })
-    .catch((error) => console.error("Error fetching news:", error));
+    .catch((error) => {console.error("Error fetching news:", error);
+  massageError(error.message);}); 
 }
 
 function getLatestNewsByMyCategories(
@@ -224,7 +221,8 @@ function getLatestNewsByMyCategories(
       }
       return response.text(); // Use .text() to log the raw response
     })
-    .catch((error) => console.error("Error fetching news:", error));
+    .catch((error) => {console.error("Error fetching news:", error);
+      massageError(error.message);}); 
 }
 
 function getLatestNewsByCategory(
@@ -262,5 +260,22 @@ function getLatestNewsByCategory(
       }
       return response.text(); // Use .text() to log the raw response
     })
-    .catch((error) => console.error("Error fetching news:", error));
+    .catch((error) => {console.error("Error fetching news:", error);
+      massageError(error.message);}); 
+}
+
+async function  massageError(error:string) {
+  toast.error("ERROR", {
+    description: error,
+    duration: 5000,
+
+  });
+}
+
+async function  massageSucces(optionDelivery:string) {
+  toast.success("News send!!", {
+    description: `News send to ${optionDelivery}`,
+    duration: 5000,
+
+  });
 }

@@ -38,7 +38,7 @@ const Dashboard = () => {
     const previousBackground = document.body.style.backgroundColor;
     console.log("log in previousBackground:", previousBackground);
     // שינוי הרקע
-    document.body.style.backgroundImage = "url('/Images/login.webp')";
+    document.body.style.backgroundImage = "url('/Images/background.webp')";
     document.body.style.backgroundSize = "cover";
      return () => {
         document.body.style.backgroundColor = previousBackground;
@@ -65,7 +65,7 @@ const Dashboard = () => {
     <div className="content-box" 
     style={{
       backgroundColor: "rgba(240, 240, 240, 0.8)",
-       height: "100vh",
+       
         padding: "20px" ,
         flexGrow: 1,
         overflowY: "auto",
@@ -159,18 +159,7 @@ const Dashboard = () => {
       <div style={{ marginTop: "20px" }}>
         <h2 style={{fontWeight: "bold", fontSize:"20px",}}>
           My language{" "}
-          <Button
-            onClick={() => setIsDialogOpen(true)}
-            className="bg-blue-600 hover:bg-blue-700"
-            style={{
-              border: "none",
-              fontSize: "24px",
-              cursor: "pointer",
-            }}
-            aria-label="Add Language"
-          >
-            <IoMdAddCircleOutline />
-          </Button>
+
           <Button
             onClick={() => setIsMyLanguageVisible(!isMyLanguageVisible)}
             className="bg-gray-600 hover:bg-gray-700 ml-2"
@@ -178,26 +167,34 @@ const Dashboard = () => {
           >
             {isMyLanguageVisible ? <FaChevronUp /> : <FaChevronDown />}
           </Button>
-          <AddLanguage
-            isOpen={isDialogOpen}
-            onClose={() => setIsDialogOpen(false)}
-            token={token} // Pass the token to AddLanguage
-          />
+
         </h2>
         <div style={{ display: isMyLanguageVisible ? "block" : "none" }}>
          <MyLanguage />
+            <Button
+                onClick={() => setIsDialogOpen(true)}
+                className="bg-blue-600 hover:bg-blue-700"
+                style={{
+                    border: "none",
+
+                    cursor: "pointer",
+                }}
+                aria-label="Add Language"
+            >
+                <IoMdAddCircleOutline /> Add new language
+            </Button>
+            <AddLanguage
+                isOpen={isDialogOpen}
+                onClose={() => setIsDialogOpen(false)}
+                token={token} // Pass the token to AddLanguage
+            />
          </div>
       </div>
 
       <div style={{ marginTop: "20px" }}>
         <h2 style={{fontWeight: "bold",fontSize:"20px"}}>
           My categories{" "}
-          <Button
-            onClick={() => setIsCategoryDialogOpen(true)}
-            className="bg-blue-600 hover:bg-blue-700 mr-2"
-          >
-            <IoMdAddCircleOutline />
-          </Button>
+
           <Button
             onClick={() => setIsMyCategoryVisible(!isMyCategoryVisible)}
             className="bg-gray-600 hover:bg-gray-700 ml-2"
@@ -206,13 +203,20 @@ const Dashboard = () => {
             {isMyCategoryVisible ?<FaChevronUp /> : <FaChevronDown />}
           </Button>
           {/* Category dialog component */}
-          <AddCategory
-            isOpen={isCategoryDialogOpen}
-            onClose={() => setIsCategoryDialogOpen(false)}
-          />
+
         </h2>
        <div style={{ display: isMyCategoryVisible ? "block" : "none" }}>
        <MyCategoryies />
+           <Button
+               onClick={() => setIsCategoryDialogOpen(true)}
+               className="bg-blue-600 hover:bg-blue-700 mr-2"
+           >
+               <IoMdAddCircleOutline /> Add new preference
+           </Button>
+           <AddCategory
+               isOpen={isCategoryDialogOpen}
+               onClose={() => setIsCategoryDialogOpen(false)}
+           />
        </div>
       </div>
 

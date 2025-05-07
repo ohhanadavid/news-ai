@@ -5,10 +5,12 @@ import { useCategory } from "../context/CategoryContext";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { MdCategory, MdCheckCircle, MdDelete } from "react-icons/md";
 import config from "../config";
+import { toast } from "sonner";
+import { set } from "react-hook-form";
 
 const MyCategories = () => {
   const { myCategories, refreshCategories } = useCategory(); // Access categories from context
-  const [visibleCategories, setVisibleCategories] = useState<Set<string>>(new Set());
+  const [visibleCategories, setVisibleCategories] = useState<Record<string, boolean>>({});
 
 
   useEffect(() => {
@@ -20,18 +22,7 @@ const MyCategories = () => {
     
   }, [myCategories, refreshCategories]); // Check if myCategories is null or empty
 
-  // Toggle visibility of a category
-  const toggleCategoryVisibility = (category: string) => {
-    setVisibleCategories((prev) => {
-      const updated = new Set(prev);
-      if (updated.has(category)) {
-        updated.delete(category);
-      } else {
-        updated.add(category);
-      }
-      return updated;
-    });
-  };
+  
 
   // Handle deleting a category
   const handleDeleteCategory = async (category: string) => {
@@ -47,15 +38,32 @@ const MyCategories = () => {
 
       if (!res.ok) {
         throw new Error("Failed to delete category");
+        
       }
-
+      sucsessMessage(`Category ${category} deleted successfully!`);
       // Refresh categories after deletion
       await refreshCategories();
     } catch (error) {
       console.error("Error deleting category:", error);
+      errorMessage("Failed to delete category");
     }
   };
 
+  
+  const errorMessage = async (error: string | null) => {
+    toast.error("ERROR", {
+      description: error,
+      position: "top-right",
+      duration: 5000,
+    });
+  };
+  const sucsessMessage = async (success: string | null) => {
+    toast.success("SUCCESS", {
+      description: success,
+      position: "top-right",
+      duration: 5000,
+    });
+  }
   return (
     <div>
       {myCategories.size > 0 ? ( // Check if there are categories
@@ -87,13 +95,18 @@ const MyCategories = () => {
                     marginLeft: "10px",
                   }}
                   aria-label="Toggle visibility"
-                  onClick={() => toggleCategoryVisibility(category)}
+                  onClick={() => {
+                    setVisibleCategories((prev) => ({
+                      ...prev,
+                      [category]: !prev[category],
+                    }));
+                  }}
                 >
-                  {visibleCategories.has(category) ? <FaChevronUp /> : <FaChevronDown />}
+                  {visibleCategories[category] ? <FaChevronUp /> : <FaChevronDown />}
                 </button>
               </div>
-              {visibleCategories.has(category) && (
-                <div style={{ marginLeft: "20px" }}>
+             
+                <div style={{display:visibleCategories[category]?"block":"none", marginLeft: "20px" }}>
                   <ul style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
                     {preferences.map((preference, subIndex) => (
                       <li key={subIndex} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
@@ -103,7 +116,7 @@ const MyCategories = () => {
                     ))}
                   </ul>
                 </div>
-              )}
+              
             </li>
           ))}
         </ul>
