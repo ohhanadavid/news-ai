@@ -1,236 +1,135 @@
+
+
+
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import MyLanguage from "../componnent/MyLanguage";
 import MyCategoryies from "../componnent/MyCategory";
-import { HiOutlinePencilSquare } from "react-icons/hi2";
-import { IoMdAddCircleOutline } from "react-icons/io";
-
-import DeleteUser from "./DeleteUser";
 import AddLanguage from "./AddLanguage";
 import AddCategory from "./AddCategory";
 import { Button } from "@/components/ui/button";
 import NewsSubscription from "./NewsSubscription";
-import { FaChevronDown, FaChevronUp } from "react-icons/fa";
-import { RiMailSendLine } from "react-icons/ri";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Home from "@/componnent/Home";
+import Menu from "@/componnent/Menu";
+import DeleteUserDialog from "@/componnent/DeleteUserDialog";
+import UpdateUser from "@/componnent/UpdateUser";
+import ChancePassword from "@/componnent/ChancePassword";
+import { IoHome, IoHomeOutline } from "react-icons/io5";
+import { TbMessageLanguage } from "react-icons/tb";
+import { BiCategoryAlt } from "react-icons/bi";
 
 
 const Dashboard = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, handleRefreshToken } = useAuth();
   const navigate = useNavigate();
-  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-  const [isDialogNewsSubscribeOpen, setIsDialogNewsSubscribeOpen] = React.useState(false);
-  const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
-  const [isMyLanguageVisible, setIsMyLanguageVisible] = useState(false); // State to toggle MyLanguage visibility
-  const [isMyCategoryVisible, setIsMyCategoryVisible] = useState(false);
-
   const location = useLocation();
-  
-  // גש לטוקן מה-state
   const token = location.state?.token;
+  const [isDeleteOpen, setDeleteIsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("home");
 
-  
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!user && !token) {
-      navigate("/login"); // נווט לדף ההתחברות אם המשתמש לא מחובר
+      navigate("/login");
     }
     const previousBackground = document.body.style.backgroundColor;
-    console.log("log in previousBackground:", previousBackground);
-    // שינוי הרקע
     document.body.style.backgroundImage = "url('/Images/background.webp')";
     document.body.style.backgroundSize = "cover";
-     return () => {
-        document.body.style.backgroundColor = previousBackground;
-      }
+    return () => {
+      document.body.style.backgroundColor = previousBackground;
+    };
   }, [user, navigate]);
 
   if (loading) {
-    return <div>טוען...</div>;  
+    return <div>טוען...</div>;
   }
 
   return (
-  
-    <div style={{ display: "flex", padding: "20px" }}>
-    {/* Sidebar קבוע בצד שמאל */}
-    <div
-      style={{
-        
-       
-        borderRadius: "20px",
-        padding: "20px",
-        marginRight: "20px",
-      }}
-    >
-    <div className="content-box" 
-    style={{
-      backgroundColor: "rgba(240, 240, 240, 0.8)",
-       
-        padding: "20px" ,
-        flexGrow: 1,
-        overflowY: "auto",
-        borderRadius: "20px"
-        }}>
-      <div>
-      <h1 className="font-algerian text-3xl !font-['algerian']">News-AI</h1>
-        <p className="font-pattaya text-3xl !font-['pattaya']">Welcome to the NewsAi APP!</p>
-      </div>
-
+    <div id="firstdiv" style={{ display: "flex", padding: "20px" }}>
       <div
+        id="secondtdiv"
         style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: 0,
-          margin: 0,
-          height: "auto",
-          marginTop: "10px", // שליטה על הגובה
+          borderRadius: "20px",
+          padding: "20px",
+          marginRight: "20px",
         }}
       >
-        <h2
+        <div
+          id="thirdtdiv"
+          className="content-box"
           style={{
-            margin: 0,
-            padding: 0,
-            fontSize: "20px",
-            lineHeight: "1",
-            fontWeight: "bold",
+            backgroundColor: "rgba(240, 240, 240, 0.8)",
+            padding: "20px",
+            flexGrow: 1,
+            overflowY: "auto",
+            borderRadius: "20px",
           }}
         >
-         User Information
-        </h2>
-        <Link to="/update">
-          <button
-            style={{
-              background: "none",
-              border: "none",
-              padding: 0,
-              margin: 0,
-              fontSize: "20px",
-              cursor: "pointer",
-              height: "100%", // מתאים לגובה של ה-div
-              display: "flex",
-              alignItems: "center",
-              marginLeft: "10px",
-            }}
-            aria-label="Update User"
+          <div
+            id="fourdiv"
+            className="flex flex-col items-center bg-gray-100 rounded-lg shadow-lg p-6"
           >
-            <HiOutlinePencilSquare
-              style={{ fontSize: "20px", verticalAlign: "middle" }}
-            />
-          </button>
-        </Link>
-      </div>
-     
-      <div style={{ marginTop: "10px" }}>
-        <p>
-          <b>name:</b> {user.name? user.name : "No name"}
-        </p>
-        <p>
-          <b>email:</b> {user.email ? user.email : "No email"}
-        </p>
-        <p>
-          <b>phone:</b> {user.phone ? user.phone : "No phone"}
-        </p>
-      </div>
-      
-      <div style={{ marginTop: "20px" }}>
-        <h2 style={{fontWeight: "bold" , fontSize:"20px",}}>Give me my news!!</h2>
-
-        <Button
-            onClick={() => setIsDialogNewsSubscribeOpen(true)}
-            className="bg-blue-600 hover:bg-blue-700"
-            style={{
-              border: "none",
-              fontSize: "24px",
-              cursor: "pointer",
-              marginTop: "10px",
-              
-            }}
-            aria-label="news subscription"
-          >
-            <RiMailSendLine />
-          </Button>
-          <NewsSubscription 
-          isOpen={isDialogNewsSubscribeOpen}
-          onClose={() => setIsDialogNewsSubscribeOpen(false)} 
-          />
-      </div>
-
-      <div style={{ marginTop: "20px" }}>
-        <h2 style={{fontWeight: "bold", fontSize:"20px",}}>
-          My language{" "}
-
-          <Button
-            onClick={() => setIsMyLanguageVisible(!isMyLanguageVisible)}
-            className="bg-gray-600 hover:bg-gray-700 ml-2"
-            aria-label="Toggle My Language"
-          >
-            {isMyLanguageVisible ? <FaChevronUp /> : <FaChevronDown />}
-          </Button>
-
-        </h2>
-        <div style={{ display: isMyLanguageVisible ? "block" : "none" }}>
-         <MyLanguage />
-            <Button
-                onClick={() => setIsDialogOpen(true)}
-                className="bg-blue-600 hover:bg-blue-700"
-                style={{
-                    border: "none",
-
-                    cursor: "pointer",
-                }}
-                aria-label="Add Language"
-            >
-                <IoMdAddCircleOutline /> Add new language
-            </Button>
-            <AddLanguage
-                isOpen={isDialogOpen}
-                onClose={() => setIsDialogOpen(false)}
-                token={token} // Pass the token to AddLanguage
-            />
-         </div>
-      </div>
-
-      <div style={{ marginTop: "20px" }}>
-        <h2 style={{fontWeight: "bold",fontSize:"20px"}}>
-          My categories{" "}
-
-          <Button
-            onClick={() => setIsMyCategoryVisible(!isMyCategoryVisible)}
-            className="bg-gray-600 hover:bg-gray-700 ml-2"
-            aria-label="Toggle My Categories"
-          >
-            {isMyCategoryVisible ?<FaChevronUp /> : <FaChevronDown />}
-          </Button>
-          {/* Category dialog component */}
-
-        </h2>
-       <div style={{ display: isMyCategoryVisible ? "block" : "none" }}>
-       <MyCategoryies />
-           <Button
-               onClick={() => setIsCategoryDialogOpen(true)}
-               className="bg-blue-600 hover:bg-blue-700 mr-2"
-           >
-               <IoMdAddCircleOutline /> Add new preference
-           </Button>
-           <AddCategory
-               isOpen={isCategoryDialogOpen}
-               onClose={() => setIsCategoryDialogOpen(false)}
-           />
-       </div>
-      </div>
-
-      <div style={{ marginTop: "20px" }}>
-        <h2 style={{fontWeight: "bold",fontSize:"20px"}}>Delete Account</h2>
-        <div className="items-center">
-        <DeleteUser />
-        </div>
-        </div>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-[400px]">
+              <Menu 
+                setActiveTab={setActiveTab}
+              />
+              <TabsContent value="UpdateUser">
+                <UpdateUser/>
+              </TabsContent>
+              <TabsContent value="ChangePassword">
+                <ChancePassword/>
+              </TabsContent>
+              <TabsContent value="home">
+                <Home />
+                <Button onClick={() => handleRefreshToken()} />
+              </TabsContent>
+              <TabsContent value="language">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Languages</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <div style={{ marginTop: "20px" }}>
+                      <MyLanguage />
+                    </div>
+                  </CardContent>
+                  <CardFooter className="flex justify-center items-center">
+                    <AddLanguage token={token} />
+                  </CardFooter>
+                </Card>
+              </TabsContent>
+              <TabsContent value="perference">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Preferences</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2 align-center">
+                    <MyCategoryies />
+                  </CardContent>
+                  <CardFooter className="flex justify-center items-center">
+                    <AddCategory />
+                  </CardFooter>
+                </Card>
+              </TabsContent>
+              <TabsList className="grid w-full grid-cols-3 gap-x-1">
+                <TabsTrigger value="language"><TbMessageLanguage /></TabsTrigger>
+                <TabsTrigger value="home"><IoHomeOutline /></TabsTrigger>
+                <TabsTrigger value="perference"><BiCategoryAlt /></TabsTrigger>
+              </TabsList>
+              <NewsSubscription />
+            </Tabs>
+            
+            {/* <DeleteUserDialog
+              isOpen={isDeleteOpen}
+              setIsOpen={setDeleteIsOpen}/> */}
+          
+          </div>
         </div>
       </div>
     </div>
-          
-    
   );
 };
 

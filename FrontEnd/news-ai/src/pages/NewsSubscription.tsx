@@ -6,20 +6,18 @@ import { useAuth } from "../context/AuthContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-
-interface NewsSubscriptionProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
+import { DialogTrigger } from "@radix-ui/react-dialog";
 
 
-const NewsSubscription: React.FC <NewsSubscriptionProps>= ({ isOpen, onClose }) => {
+
+const NewsSubscription= () => {
   const { categories } = useCategory();
   const [selectedOption, setSelectedOption] = useState("getLatestNews");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState<string>("");
   const [articleCount, setArticleCount] = useState(1);
   const { handleRefreshToken } = useAuth();
+  const [open, setOpen] = useState(false);
   
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -46,26 +44,31 @@ const NewsSubscription: React.FC <NewsSubscriptionProps>= ({ isOpen, onClose }) 
         break;
     }
     massageSucces(deliveryMethod);
-    onClose(); 
+    setOpen(false);
+    
     
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-    
-      <DialogContent className="w-fit max-w-full">
+    <Dialog open={open} onOpenChange={setOpen}>
+    <DialogTrigger asChild>
+      <Button className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700" style={{ marginTop: "15px" }}>
+        Send me News!
+      </Button>
+    </DialogTrigger>
+      <DialogContent className="w-fit max-w-full bg-gray-100 rounded-lg shadow-lg p-6">
         <DialogHeader>
-          <DialogTitle className="font-algerian text-3xl !font-['algerian']">News Subscription</DialogTitle>
+          <DialogTitle className="font-algerian text-3xl text-blue-600">News Subscription</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <label className="font-pattaya text-3xl !font-['pattaya']">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <label className="font-pattaya text-xl text-gray-700">
             Option:
             
           </label>
           <select
               value={selectedOption}
               onChange={(e) => setSelectedOption(e.target.value)} 
-              style={{ marginLeft: "15px", fontSize: "20px" }}
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
             >
               <option value="getLatestNews">Get Latest News</option>
               <option value="getLatestListNewsByCategories">Get Latest List News By Categories</option>
@@ -73,68 +76,66 @@ const NewsSubscription: React.FC <NewsSubscriptionProps>= ({ isOpen, onClose }) 
             </select>
           <br />
           {selectedOption === "getLatestNewsByCategory" && (
-            <label>
+            <label className="block text-gray-700">
               Category:
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Select a category</option>
                 {categories.map((category, index) => (
-                  <option key={index} value={category}>
-                    {category}
-                  </option>
+                  <option key={index} value={category}>{category}</option>
                 ))}
               </select>
             </label>
           )}
           <br />
-          <label className="font-pattaya text-3xl !font-['pattaya']">
+          <label className="font-pattaya text-xl text-gray-700">
             Delivery Methods:
             
           </label>
-          <div>
-            <label>
+          <div className="flex space-x-4">
+            <label className="flex items-center">
               <input
                 type="radio"
                 name="deliveryMethod"
                 value="email"
                 checked={deliveryMethod === "email"}
                 onChange={() => setDeliveryMethod("email")}
-                style={{ marginRight: "5px" }}
+                className="mr-2"
               />
               Email
             </label>
-            <label style={{ marginLeft: "15px" }}>
+            <label className="flex items-center">
               <input
                 type="radio"
                 name="deliveryMethod"
                 value="sms"
                 checked={deliveryMethod === "sms"}
                 onChange={() => setDeliveryMethod("sms")}
-                style={{ marginRight: "5px" }}
+                className="mr-2"
               />
               SMS
             </label>
-            <label style={{ marginLeft: "15px" }}>
+            <label className="flex items-center">
               <input
                 type="radio"
                 name="deliveryMethod"
                 value="whatsapp"
                 checked={deliveryMethod === "whatsapp"}
                 onChange={() => setDeliveryMethod("whatsapp")}
-                style={{ marginRight: "5px" }}
+                className="mr-2"
               />
               WhatsApp
             </label>
           </div>
           <br />
-          <label>
+          <label className="block text-gray-700">
             Number of Articles (max 10):
             
           </label>
           <input
-          style={{ border: "1px solid #ccc", borderRadius: "4px", padding: "5px", marginLeft: "15px" ,alignItems: "center"}}
               type="number"
               value={articleCount}
               onChange={(e) =>
@@ -142,9 +143,9 @@ const NewsSubscription: React.FC <NewsSubscriptionProps>= ({ isOpen, onClose }) 
               }
               min="1"
               max="10"
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
             />
-          <br />
-          <Button type="submit" className="bg-green-600 hover:bg-green-700" style={{ marginTop: "15px" }}>
+          <Button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700" style={{ marginTop: "15px" }}>
             Subscribe
           </Button>
         </form>

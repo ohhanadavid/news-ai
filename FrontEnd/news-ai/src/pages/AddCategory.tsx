@@ -15,6 +15,7 @@ import {
   DialogTitle,
   DialogClose,
   DialogContentWithoutClosing,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Select,
@@ -27,16 +28,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import CategoriesList from "./CategoryList";
+import { IoMdAddCircleOutline } from "react-icons/io";
 
-interface AddCategoryProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
 
-const AddCategory: React.FC<AddCategoryProps> = ({ isOpen, onClose }) => {
+
+const AddCategory = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [preference, setPreference] = useState("");
-  
+  const [open, setOpen] = useState(false);
   const { handleRefreshToken } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const { categories, refreshCategories } = useCategory();
@@ -90,7 +89,9 @@ const AddCategory: React.FC<AddCategoryProps> = ({ isOpen, onClose }) => {
     setSelectedCategory("");
     setPreference("");
     setError(null);
-    onClose();
+    setOpen(false);
+    
+    
   };
 
   const errorMessage= async(error: string | null)=> {
@@ -119,7 +120,12 @@ const AddCategory: React.FC<AddCategoryProps> = ({ isOpen, onClose }) => {
   }
     
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog  open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl hover:bg-blue-600 transition-all duration-300">
+        <Button variant="outline" className="w-fit max-w-full">
+           <IoMdAddCircleOutline /> Add new preference
+        </Button>
+      </DialogTrigger>
       <DialogContentWithoutClosing className="w-fit max-w-full">
         <DialogHeader className="relative">
           <DialogTitle>Add Category</DialogTitle>
@@ -149,9 +155,8 @@ const AddCategory: React.FC<AddCategoryProps> = ({ isOpen, onClose }) => {
             <label htmlFor="preference" className="text-sm font-medium">
               Preference
             </label>
-            <textarea
+            <Input
               id="preference"
-              rows={1}
               value={preference}
               onChange={(e) => setPreference(e.target.value)}
               placeholder="Enter your preference"

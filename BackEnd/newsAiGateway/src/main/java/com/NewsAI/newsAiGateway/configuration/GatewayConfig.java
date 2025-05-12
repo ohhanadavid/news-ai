@@ -156,7 +156,7 @@ public class GatewayConfig implements WebFluxConfigurer {
 
     private Mono<ServerResponse> forwardRequest(ServerRequest request,String host,String port) {
         String path = buildURI(request,host,port);
-        log.info("forwardDeleteRequest {} {} request send to {}",request.method(),request.uri(),path);
+        log.info("forwardRequest {} {} request send to {}",request.method(),request.uri(),path);
         return webClient
                 .method(request.method())
                 .uri(path)
@@ -170,7 +170,7 @@ public class GatewayConfig implements WebFluxConfigurer {
     private Mono<ServerResponse> forwardRequestWithBody(ServerRequest request,String host,String port) {
 
         String path=buildURI(request,host,port);
-        log.info("forwardRequest {} {} request send to {}",request.method(),request.uri(),path);
+        log.info("forwardRequestWithBody {} {} request send to {}",request.method(),request.uri(),path);
 
         return request.bodyToMono(String.class)
                 .flatMap(body -> webClient

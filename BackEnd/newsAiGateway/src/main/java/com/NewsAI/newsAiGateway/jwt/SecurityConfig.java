@@ -112,14 +112,17 @@ public class SecurityConfig {
                             String url = exchange.getRequest().getURI().toString();
                             boolean token = exchange.getRequest().getHeaders().containsKey("Authorization");
                             log.error("401 Unauthorized error at URL: {} token? {}" , url,token);
+                            log.info("401 Unauthorized error at URL: {} token? {}" , url,token);
+                            return Mono.error(ex);
+                        })
+                        .accessDeniedHandler((exchange, ex) -> {
+                            String url = exchange.getRequest().getURI().toString();
+                            log.error("403 Forbidden error at URL: {}" , url);
+                            log.info("403 Forbidden error at URL: {}" , url);
                             return Mono.error(ex);
                         })
 
-                .accessDeniedHandler((exchange, ex) -> {
-                            String url = exchange.getRequest().getURI().toString();
-                            log.error("403 Forbidden error at URL: {}" , url);
-                            return Mono.error(ex);
-                        })
+
 
                 );
 

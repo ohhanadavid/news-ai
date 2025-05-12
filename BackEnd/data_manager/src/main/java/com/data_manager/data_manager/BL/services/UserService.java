@@ -149,7 +149,7 @@ public class UserService  {
 
     private  AccessTokenResponse getImpersonatedToken(RefreshToken refreshToken,UserData userData) {
         RestTemplate r = new RestTemplate();
-
+        log.info("getImpersonatedToken request for {}",userData.getUserID());
         RestTemplate restTemplate = new RestTemplate();
         String url = "http://keycloak:8081/realms/key_test/protocol/openid-connect/token";
 
@@ -162,22 +162,10 @@ public class UserService  {
         HttpEntity<String> requestEntity = new HttpEntity<>(body, headers);
 
         ResponseEntity<AccessTokenResponse> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, AccessTokenResponse.class);
-
+        log.info("getImpersonatedToken response status {}",response.getStatusCode());
         return  response.getBody();
 
-        //        return KeycloakBuilder.builder()
-//                .serverUrl(KeyCloakConfig.getServerUrl())
-//                .clientId(KeyCloakConfig.getClientId())
-//                .clientSecret(KeyCloakConfig.getClientSecret())
-//                .realm(KeyCloakConfig.getRealm())
-//                .username(userData.getUserName())
-//                .authorization(refreshToken.getRefreshToken())
-//                .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
-//                .build()
-//
-//                .tokenManager()
-//
-//                .grantToken();
+
     }
 
     private RealmResource getRealm() {
@@ -223,6 +211,7 @@ public class UserService  {
     }
 
     public JwtResponse refreshToken(RefreshToken refreshToken,UserData userData) {
+        log.info("refreshToken request for {}",userData.getUserID());
         var a = getImpersonatedToken(refreshToken,userData);
         return new JwtResponse(a);
 

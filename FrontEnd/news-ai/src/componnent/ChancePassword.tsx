@@ -23,13 +23,10 @@ const ChancePassword: React.FC = () => {
       return;
     }
 
-   
-
     try {
-      
-      await changePassword( oldPassword,newPassword);
-      setSuccess("password change successfuly! Redirecting...");
-      sucsessMessage("password change successfuly! Redirecting...");
+      await changePassword(oldPassword, newPassword);
+      setSuccess("Password changed successfully! Redirecting...");
+      successMessage("Password changed successfully! Redirecting...");
       navigate("/dashboard"); // Redirect to dashboard immediately
     } catch (err: any) {
       // Handle specific error messages if available
@@ -37,7 +34,7 @@ const ChancePassword: React.FC = () => {
     }
   };
 
-  const errorMessage= async(error: string | null)=> {
+  const errorMessage = async (error: string | null) => {
     toast.error("ERROR", {
       description: error,
       position: "top-right",
@@ -45,11 +42,11 @@ const ChancePassword: React.FC = () => {
       closeButton: true,
       style: {
         color: "red",
-        
-    }
+      },
     });
-  }
-  const sucsessMessage= async(success: string | null)=> {
+  };
+
+  const successMessage = async (success: string | null) => {
     toast.success("SUCCESS", {
       description: success,
       position: "top-right",
@@ -57,71 +54,60 @@ const ChancePassword: React.FC = () => {
       closeButton: true,
       style: {
         color: "green",
-        
-    }
+      },
     });
-  }
+  };
 
   return (
-    <div className="w-fit max-w-full "  style={{
-      backgroundColor: "rgba(240, 240, 240, 0.7)",
-      
-      
-      
-      display: "flex",
-      flexDirection: "column",
-      
-    }}>
-      <div className="bg-white p-6 rounded-lg shadow-lg w-96"  style={{
-      backgroundColor: "rgba(240, 240, 240, 0.7)",
-      
-      
-      
-      display: "flex",
-      flexDirection: "column",
-      
-    }}>
-        
-        {error && <p className="text-red-500">{error}</p>}
-        {success && <p className="text-green-500">{success}</p>}
-        <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-            <label className="block text-gray-700">Password</label>
+    
+      <div
+        className="bg-white p-8 rounded-lg shadow-lg w-96"
+        style={{
+          backgroundColor: "rgba(255, 255, 255, 0.9)",
+        }}
+      >
+        {error && <p className="text-red-500 font-semibold mb-4">{error}</p>}
+        {success && <p className="text-green-500 font-semibold mb-4">{success}</p>}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-gray-700 font-medium">Old Password</label>
             <input
               type="password"
               value={oldPassword}
               onChange={(e) => setOldPassword(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded mt-1"
+              className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
-     
-          <div className="mb-4">
-            <label className="block text-gray-700">Password</label>
+          <div>
+            <label className="block text-gray-700 font-medium">New Password</label>
             <input
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded mt-1"
+              className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Confirm Password</label>
+          <div>
+            <label className="block text-gray-700 font-medium">Confirm Password</label>
             <input
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded mt-1"
+              className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
-          <button type="submit" className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600">
-            change password
+          <button
+            type="submit"
+            className="w-full bg-blue-500 text-white p-3 rounded hover:bg-blue-600 transition"
+          >
+            Change Password
           </button>
         </form>
       </div>
-    </div>
+    
   );
 };
 

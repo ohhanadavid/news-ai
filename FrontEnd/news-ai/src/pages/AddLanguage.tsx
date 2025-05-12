@@ -17,41 +17,29 @@ import { Button } from "@/components/ui/button";
 
 import {toast} from "sonner";
 import LanguageList from "./LanguageList";
-import { DialogClose } from "@radix-ui/react-dialog";
+import { DialogClose, DialogTrigger } from "@radix-ui/react-dialog";
+import { IoMdAddCircleOutline } from "react-icons/io";
 
 
 
 
 interface AddLanguageProps {
-  isOpen: boolean;
-  onClose: () => void;
+
   token: string | null; // Add token prop
 }
 
-const AddLanguage: React.FC<AddLanguageProps> = ({ isOpen, onClose, token: propToken }) => {
+const AddLanguage: React.FC<AddLanguageProps> = ({  token: propToken }) => {
   const token = propToken || localStorage.getItem("token") || null; 
-  const [languages, setLanguages] = useState<string[]>([]);
-  const [maxLanguages, setMaxLanguages] = useState<number>(0);
-  const { MyLanguages, refreshLanguages } = useLanguages();
+  const { MyLanguages, refreshLanguages ,languages,maxLanguages} = useLanguages();
   const { handleRefreshToken } = useAuth();
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [languageListOpent, setlanguageListOpent] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-    if (!token) {
-      console.error("Token is not available in AddLanguage component");
-      return; // חכה עד שהטוקן יהיה זמין
-    }
 
-    
-    getLanguages(token, setLanguages);
-    getMaxLanguages(token, setMaxLanguages);
-  }, [token]);
 
-  useEffect(() => {
-    console.log(isOpen);
-  }, [isOpen]);
+ 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,8 +86,9 @@ const AddLanguage: React.FC<AddLanguageProps> = ({ isOpen, onClose, token: propT
          
   });
     setSelectedLanguage("");
+    setOpen(false);
 
-    onClose();
+   
     
   };
 
@@ -126,7 +115,10 @@ const handleDialogClick = (e: React.MouseEvent<HTMLDivElement>) => {
 };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}  >
+    <Dialog  open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl hover:bg-blue-600 transition-all duration-300">
+        <Button variant="outline"><IoMdAddCircleOutline /> Add new language</Button>
+      </DialogTrigger>
       <DialogContentWithoutClosing className="w-fit max-w-full  " onClick={handleDialogClick}>
         <DialogHeader  >
           <DialogTitle>Add Language</DialogTitle>
@@ -177,93 +169,6 @@ const handleDialogClick = (e: React.MouseEvent<HTMLDivElement>) => {
 };
 
 // Helper functions
-function getLanguages(token: string | null, setLanguages: React.Dispatch<React.SetStateAction<string[]>>) {
-  console.log("getLanguages call");
-  if (!token) {
-    console.error("No token provided for getLanguages");
-    return;
-  }
-
-  console.log("Fetching languages with token:", token ? "Token exists" : "No token");
-  
-  fetch(`${config.baseURL}/getLanguages`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`,
-    },
-  })
-    .then(async response => {
-      console.log("Languages response status:", response.status);
-      console.log("Languages response headers:", Object.fromEntries(response.headers.entries()));
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Server error response:", errorText.substring(0, 150));
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
-      
-      
-      const text = await response.text();
-      console.log("Raw response:", text.substring(0, 100));
-      
-      
-      if (!text) throw new Error("Empty response");
-      try {
-        const data = JSON.parse(text);
-        console.log("Languages parsed:", data);
-        setLanguages(data);
-      } catch (parseError) {
-        console.error("JSON parse error:", parseError);
-        throw parseError;
-      }
-    })
-    .catch(error => console.error("Error fetching languages:", error));
-}
-
-function getMaxLanguages(token: string | null, setMaxLanguages: React.Dispatch<React.SetStateAction<number>>) {
-  console.log("maxLaguages call");
-  if (!token) {
-    console.error("No token provided for getMaxLanguages");
-    return;
-  }
-
-  console.log("Fetching max languages with token:", token ? "Token exists" : "No token");
-  
-  fetch(`${config.baseURL}/maximumLanguage`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`,
-    },
-  })
-    .then(async response => {
-      console.log("Max languages response status:", response.status);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Server error response:", errorText.substring(0, 150));
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
-      
-      
-      const text = await response.text();
-      console.log("Raw response:", text.substring(0, 100));
-      
-     
-      
-      if (!text) throw new Error("Empty response");
-      try {
-        const data = JSON.parse(text);
-        console.log("Max languages parsed:", data);
-        setMaxLanguages(data);
-      } catch (parseError) {
-        console.error("JSON parse error:", parseError);
-        throw parseError;
-      }
-    })
-    .catch(error => console.error("Error fetching max languages:", error));
-}
 
 
 export default AddLanguage;
