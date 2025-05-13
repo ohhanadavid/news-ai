@@ -84,7 +84,7 @@ const Dashboard = () => {
               </TabsContent>
               <TabsContent value="home">
                 <Home />
-                <Button onClick={() => handleRefreshToken()} />
+                
               </TabsContent>
               <TabsContent value="language">
                 <Card>

@@ -119,7 +119,7 @@ const MyCategories = () => {
                     onChange={() => toggleCategorySelection(category)}
                     style={{ marginRight: "10px" }}
                   />
-                  <MdCategory style={{ marginRight: "10px", color: "#4A90E2" }} />
+                 
                   <strong style={{ fontSize: "18px", color: "#333" }}>{category}</strong>
                 </div>
                 <div>

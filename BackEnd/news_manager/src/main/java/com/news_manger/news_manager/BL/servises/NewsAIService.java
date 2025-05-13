@@ -101,15 +101,13 @@ public class NewsAIService {
         getListNews(returnData);
 
     }
-
-
-
+    
     public void getListNews(ReturnData data) throws JsonMappingException, JsonProcessingException{
 
             objectMapper.registerModule(new JavaTimeModule());
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-            
+
             if(data.getArticle() == null){
                 log.error("results is null");
                 return;
@@ -117,7 +115,7 @@ public class NewsAIService {
 
             Map<String,List<String>> categories=categoryService.myCategories();
 
-            
+
             List<Article> results=new LinkedList<>();
             data.getArticle().forEach(a->{
                 try {
@@ -127,14 +125,14 @@ public class NewsAIService {
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
                 }
-                 
-                
+
+
             });
-            
-            
+
+
             List<ArticleReturn> articlesReturn=results.stream().map(ArticleReturn::new).toList();
 
-
+            
         ArticlesToFilter articles= new ArticlesToFilter()
                 .setArticleReturnList(articlesReturn)
                 .setPreference(categories)

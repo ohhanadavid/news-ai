@@ -224,7 +224,7 @@ const MyLanguage = () => {
                   onChange={() => toggleItemSelection(language)}
                   style={{ marginRight: "10px" }}
                 />
-                <TbMessageLanguage style={{ marginRight: "10px", color: "#4A90E2" }} /> 
+                
                 <span style={{ fontSize: "16px", color: "#333" }}>{language}</span> 
               </div>
               {selectedItems[language] && ( // הצגת כפתורים רק אם checkbox מסומן
