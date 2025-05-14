@@ -52,7 +52,7 @@ const NewsSubscription= () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
     <DialogTrigger asChild>
-      <Button className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700" style={{ marginTop: "15px" }}>
+      <Button className="w-full bg-[#00AEEF] text-white py-2 rounded-md hover:bg-[#006ccc] hover:text-white" style={{ marginTop: "15px" }}>
         Send me News!
       </Button>
     </DialogTrigger>

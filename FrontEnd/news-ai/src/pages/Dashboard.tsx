@@ -1,33 +1,30 @@
 
 
 
-import React, { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import MyLanguage from "../componnent/MyLanguage";
 import MyCategoryies from "../componnent/MyCategory";
 import AddLanguage from "./AddLanguage";
 import AddCategory from "./AddCategory";
-import { Button } from "@/components/ui/button";
 import NewsSubscription from "./NewsSubscription";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Home from "@/componnent/Home";
+import Home from "@/componnent/home/Home";
 import Menu from "@/componnent/Menu";
-import DeleteUserDialog from "@/componnent/DeleteUserDialog";
 import UpdateUser from "@/componnent/UpdateUser";
 import ChancePassword from "@/componnent/ChancePassword";
-import { IoHome, IoHomeOutline } from "react-icons/io5";
+import { IoHomeOutline } from "react-icons/io5";
 import { TbMessageLanguage } from "react-icons/tb";
-import { BiCategoryAlt } from "react-icons/bi";
-
+import { FiStar } from "react-icons/fi";
 
 const Dashboard = () => {
-  const { user, loading, handleRefreshToken } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const token = location.state?.token;
-  const [isDeleteOpen, setDeleteIsOpen] = useState(false);
+
   const [activeTab, setActiveTab] = useState("home");
 
   useEffect(() => {
@@ -89,7 +86,7 @@ const Dashboard = () => {
               <TabsContent value="language">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Languages</CardTitle>
+                    <CardTitle className="text-white text-2xl">Languages</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
                     <div style={{ marginTop: "20px" }}>
@@ -104,7 +101,7 @@ const Dashboard = () => {
               <TabsContent value="perference">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Preferences</CardTitle>
+                    <CardTitle className="text-white text-2xl">Preferences</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2 align-center">
                     <MyCategoryies />
@@ -114,10 +111,10 @@ const Dashboard = () => {
                   </CardFooter>
                 </Card>
               </TabsContent>
-              <TabsList className="grid w-full grid-cols-3 gap-x-1">
-                <TabsTrigger value="language"><TbMessageLanguage /></TabsTrigger>
-                <TabsTrigger value="home"><IoHomeOutline /></TabsTrigger>
-                <TabsTrigger value="perference"><BiCategoryAlt /></TabsTrigger>
+              <TabsList className="grid w-full grid-cols-3 gap-x-1 ">
+                <TabsTrigger className="text-white " value="language"><TbMessageLanguage /> languages</TabsTrigger>
+                <TabsTrigger className="text-white" value="home"><IoHomeOutline /></TabsTrigger>
+                <TabsTrigger className="text-white" value="perference"><FiStar /> perferences</TabsTrigger>
               </TabsList>
               <NewsSubscription />
             </Tabs>

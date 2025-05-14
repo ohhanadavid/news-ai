@@ -10,6 +10,7 @@ import { CategoryProvider } from "./context/CategoryContext";
 
 import "./App.css";
 import {Toaster} from "sonner";
+import { NewsProvider } from "./context/NewsViewContext";
 
 const PrivateRoute = ({ children }: { children: ReactNode }) => {
   console.log("PrivateRoute rendered"); 
@@ -38,7 +39,7 @@ function App() {
   return (
     <Router>
     <AuthProvider>
-
+    <NewsProvider>
     <LanguagesProvider>
       <CategoryProvider>
         <Toaster></Toaster>
@@ -53,7 +54,7 @@ function App() {
         </Routes>
       </CategoryProvider>
     </LanguagesProvider>
-
+</NewsProvider>
     </AuthProvider>
     </Router>
   );

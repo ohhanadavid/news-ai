@@ -10,6 +10,8 @@ import com.news_manger.news_manager.BL.servises.NewsAIService;
 import com.news_manger.news_manager.DTO.articals.ArticleForView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.extern.log4j.Log4j2;
@@ -64,9 +66,9 @@ public class NewsController {
     }
 
     @GetMapping("getNewsView")
-    public List<ArticleForView> getArticleForView() throws JsonProcessingException {
+    public List<ArticleForView> getArticleForView(@AuthenticationPrincipal Jwt jwt) throws JsonProcessingException {
         log.info("getNewsView");
-        return newsDataService.getArticleForView();
+        return newsDataService.getArticleForView(jwt);
     }
 
 //    @GetMapping("tinyURL/{tiny}")

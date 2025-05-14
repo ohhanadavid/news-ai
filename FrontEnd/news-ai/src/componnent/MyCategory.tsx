@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useCategory } from "../context/CategoryContext";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
-import { MdCategory, MdCheckCircle, MdDelete, MdEdit } from "react-icons/md";
+import { MdCheckCircle, MdDelete } from "react-icons/md";
 import config from "../config";
 import { toast } from "sonner";
 
@@ -123,25 +123,7 @@ const MyCategories = () => {
                   <strong style={{ fontSize: "18px", color: "#333" }}>{category}</strong>
                 </div>
                 <div>
-                  
-                  
-                      {/* <button
 
-                        style={{
-                          background: "#4CAF50",
-                          border: "none",
-                          color: "white",
-                          fontSize: "16px",
-                          cursor: "pointer",
-                          padding: "5px 10px",
-                          borderRadius: "5px",
-                        }}
-                        aria-label="edit category"
-                      >
-                        <MdEdit />
-                      </button> */}
-                    
-                  
                   <button
                     style={{
                       background: "#4A90E2",
@@ -196,7 +178,7 @@ const MyCategories = () => {
                         checked={!!selectedPreferenc[preference]}
                         onChange={() => togglePrefenrcecSelection(preference)}
                       />
-                      <MdCheckCircle style={{ color: "#4CAF50" }} />
+                      
                       {preference}
                       {selectedPreferenc[preference] && (
                     <>

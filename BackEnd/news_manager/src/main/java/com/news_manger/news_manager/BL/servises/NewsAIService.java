@@ -9,9 +9,11 @@ import com.news_manger.news_manager.DTO.notification.NotificationData;
 import com.news_manger.news_manager.DTO.user.SendOption;
 import com.news_manger.news_manager.DTO.user.UserRequest;
 import com.news_manger.news_manager.DTO.user.UserRequestWithCategory;
+import com.news_manger.news_manager.configuration.TokenStorage;
 import com.news_manger.news_manager.kafka.KafkaTopic;
 import com.news_manger.news_manager.kafka.Producer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -43,6 +45,8 @@ public class NewsAIService {
     private ObjectMapper objectMapper;
     @Autowired
     private Producer producer;
+    @Autowired
+    private TokenStorage tokenStorage;
 
     @Autowired
     private NewsAIAccessorService newsAccessor;
@@ -57,8 +61,9 @@ public class NewsAIService {
 
     }
 
-    public List<ArticleForView> getArticleForView() throws JsonProcessingException {
+    public List<ArticleForView> getArticleForView(Jwt jwt) throws JsonProcessingException {
         log.info("getArticleForView ");
+        tokenStorage.setToken(jwt.getTokenValue() );
         List<String> languagesCode = getLanguagesCode();
         List<String> articles= newsAccessor.getLatestNews(languagesCode);
 
