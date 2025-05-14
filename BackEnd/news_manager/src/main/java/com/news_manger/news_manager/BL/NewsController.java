@@ -7,6 +7,7 @@ import java.util.Set;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.news_manger.news_manager.BL.servises.NewsAIService;
+import com.news_manger.news_manager.DTO.articals.ArticleForView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -60,6 +61,12 @@ public class NewsController {
         log.info("api.maximumLanguage");
         return newsDataService.getMaximumLanguage() ;
 
+    }
+
+    @GetMapping("getNewsView")
+    public List<ArticleForView> getArticleForView() throws JsonProcessingException {
+        log.info("getNewsView");
+        return newsDataService.getArticleForView();
     }
 
 //    @GetMapping("tinyURL/{tiny}")

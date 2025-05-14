@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.stereotype.Service;
 
-import com.news_manger.news_manager.DAL.user.User;
+import com.news_manger.news_manager.DTO.user.User;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.web.client.RestTemplate;

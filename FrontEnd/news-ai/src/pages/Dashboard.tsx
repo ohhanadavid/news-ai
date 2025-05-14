@@ -121,10 +121,6 @@ const Dashboard = () => {
               </TabsList>
               <NewsSubscription />
             </Tabs>
-            
-            {/* <DeleteUserDialog
-              isOpen={isDeleteOpen}
-              setIsOpen={setDeleteIsOpen}/> */}
           
           </div>
         </div>
