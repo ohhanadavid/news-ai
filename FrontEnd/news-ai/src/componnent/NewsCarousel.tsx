@@ -29,11 +29,28 @@ const NewsCarousel = ()=> {
       
       plugins={[plugin.current]}
       className="w-full max-w-xs relative "
-      onMouseEnter={()=>plugin.current.stop()}
-      onMouseLeave={()=>plugin.current.play()}
+      onMouseEnter={() => plugin.current?.stop?.()}
+      onMouseLeave={() => plugin.current?.play?.()}
     >
       <CarouselContent>
-        {Array.from(newsView).map((newsViewItem, index) => (
+        {newsView.length===0?
+          <CarouselItem key="notfound">
+              <div className="p-1 ">
+                <Card className="bg-[#bcddf1] text-[#2a3a5c]">
+                  <CardContent className="flex  items-center justify-center p-3">
+                    <div className="flex justify-center items-center space-x-2 h-20">
+                      <div className="w-3 h-3 bg-[#2a3a5c] rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                      <div className="w-3 h-3 bg-[#2a3a5c] rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                      <div className="w-3 h-3 bg-[#2a3a5c] rounded-full animate-bounce"></div>
+                    </div>
+                    
+                  </CardContent>
+                  
+                </Card>
+              </div>
+            </CarouselItem>
+        
+        :Array.from(newsView).map((newsViewItem, index) => (
           <CarouselItem key={index}>
             <div className="p-1 ">
               <Card className="bg-[#bcddf1] text-[#2a3a5c]">

@@ -22,15 +22,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import CategoriesList from "./CategoryList";
-import { IoMdAddCircleOutline } from "react-icons/io";
+import { IoMdAddCircleOutline } from "react-icons/io"
 
 
 
 const AddCategory = () => {
+
   const [selectedCategory, setSelectedCategory] = useState("");
   const [preference, setPreference] = useState("");
   const [open, setOpen] = useState(false);
-  const { handleRefreshToken } = useAuth();
+  const { handleRefreshToken,tokenStr } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const { categories, refreshCategories } = useCategory();
    const [categoiesListOpent, setCategoiesListOpent] = React.useState(false);
@@ -45,7 +46,7 @@ const AddCategory = () => {
       return;
     }
 
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem(tokenStr);
     const res = await fetch(`${config.baseURL}/saveCategory`, {
       method: "POST",
       headers: {
@@ -161,7 +162,7 @@ const AddCategory = () => {
               }}
               style={{
                 marginLeft: "15px",
-                fontSize: "20px",
+                
               }}
             />
           </div>

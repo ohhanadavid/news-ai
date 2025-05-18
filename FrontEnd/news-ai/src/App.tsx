@@ -1,63 +1,56 @@
-import  { ReactNode } from "react";
+import { ReactNode } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-
 import { LanguagesProvider } from "./context/LanguagesContext";
 import { CategoryProvider } from "./context/CategoryContext";
-
-import "./App.css";
-import {Toaster} from "sonner";
 import { NewsProvider } from "./context/NewsViewContext";
+import { Toaster } from "sonner";
+import "./App.css";
 
-const PrivateRoute = ({ children }: { children: ReactNode }) => {
-  console.log("PrivateRoute rendered"); 
-  const { user } = useAuth();
-  console.log("user in PrivateRoute:", user); 
-  if (user === undefined) {
-    return <p>Loading...</p>; 
-  }
-  const token= localStorage.getItem("token");
-  if (!token && !user) {
-    console.log("Token not found, redirecting to login"); 
-    return <Navigate to="/login" replace />;
-  }
-  else{
-    console.log("Token found, user is authenticated"); 
-     
-    return children; 
-  }
-  console.log("token in PrivateRoute:", token?true:false);
-  console.log(user) 
-
-  // return user ? children : <Navigate to="/login" replace />;
-};
+const PrivateApp = () => (
+  <NewsProvider>
+    <LanguagesProvider>
+      <CategoryProvider>
+        <Toaster />
+        <Routes>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </CategoryProvider>
+    </LanguagesProvider>
+  </NewsProvider>
+);
 
 function App() {
   return (
     <Router>
-    <AuthProvider>
-    <NewsProvider>
-    <LanguagesProvider>
-      <CategoryProvider>
-        <Toaster></Toaster>
+      <AuthProvider>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
-          <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-
-         
-          
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route
+            path="*"
+            element={
+              <RequireAuth>
+                <PrivateApp />
+              </RequireAuth>
+            }
+          />
         </Routes>
-      </CategoryProvider>
-    </LanguagesProvider>
-</NewsProvider>
-    </AuthProvider>
+      </AuthProvider>
     </Router>
   );
+}
+
+
+function RequireAuth({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+  if (user === undefined) return <p>Loading...</p>;
+  if (!user) return <Navigate to="/login" replace />;
+  return <>{children}</>;
 }
 
 export default App;

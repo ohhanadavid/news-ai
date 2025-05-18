@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import config from "@/config";
+import { useAuth } from "./AuthContext";
 
 interface NewsView {
   title: string;
@@ -15,11 +16,15 @@ const NewsContext = createContext<NewsContextType | undefined>(undefined);
 
 export const NewsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [newsView, setNewsView] = useState<NewsView[]>([]);
+  const { tokenStr } = useAuth();
 
   const fetchNews = async () => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) return;
+      const token = localStorage.getItem(tokenStr);
+      if (!token){
+        console.log("Token not found fetchNews");
+        return
+      };
 
       const res = await fetch(`${config.baseURL}/getNewsView`, {
         method: "GET",
@@ -33,8 +38,9 @@ export const NewsProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.log(`Error with status ${res.status}`);
         throw new Error("Failed to fetch news for view");
       }
-
+      console.log("fetching newsView from server");
       const newsViewRes = await res.json();
+      console.log("newsView from server", newsViewRes);
       setNewsView(newsViewRes);
     } catch (error) {
       console.error("Error fetching news:", error);
@@ -42,6 +48,9 @@ export const NewsProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
+    console.log("useEffect in NewsProvider");
+    console.log("newsView", newsView?true:false);
+    console.log("newsView length", newsView.length);
     const fetchData = async () => {
       if (newsView.length === 0) {
         console.log("fetching newsView");
@@ -49,7 +58,7 @@ export const NewsProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.log("resive newsView");
       }
     };
-    fetchData();
+     fetchData();
   }, []);
 
   return (

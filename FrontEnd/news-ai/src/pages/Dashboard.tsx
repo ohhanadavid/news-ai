@@ -18,7 +18,7 @@ import { TbMessageLanguage } from "react-icons/tb";
 import { FiStar } from "react-icons/fi";
 
 const Dashboard = () => {
-  const { user, loading } = useAuth();
+  const { user, loading,tokenStr } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const token = location.state?.token;
@@ -26,7 +26,7 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("home");
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem(tokenStr);
     if (!user && !token) {
       navigate("/login");
     }

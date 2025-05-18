@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { useCategory } from "../context/CategoryContext";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
-import { MdCheckCircle, MdDelete } from "react-icons/md";
+import {  MdDelete } from "react-icons/md";
 import config from "../config";
 import { toast } from "sonner";
+import { useAuth } from "../context/AuthContext";
 
 
 const MyCategories = () => {
+  const { tokenStr } = useAuth();
   const { myCategories, refreshCategories } = useCategory();
   const [visibleCategories, setVisibleCategories] = useState<Record<string, boolean>>({});
   const [selectedCategories, setSelectedCategories] = useState<Record<string, boolean>>({});
@@ -23,7 +25,7 @@ const MyCategories = () => {
 
   const handleDeleteCategory = async (category: string) => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem(tokenStr);
       const res = await fetch(`${config.baseURL}/deleteCategory?category=${encodeURIComponent(category)}`, {
         method: "DELETE",
         headers: {
@@ -46,7 +48,7 @@ const MyCategories = () => {
   
   const handleDeletePrefernce = async (selectedCategory: string,preference:string) => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem(tokenStr);
       const res = await fetch(`${config.baseURL}/deletePreference`, {
         method: "DELETE",
         headers: {
@@ -198,21 +200,7 @@ const MyCategories = () => {
                       >
                         <MdDelete />
                       </button>
-                      {/* <button
-                        style={{
-
-                          background: "#4CAF50",
-                          border: "none",
-                          color: "white",
-                          fontSize: "16px",
-                          cursor: "pointer",
-                          padding: "5px 10px",
-                          borderRadius: "5px",
-                        }}
-                        aria-label="edit category"
-                      >
-                        <MdEdit />
-                      </button> */}
+                 
                     </>
                   )}
                     </li>

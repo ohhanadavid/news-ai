@@ -29,9 +29,9 @@ interface AddLanguageProps {
 }
 
 const AddLanguage: React.FC<AddLanguageProps> = ({  token: propToken }) => {
-  const token = propToken || localStorage.getItem("token") || null; 
+  const { handleRefreshToken,tokenStr } = useAuth();
+  const token = propToken || localStorage.getItem(tokenStr) || null; 
   const { MyLanguages, refreshLanguages ,languages,maxLanguages} = useLanguages();
-  const { handleRefreshToken } = useAuth();
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [languageListOpent, setlanguageListOpent] = React.useState(false);
@@ -47,7 +47,6 @@ const AddLanguage: React.FC<AddLanguageProps> = ({  token: propToken }) => {
       setError("Please select a language");
       return;
     }
-    // const token = localStorage.getItem("token");
     const res = await fetch(`${config.baseURL}/saveLanguage`, {
       method: "POST",
       headers: {

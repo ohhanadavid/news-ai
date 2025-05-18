@@ -16,7 +16,7 @@ const NewsSubscription= () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState<string>("");
   const [articleCount, setArticleCount] = useState(1);
-  const { handleRefreshToken } = useAuth();
+  const { handleRefreshToken,tokenStr } = useAuth();
   const [open, setOpen] = useState(false);
   
 
@@ -26,7 +26,7 @@ const NewsSubscription= () => {
     console.log("Category selected:", selectedCategory);
     console.log("Delivery methods:", deliveryMethod);
     console.log("Article count:", articleCount);
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem(tokenStr);
     if (!token) return;
 
     // Call the appropriate function based on the selected option

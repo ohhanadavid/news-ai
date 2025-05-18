@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import config from "../config";
+import { useAuth } from "./AuthContext";
 
 
 type CategoryType = Map<string, string[]>; // Updated to use Map for categories
@@ -21,11 +22,13 @@ const CategoryContext = createContext<CategoryContextType>({
 export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [categories, setCategories] = useState<string[]>([]);
   const [myCategories, setMyCategories] = useState<CategoryType>(new Map());
+  const { tokenStr } = useAuth();
  
 
   const refreshCategories = async () => {
     try {
-      const token = localStorage.getItem("token");
+      console.log(tokenStr);
+      const token = localStorage.getItem(tokenStr);
       if (!token) return;
 
       // Fetch user categories

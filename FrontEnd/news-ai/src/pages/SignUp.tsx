@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
 
 const SignUp: React.FC = () => {
-  const [userName, setUserName] = useState<string>("");
+  //const [userName, setUserName] = useState<string>("");
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -63,7 +63,7 @@ const SignUp: React.FC = () => {
     try {
       // Call the register function with the required fields
       await register({
-        userName,
+        userName: email, 
         firstName,
         lastName,
         email,
@@ -89,7 +89,7 @@ const SignUp: React.FC = () => {
           {error && <p className="text-red-500 text-center">{error}</p>}
           {success && <p className="text-green-500 text-center">{success}</p>}
           <form onSubmit={handleSubmit}>
-            <div className="mb-4">
+            {/* <div className="mb-4">
               <Label htmlFor="username">Username</Label>
               <Input
                 id="username"
@@ -99,7 +99,7 @@ const SignUp: React.FC = () => {
                 placeholder="Enter your username"
                 required
               />
-            </div>
+            </div> */}
             <div className="mb-4">
               <Label htmlFor="firstName">First Name</Label>
               <Input
