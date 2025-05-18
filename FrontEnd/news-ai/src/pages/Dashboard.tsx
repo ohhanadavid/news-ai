@@ -1,14 +1,12 @@
 
-
-
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import MyLanguage from "../componnent/MyLanguage";
 import MyCategoryies from "../componnent/MyCategory";
-import AddLanguage from "./AddLanguage";
-import AddCategory from "./AddCategory";
-import NewsSubscription from "./NewsSubscription";
+import AddLanguage from "../componnent/AddLanguage";
+import AddCategory from "../componnent/AddCategory";
+import NewsSubscription from "../componnent/NewsSubscription";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Home from "@/componnent/home/Home";

@@ -4,7 +4,7 @@ import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import Update from "./pages/Update";
+
 import { LanguagesProvider } from "./context/LanguagesContext";
 import { CategoryProvider } from "./context/CategoryContext";
 
@@ -48,7 +48,7 @@ function App() {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
 
-          <Route path="/update" element={<PrivateRoute><Update /></PrivateRoute>} />
+         
           
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>

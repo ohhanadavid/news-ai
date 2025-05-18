@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState} from "react";
 import config from "../config";
 import { useAuth } from "../context/AuthContext"; 
 import { useLanguages } from "../context/LanguagesContext";
 
 import {
   Dialog,
-  DialogContent,
+
   DialogContentWithoutClosing,
   DialogDescription,
   DialogFooter,
