@@ -7,8 +7,20 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        'pattaya': ['Pattaya', 'sans-serif'], // שים לב לשם המחלקה - p קטנה
+        'pattaya': ['Pattaya', 'sans-serif'], 
         'algerian': ['ALGER', 'sans-serif'],
+      },
+      colors: {
+        darkBlue: '#0A0F2C',
+        mediumBlue: '#153B75',
+        neonBlue: '#00CFFF',
+        turquoise: '#00AEEF',
+        deepViolet: '#2C1F6A',
+        lightBlue: '#B8EFFF',
+        glowText: '#B8EFFF',
+      },
+      backgroundImage: {
+        'brain-glow': 'linear-gradient(135deg, #153B75, #00CFFF)',
       },
     },
   },

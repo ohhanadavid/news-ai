@@ -1,16 +1,8 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogContentWithoutClosing, DialogContentWithoutPortal } from "@/components/ui/dialog";
+import { Dialog, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogContentWithoutClosing } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
-import { on } from "events";
-import { Logs } from "lucide-react";
 import { useEffect, useState } from "react";
-import { AlertDialogHeader, AlertDialogFooter } from "@/components/ui/alert-dialog";
-import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogCancel, AlertDialogAction } from "@radix-ui/react-alert-dialog";
 
-interface DeleteUserDialogProps {
-   isOpen: boolean;
-  setIsOpen: (isOpen: boolean) => void;
-}
 
 const DeleteUserDialog = () => {
  
@@ -39,9 +31,9 @@ const DeleteUserDialog = () => {
 
         <Dialog open={isOpen} onOpenChange={setIsOpen} modal={true}>
           <DialogTrigger asChild  >
-            <label  tabIndex={0} className="focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:!text-destructive [&_svg:not([class*='text-'])]:text-muted-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4">Delete Account</label> 
+            <label  tabIndex={0} className=" focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:!text-destructive [&_svg:not([class*='text-'])]:text-muted-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4">Delete Account</label> 
           </DialogTrigger>
-      <DialogContent
+      <DialogContentWithoutClosing
         className="w-1/4"
         aria-describedby={undefined}
         
@@ -59,7 +51,7 @@ const DeleteUserDialog = () => {
             Delete
           </Button>
         </DialogFooter>
-      </DialogContent>
+      </DialogContentWithoutClosing>
     </Dialog>
 
 

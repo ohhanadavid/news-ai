@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import config from "../config";
+import { useAuth } from "./AuthContext";
 
 
 interface LanguagesContextType {
@@ -22,12 +23,13 @@ export const LanguagesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [myLanguages, setMyLanguages] = useState<string[]>([]);
     const [languages, setLanguages] = useState<string[]>([]);
     const [maxLanguages, setMaxLanguages] = useState<number>(0);
+    const { tokenStr } = useAuth();
   
 
 
   const refreshLanguages = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem(tokenStr);
       if (!token) {
         console.error("No token found");
         return;}
@@ -52,7 +54,7 @@ export const LanguagesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const getLanguages = async () =>{
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem(tokenStr);
     if (!token) {
       console.error("No token provided for getLanguages");
       return;
@@ -96,7 +98,7 @@ export const LanguagesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }
   
   const getMaxLanguages= async () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem(tokenStr);
     console.log("maxLaguages call");
     if (!token) {
       console.error("No token provided for getMaxLanguages");

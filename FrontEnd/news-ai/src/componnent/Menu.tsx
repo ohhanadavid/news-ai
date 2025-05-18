@@ -12,15 +12,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { useAuth } from "../context/AuthContext";
 import DeleteUserDialog from "./DeleteUserDialog";
-import { useState } from "react";
 import { IoSettingsOutline } from "react-icons/io5";
 import { HiOutlinePencilSquare } from "react-icons/hi2";
 import { RiLockPasswordLine } from "react-icons/ri";
@@ -57,7 +51,8 @@ const Menu: React.FC<MenuProps> = ({setActiveTab}) => {
       <DropdownMenuTrigger asChild>
            <Button
             variant="outline"
-            className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="bg-[#486ba3] text-white flex items-center justify-center w-10 h-10 rounded-full  hover:bg-[#2a3a5c] hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
+                     
           >
             {title()}
           </Button>
@@ -87,7 +82,7 @@ const Menu: React.FC<MenuProps> = ({setActiveTab}) => {
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <div className="flex items-center justify-between mr-2">
+          <div className="flex items-center justify-between mr-2 hover:bg-gray-100">
           <DeleteUserDialog  />
           <DropdownMenuShortcut ><MdOutlineDeleteOutline className="w-5 h-5 "/></DropdownMenuShortcut>
           </div>

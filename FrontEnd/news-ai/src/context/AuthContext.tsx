@@ -1,10 +1,12 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useRef } from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useRef, use } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import config from "../config"; // Adjust the path if necessary
+import config from "../config"; 
+
 
 interface AuthContextType {
   user: any;
   loading: boolean;
+  tokenStr: string;
   login: (userIdentifier: string, password: string) => Promise<void>;
   deleteUser: () => Promise<void>;
   changePassword: (oldPassword: string, newPassword: string) => Promise<void>;
@@ -45,17 +47,22 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  
+  const [tokenStr,setTokenStr]=useState<string>(`token`);
+  const [refreshTokenStr,setRefreshTokenStr]=useState<string>(`refreshToken`);
   const [user, setUser] = useState<any>(null);
-  const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
-  const [refreshToken, setRefreshToken] = useState<string | null>(localStorage.getItem("refreshToken"));
+  const [token, setToken] = useState<string | null>(localStorage.getItem(tokenStr));
+  const [refreshToken, setRefreshToken] = useState<string | null>(localStorage.getItem(refreshTokenStr));
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(true);
   const location = useLocation();
   let refersing =false;
+  
 
   const logout = useCallback(() => {
-    localStorage.removeItem('token');
-    localStorage.removeItem("refreshToken");
+    localStorage.removeItem(tokenStr);
+    localStorage.removeItem(refreshTokenStr);
+    
     setToken(null);
     setRefreshToken(null);
     setUser(null);
@@ -65,9 +72,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const handleRefreshToken = useCallback(async (): Promise<boolean> => {
     if (refersing) return false;
     refersing = true;
-
+    
     console.log("Refreshing token...");
-    const currentRefreshToken = refreshToken || localStorage.getItem("refreshToken");
+    const currentRefreshToken = refreshToken || localStorage.getItem(refreshTokenStr);
 
 
     if (!token) {
@@ -77,7 +84,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
     else{
       console.log("Token found, proceeding to refresh...");
-      const localStorageToken = localStorage.getItem("token");
+      const localStorageToken = localStorage.getItem(tokenStr);
       if (localStorageToken !== token) {
         console.log("Token in local storage is different from current token, updating...");
         setToken(localStorageToken);
@@ -111,13 +118,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const data = await res.json();
       console.log(`Token refresh response: token? ${data.token ? true : false}`);
 
-      localStorage.setItem("token", data.token);
+      localStorage.setItem(tokenStr, data.token);
       setToken(data.token);
       
 
       if (data.refreshToken) {
         setRefreshToken(data.refreshToken);
-        localStorage.setItem("refreshToken", data.refreshToken);
+        localStorage.setItem(refreshTokenStr, data.refreshToken);
       }
 
       refersing = false;
@@ -162,63 +169,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, [token, handleRefreshToken]);
 
-  // Handle initial authentication check
-  // useEffect(() => {
-  //   const checkAuthentication = async () => {
-  //     if (!token) return;
-
-  //     setLoading(true);
-  //     try {
-  //       const userFetched = await fetchUser();
-
-  //       if (
-  //         !userFetched &&
-  //         location.pathname !== "/login" &&
-  //         location.pathname !== "/signup"
-  //       ) {
-  //         console.log("Failed to fetch user, redirecting to login");
-  //         logout();
-  //       }
-  //     } catch (error) {
-  //       console.error("User fetch error:", error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   checkAuthentication();
-  // }, [token, fetchUser, logout, location.pathname]);
 
   const prevTokenRef = useRef<string | null>(null);
 
-useEffect(() => {
-  const prevToken = prevTokenRef.current;
+  useEffect(() => {
+    const prevToken = prevTokenRef.current;
 
-  // רק אם קודם לא היה טוקן ועכשיו יש – כלומר התחברות
-  if (!prevToken && token) {
-    const checkAuthentication = async () => {
-      setLoading(true);
-      try {
-        const userFetched = await fetchUser();
-        if (
-          !userFetched &&
-          location.pathname !== "/login" &&
-          location.pathname !== "/signup"
-        ) {
-          logout();
+    // רק אם קודם לא היה טוקן ועכשיו יש – כלומר התחברות
+    if (!prevToken && token) {
+      const checkAuthentication = async () => {
+        setLoading(true);
+        try {
+          const userFetched = await fetchUser();
+          if (
+            !userFetched &&
+            location.pathname !== "/login" &&
+            location.pathname !== "/signup"
+          ) {
+            logout();
+          }
+        } catch (error) {
+          console.error("User fetch error:", error);
+        } finally {
+          setLoading(false);
         }
-      } catch (error) {
-        console.error("User fetch error:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      };
 
-    checkAuthentication();
-  }
+      checkAuthentication();
+    }
 
-  prevTokenRef.current = token;
-}, [token]);
+    prevTokenRef.current = token;
+  }, [token]);
 
 
 
@@ -239,9 +220,12 @@ useEffect(() => {
       setUser(data);
       setToken(data.token);
       setRefreshToken(data.refreshToken);
-      
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("refreshToken", data.refreshToken);
+      const tokenKey=`newsAi_token${userIdentifier}`;
+      const refreshTokenKey=`newsAi_refreshToken${userIdentifier}`;
+      setRefreshTokenStr(refreshTokenKey);
+      setTokenStr(tokenKey);
+      localStorage.setItem(tokenKey, data.token);
+      localStorage.setItem(refreshTokenKey, data.refreshToken);
       
       console.log("Navigating to dashboard...");
       navigate("/dashboard");
@@ -272,8 +256,8 @@ useEffect(() => {
       const data = await res.json();
       setToken(data.token);
       setRefreshToken(data.refreshToken);
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("refreshToken", data.refreshToken);
+      localStorage.setItem(tokenStr, data.token);
+      localStorage.setItem(refreshTokenStr, data.refreshToken);
       setUser(data.user);
 
   };
@@ -294,6 +278,16 @@ useEffect(() => {
 
     if (!res.ok) 
       throw new Error("Registration failed");
+
+    localStorage.removeItem(tokenStr);
+    localStorage.removeItem(refreshTokenStr);
+    const tokenKey=`newsAi_token${email}`;
+    const refreshTokenKey=`newsAi_refreshToken${email}`;
+    setRefreshTokenStr(refreshTokenKey);
+    setTokenStr(tokenKey);
+    localStorage.setItem(tokenKey, token ?? "");
+    localStorage.setItem(refreshTokenKey, refreshToken ?? "");
+
     await fetchUser();
       
 
@@ -370,7 +364,7 @@ const startTokenExpirationChecker = (): void => {
   }
   
   tokenCheckInterval = setInterval(() => {
-    const currentToken = token || localStorage.getItem("token");
+    const currentToken = token || localStorage.getItem(tokenStr);
     
     if (isTokenExpiringSoon(currentToken)) {
       console.log("Token is about to expire in less than a minute, refreshing...");
@@ -381,7 +375,7 @@ const startTokenExpirationChecker = (): void => {
 };
 
 useEffect(() => {
-  const currentToken = localStorage.getItem("token");
+  const currentToken = localStorage.getItem(tokenStr);
   if (currentToken) {
     startTokenExpirationChecker();
   }
@@ -394,7 +388,7 @@ useEffect(() => {
 }, []);
 
   return (
-    <AuthContext.Provider value={{ user,loading, login, register, logout ,handleRefreshToken,updateUser,deleteUser,changePassword}}>
+    <AuthContext.Provider value={{ tokenStr,user,loading, login, register, logout ,handleRefreshToken,updateUser,deleteUser,changePassword}}>
       {children}
     </AuthContext.Provider>
   );

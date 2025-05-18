@@ -120,6 +120,7 @@ public class GatewayConfig implements WebFluxConfigurer {
                 .andRoute(GET("api/getLatestNews"), this::handleGetLatestNews)
                 .andRoute(GET("api/getLatestNewsByCategory"), this::handleGetLatestNewsWithCategory)
                 .andRoute(GET("api/getLatestListNewsByCategories"), this::handleGetLatestNewsWithMtCategories)
+                .andRoute(GET("api/getNewsView"),this::handleRequestToNewsManagerWithoutBody)
 
                 .andRoute(GET("api/getCategories"), this::handleRequestToNewsManagerWithoutBody)
                 .andRoute(GET("api/getLanguages"), this::handleRequestToNewsManagerWithoutBody)

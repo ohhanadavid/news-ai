@@ -4,10 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.news_manger.news_manager.BL.servises.NewsAIService;
 
-import com.news_manger.news_manager.DAL.articals.ArticleFromLLm;
-import com.news_manger.news_manager.DAL.articalsToGet.ReturnData;
-import com.news_manger.news_manager.DAL.user.UserRequest;
-import com.news_manger.news_manager.DAL.user.UserRequestWithCategory;
+import com.news_manger.news_manager.DTO.articals.ArticleFromLLm;
+import com.news_manger.news_manager.DTO.articalsToGet.ReturnData;
+import com.news_manger.news_manager.DTO.user.UserRequest;
+import com.news_manger.news_manager.DTO.user.UserRequestWithCategory;
 import com.news_manger.news_manager.configuration.TokenStorage;
 import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.consumer.ConsumerRecord;

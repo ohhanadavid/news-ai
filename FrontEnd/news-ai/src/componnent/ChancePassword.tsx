@@ -1,5 +1,5 @@
 import React, { useState, FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+
 import { useAuth } from "../context/AuthContext";
 import { toast } from "sonner";
 
@@ -9,7 +9,7 @@ const ChancePassword: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const navigate = useNavigate();
+
   const { changePassword } = useAuth();
 
   const handleSubmit = async (e: FormEvent) => {
@@ -27,7 +27,7 @@ const ChancePassword: React.FC = () => {
       await changePassword(oldPassword, newPassword);
       setSuccess("Password changed successfully! Redirecting...");
       successMessage("Password changed successfully! Redirecting...");
-      navigate("/dashboard"); // Redirect to dashboard immediately
+      
     } catch (err: any) {
       // Handle specific error messages if available
       errorMessage(err.message || "Failed to change password. Please try again.");
@@ -101,7 +101,7 @@ const ChancePassword: React.FC = () => {
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white p-3 rounded hover:bg-blue-600 transition"
+            className="w-full bg-[#739dcc] text-white p-3 rounded hover:bg-[#2a3a5c] transition"
           >
             Change Password
           </button>
