@@ -8,7 +8,7 @@ import { useCategory } from "../context/CategoryContext";
 
 import {
   Dialog,
-  DialogContent,
+
   DialogDescription,
   DialogFooter,
   DialogHeader,
@@ -17,13 +17,7 @@ import {
   DialogContentWithoutClosing,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -151,7 +145,7 @@ const AddCategory = () => {
             />
           </div>
           
-          <div className="space-y-2  inline-flex">
+          <div className="space-y-2  inline-flex items-center">
             <label htmlFor="preference" className="text-sm font-medium">
               Preference
             </label>
@@ -175,12 +169,12 @@ const AddCategory = () => {
           {error && <p className="text-red-500 text-sm">{error}</p>}
           
           <DialogFooter className="flex justify-end space-x-2">
-            <DialogClose asChild>
+            <DialogClose asChild className="bg-red-400 hover:bg-red-500 inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive w-full"> 
               <Button type="button" variant="outline">
                 Cancel
               </Button>
             </DialogClose>
-            <Button 
+            <Button  className="bg-[#739dcc] text-white py-2 rounded-md hover:bg-[#2a3a5c] hover:text-white"
               type="submit" 
               disabled={!selectedCategory || (preference.trim() === "")}
             >

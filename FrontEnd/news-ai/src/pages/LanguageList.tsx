@@ -39,7 +39,7 @@ const LanguageList: React.FC<LanguageListProps> =({ languages,language,setLangua
 
   return (
     <Popover open={open} onOpenChange={setOpen} modal={true}>
-      <PopoverTrigger asChild>
+      <PopoverTrigger asChild className="ml-3 border-black">
         <Button
           variant="outline"
           role="combobox"

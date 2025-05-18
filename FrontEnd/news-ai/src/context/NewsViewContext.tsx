@@ -44,11 +44,13 @@ export const NewsProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const fetchData = async () => {
       if (newsView.length === 0) {
+        console.log("fetching newsView");
         await fetchNews();
+        console.log("resive newsView");
       }
     };
     fetchData();
-  }, [newsView]);
+  }, []);
 
   return (
     <NewsContext.Provider value={{ newsView, fetchNews }}>

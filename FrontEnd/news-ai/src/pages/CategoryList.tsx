@@ -38,8 +38,8 @@ const CategoriesList: React.FC<categoryListProps> =({ categories,category,setCat
       };
 
   return (
-    <Popover open={open} onOpenChange={setOpen} modal={true}>
-      <PopoverTrigger asChild>
+    <Popover open={open} onOpenChange={setOpen} modal={true} >
+      <PopoverTrigger asChild className="border-gray-300 ml-6">
         <Button
           variant="outline"
           role="combobox"

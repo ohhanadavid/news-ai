@@ -149,12 +149,12 @@ const handleDialogClick = (e: React.MouseEvent<HTMLDivElement>) => {
           {error && <p className="text-red-500 text-sm">{error}</p>}
           
           <DialogFooter className="flex justify-end space-x-2">
-          <DialogClose asChild className="bg-red-500 ring-offset-background focus:ring-ring  data-[state=open]:text-muted-foreground   rounded-xs opacity-70 transition-opacity hover:opacity-500 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4">
+          <DialogClose asChild className="bg-red-400 hover:bg-red-500 inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive w-full">
               <Button type="button" variant="outline">
                 Cancel
               </Button>
             </DialogClose>
-            <Button 
+            <Button  className="bg-[#739dcc] text-white py-2 rounded-md hover:bg-[#2a3a5c] hover:text-white"
               type="submit" 
               disabled={!selectedLanguage || MyLanguages.length >= maxLanguages}
             >

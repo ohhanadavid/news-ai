@@ -51,7 +51,7 @@ const Menu: React.FC<MenuProps> = ({setActiveTab}) => {
       <DropdownMenuTrigger asChild>
            <Button
             variant="outline"
-            className="bg-[#00AEEF] text-white flex items-center justify-center w-10 h-10 rounded-full  hover:bg-[#006ccc] hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
+            className="bg-[#486ba3] text-white flex items-center justify-center w-10 h-10 rounded-full  hover:bg-[#2a3a5c] hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
                      
           >
             {title()}
@@ -82,7 +82,7 @@ const Menu: React.FC<MenuProps> = ({setActiveTab}) => {
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <div className="flex items-center justify-between mr-2">
+          <div className="flex items-center justify-between mr-2 hover:bg-gray-100">
           <DeleteUserDialog  />
           <DropdownMenuShortcut ><MdOutlineDeleteOutline className="w-5 h-5 "/></DropdownMenuShortcut>
           </div>

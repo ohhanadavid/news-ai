@@ -112,9 +112,9 @@ const Dashboard = () => {
                 </Card>
               </TabsContent>
               <TabsList className="grid w-full grid-cols-3 gap-x-1 ">
-                <TabsTrigger className="text-white " value="language"><TbMessageLanguage /> languages</TabsTrigger>
+                <TabsTrigger className="text-white " value="language"><TbMessageLanguage /> Languages</TabsTrigger>
                 <TabsTrigger className="text-white" value="home"><IoHomeOutline /></TabsTrigger>
-                <TabsTrigger className="text-white" value="perference"><FiStar /> perferences</TabsTrigger>
+                <TabsTrigger className="text-white" value="perference"><FiStar /> Perferences</TabsTrigger>
               </TabsList>
               <NewsSubscription />
             </Tabs>

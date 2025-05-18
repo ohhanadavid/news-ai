@@ -52,13 +52,13 @@ const NewsSubscription= () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
     <DialogTrigger asChild>
-      <Button className="w-full bg-[#00AEEF] text-white py-2 rounded-md hover:bg-[#006ccc] hover:text-white" style={{ marginTop: "15px" }}>
-        Send me News!
+      <Button className="w-full bg-[#E49E48] text-white py-2 rounded-md hover:bg-[#CD5A2C] hover:text-white" style={{ marginTop: "15px" }}>
+        Send Me News!
       </Button>
     </DialogTrigger>
       <DialogContent className="w-fit max-w-full bg-gray-100 rounded-lg shadow-lg p-6">
         <DialogHeader>
-          <DialogTitle className="font-algerian text-3xl text-blue-600">News Subscription</DialogTitle>
+          <DialogTitle className="font-algerian text-3xl text-[#2a3a5c]">News Subscription</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <label className="font-pattaya text-xl text-gray-700">
@@ -131,6 +131,7 @@ const NewsSubscription= () => {
             </label>
           </div>
           <br />
+          <div className="flex space-x-4 items-center"> 
           <label className="block text-gray-700">
             Number of Articles (max 10):
             
@@ -138,14 +139,14 @@ const NewsSubscription= () => {
           <input
               type="number"
               value={articleCount}
-              onChange={(e) =>
-                setArticleCount(Math.min(10, Math.max(1, Number(e.target.value))))
+              onChange={(e) => setArticleCount(Math.min(10, Math.max(1, Number(e.target.value))))
               }
               min="1"
               max="10"
-              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              className="ml-2 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
             />
-          <Button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700" style={{ marginTop: "15px" }}>
+            </div>
+          <Button type="submit" className="w-full bg-[#739dcc] text-white py-2 rounded-md hover:bg-[#2a3a5c]" style={{ marginTop: "15px" }}>
             Subscribe
           </Button>
         </form>
