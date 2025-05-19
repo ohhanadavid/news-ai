@@ -6,10 +6,7 @@ export default {
   ],
   theme: {
     extend: {
-      fontFamily: {
-        'pattaya': ['Pattaya', 'sans-serif'], 
-        'algerian': ['ALGER', 'sans-serif'],
-      },
+      
       colors: {
         darkBlue: '#0A0F2C',
         mediumBlue: '#153B75',

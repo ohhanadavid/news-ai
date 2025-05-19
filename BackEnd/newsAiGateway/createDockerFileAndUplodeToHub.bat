@@ -11,7 +11,7 @@ call docker push %DOCKER_FILE_NAME%
 echo.
 echo %DOCKER_FILE_NAME% up docker finsh
 echo.
-set DOCKER_FILE_NAME=davidohhana/newsai_gateway:1.0
+set DOCKER_FILE_NAME=davidohhana/newsai_gateway:1.2
 
 call docker build . -t %DOCKER_FILE_NAME%
 echo.

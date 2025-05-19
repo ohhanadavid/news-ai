@@ -267,10 +267,5 @@ button:focus-visible {
   }
 }
 
-@font-face {
-  font-family: 'Algerian'; 
-  font-style: normal;
-  font-weight: normal;  
-  src: url('/fonts/ALGER.TTF') format('truetype');
-}
+
 

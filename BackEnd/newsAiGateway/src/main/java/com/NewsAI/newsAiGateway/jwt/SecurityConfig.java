@@ -44,20 +44,17 @@ import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClient
 @Log4j2
 public class SecurityConfig {
 
-//    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
-//    private String issuerUri;
-//    @Value("${keycloak.client-id}")
-//    String clientId;
-//    @Value("${keycloak.client-secret}")
-//    String clientSecret;
+@Value("${ALLOWED_ORIGINS}")
+private String allowedOrigins;
 
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+        List<String> allowedOriginsList = List.of(allowedOrigins.split(","));
+        log.info("allowedOriginsList: {}",allowedOriginsList);
         http
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(List.of("http://localhost:5173","http://localhost:5174","http://localhost:5175","http://localhost:8080"
-                    ,"http://10.0.0.3:5173","http://10.0.0.3:5174","http://10.0.0.3:5175"));
+                    config.setAllowedOrigins(allowedOriginsList);
                     config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
                     config.setAllowedHeaders(List.of("*"));

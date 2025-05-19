@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useRef, use } from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import config from "../config"; 
 
@@ -48,8 +48,8 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   
-  const [tokenStr,setTokenStr]=useState<string>(`token`);
-  const [refreshTokenStr,setRefreshTokenStr]=useState<string>(`refreshToken`);
+  const [tokenStr,setTokenStr]=useState<string>(`newsAi_token`);
+  const [refreshTokenStr,setRefreshTokenStr]=useState<string>(`newsAi_refreshToken`);
   const [user, setUser] = useState<any>(null);
   const [token, setToken] = useState<string | null>(localStorage.getItem(tokenStr));
   const [refreshToken, setRefreshToken] = useState<string | null>(localStorage.getItem(refreshTokenStr));

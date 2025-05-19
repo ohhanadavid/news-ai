@@ -1,16 +1,18 @@
 import asyncio
 import logging
-
+import os
 from confluent_kafka import Producer, Consumer
 import json
 from LlmService import my_article as llm
 
 class KafkaConfig:
-    def __init__(self, bootstrap_servers: str = 'kafka:9092'):
+
+    def __init__(self):
+        kafka_url = os.getenv('KAFKA_URL', 'kafka:9092')
         self.config = {
-            'bootstrap.servers': bootstrap_servers
+            'bootstrap.servers': kafka_url
         }
-        self.bootstrap_servers=bootstrap_servers
+        self.bootstrap_servers=kafka_url
     
     def create_producer(self) -> Producer:
         config = {
