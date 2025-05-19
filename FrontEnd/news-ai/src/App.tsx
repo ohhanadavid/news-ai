@@ -47,9 +47,10 @@ function App() {
 
 
 function RequireAuth({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
+  const { user,tokenStr } = useAuth();
+  const token = localStorage.getItem(tokenStr);
   if (user === undefined) return <p>Loading...</p>;
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user &&!token) return <Navigate to="/login" replace />;
   return <>{children}</>;
 }
 

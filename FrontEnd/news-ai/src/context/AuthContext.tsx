@@ -48,8 +48,8 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   
-  const [tokenStr,setTokenStr]=useState<string>(`newsAi_token`);
-  const [refreshTokenStr,setRefreshTokenStr]=useState<string>(`newsAi_refreshToken`);
+  const tokenStr=`newsAi_token`;
+  const refreshTokenStr=`newsAi_refreshToken`;
   const [user, setUser] = useState<any>(null);
   const [token, setToken] = useState<string | null>(localStorage.getItem(tokenStr));
   const [refreshToken, setRefreshToken] = useState<string | null>(localStorage.getItem(refreshTokenStr));
@@ -220,12 +220,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(data);
       setToken(data.token);
       setRefreshToken(data.refreshToken);
-      const tokenKey=`newsAi_token${userIdentifier}`;
-      const refreshTokenKey=`newsAi_refreshToken${userIdentifier}`;
-      setRefreshTokenStr(refreshTokenKey);
-      setTokenStr(tokenKey);
-      localStorage.setItem(tokenKey, data.token);
-      localStorage.setItem(refreshTokenKey, data.refreshToken);
+     
+      localStorage.setItem(tokenStr, data.token);
+      localStorage.setItem(refreshTokenStr, data.refreshToken);
       
       console.log("Navigating to dashboard...");
       navigate("/dashboard");
@@ -281,12 +278,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     localStorage.removeItem(tokenStr);
     localStorage.removeItem(refreshTokenStr);
-    const tokenKey=`newsAi_token${email}`;
-    const refreshTokenKey=`newsAi_refreshToken${email}`;
-    setRefreshTokenStr(refreshTokenKey);
-    setTokenStr(tokenKey);
-    localStorage.setItem(tokenKey, token ?? "");
-    localStorage.setItem(refreshTokenKey, refreshToken ?? "");
+ 
+    localStorage.setItem(tokenStr, token ?? "");
+    localStorage.setItem(refreshTokenStr, refreshToken ?? "");
 
     await fetchUser();
       
