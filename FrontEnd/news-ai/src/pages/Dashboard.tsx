@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -16,6 +15,7 @@ import ChancePassword from "@/componnent/ChancePassword";
 import { IoHomeOutline } from "react-icons/io5";
 import { TbMessageLanguage } from "react-icons/tb";
 import { FiStar } from "react-icons/fi";
+import About from "@/componnent/AboutMe/About";
 
 const Dashboard = () => {
   const { user, loading,tokenStr } = useAuth();
@@ -67,7 +67,7 @@ const Dashboard = () => {
             id="fourdiv"
             className="flex flex-col items-center bg-gray-100 rounded-lg shadow-lg p-6"
           >
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-[400px]">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="min-w-[400px] max-w-[600px] w-full">
               <Menu 
                 setActiveTab={setActiveTab}
               />
@@ -109,6 +109,11 @@ const Dashboard = () => {
                   </CardFooter>
                 </Card>
               </TabsContent>
+               <TabsContent value="About">
+          
+                    <About />
+                 
+              </TabsContent>
               <TabsList className="grid w-full grid-cols-3 gap-x-1 ">
                 <TabsTrigger className="text-white " value="language"><TbMessageLanguage /> Languages</TabsTrigger>
                 <TabsTrigger className="text-white" value="home"><IoHomeOutline /></TabsTrigger>
@@ -116,6 +121,12 @@ const Dashboard = () => {
               </TabsList>
               <NewsSubscription />
             </Tabs>
+            <footer className="mt-4 w-full">
+              <hr className="w-full border-t-2 border-gray-300" />
+            <p onClick={() => setActiveTab("About")} className="text-center text-gray-600 mt-2 cursor-pointer">
+              About Me
+            </p>
+            </footer>
           
           </div>
         </div>
