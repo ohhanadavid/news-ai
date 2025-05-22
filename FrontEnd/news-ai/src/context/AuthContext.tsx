@@ -216,16 +216,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       const data = await res.json();
       console.log(`Login response: token received: ${!!data.token}`);
-      
-      setUser(data);
       setToken(data.token);
       setRefreshToken(data.refreshToken);
+      navigate("/dashboard");
+      setUser(data);
+      
      
       localStorage.setItem(tokenStr, data.token);
       localStorage.setItem(refreshTokenStr, data.refreshToken);
       
       console.log("Navigating to dashboard...");
-      navigate("/dashboard");
+      
     } catch (error) {
       console.error("Login error:", error);
       throw error;
@@ -250,13 +251,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     if (!res.ok) 
       throw new Error("Registration failed");
-      const data = await res.json();
-      setToken(data.token);
-      setRefreshToken(data.refreshToken);
-      localStorage.setItem(tokenStr, data.token);
-      localStorage.setItem(refreshTokenStr, data.refreshToken);
-      setUser(data.user);
-
+    const data = await res.json();
+    setToken(data.token);
+    setRefreshToken(data.refreshToken);
+    localStorage.setItem(tokenStr, data.token);
+    localStorage.setItem(refreshTokenStr, data.refreshToken);
+    setUser(data.user);
+    navigate("/dashboard"); 
   };
 
   const updateUser = async ({  firstName,    lastName,    email,    phone,    }: {

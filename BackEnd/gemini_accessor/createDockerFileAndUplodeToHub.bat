@@ -1,5 +1,6 @@
 
 set DOCKER_FILE_NAME=davidohhana/newsai_llm_accessor:latest
+set DOCKER_FILE_VERSION=davidohhana/newsai_llm_accessor:1.0
 
 call docker build . -t %DOCKER_FILE_NAME%
 
@@ -7,22 +8,36 @@ echo.
 echo build %DOCKER_FILE_NAME% finsh
 echo.
 
-call docker push %DOCKER_FILE_NAME%
+
+docker buildx build --platform linux/amd64,linux/arm64 -t %DOCKER_FILE_NAME% -t %DOCKER_FILE_VERSION% --push .
 
 echo.
-echo uplode %DOCKER_FILE_NAME% finsh
+echo ✅ Build and push finished for:
+echo - %DOCKER_FILE_LATEST%
+echo - %DOCKER_FILE_NAME%
 echo.
 
-set DOCKER_FILE_NAME=davidohhana/newsai_llm_accessor:1.0
+@REM call docker push %DOCKER_FILE_LATEST%
+@REM call docker push %DOCKER_FILE_NAME%
 
-call docker build . -t %DOCKER_FILE_NAME%
+pause
 
-echo.
-echo build %DOCKER_FILE_NAME% finsh
-echo.
+@REM call docker push %DOCKER_FILE_NAME%
 
-call docker push %DOCKER_FILE_NAME%
+@REM echo.
+@REM echo uplode %DOCKER_FILE_NAME% finsh
+@REM echo.
 
-echo.
-echo uplode %DOCKER_FILE_NAME% finsh
-echo.
+@REM set DOCKER_FILE_NAME=davidohhana/newsai_llm_accessor:1.0
+
+@REM call docker build . -t %DOCKER_FILE_NAME%
+
+@REM echo.
+@REM echo build %DOCKER_FILE_NAME% finsh
+@REM echo.
+
+@REM call docker push %DOCKER_FILE_NAME%
+
+@REM echo.
+@REM echo uplode %DOCKER_FILE_NAME% finsh
+@REM echo.

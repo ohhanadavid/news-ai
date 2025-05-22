@@ -42,6 +42,7 @@ const AddLanguage: React.FC<AddLanguageProps> = ({  token: propToken }) => {
  
 
   const handleSubmit = async (e: React.FormEvent) => {
+    setOpen(false);
     e.preventDefault();
     if (!selectedLanguage) {
       setError("Please select a language");
@@ -85,7 +86,7 @@ const AddLanguage: React.FC<AddLanguageProps> = ({  token: propToken }) => {
          
   });
     setSelectedLanguage("");
-    setOpen(false);
+    
 
    
     
