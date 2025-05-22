@@ -39,6 +39,7 @@ const AddCategory = () => {
   
 
   const handleSubmit = async (e: React.FormEvent) => {
+    setOpen(false);
     e.preventDefault();
 
     if (!selectedCategory) {
@@ -84,7 +85,7 @@ const AddCategory = () => {
     setSelectedCategory("");
     setPreference("");
     setError(null);
-    setOpen(false);
+    
     
     
   };

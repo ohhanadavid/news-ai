@@ -71,7 +71,7 @@ const SignUp: React.FC = () => {
         password,
       });
       setSuccess("Registration successful! Redirecting...");
-      navigate("/dashboard"); // Redirect to dashboard immediately
+      navigate("/dashboard");
     } catch (err: any) {
       // Handle specific error messages if available
       setError(err.message || "Failed to register. Please try again.");
