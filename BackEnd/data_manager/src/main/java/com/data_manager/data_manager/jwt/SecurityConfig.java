@@ -20,17 +20,7 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 @KeycloakConfiguration
 public class SecurityConfig {
 
-//    @Bean
-//    public KeycloakAuthenticationProvider keycloakAuthenticationProvider() {
-//        KeycloakAuthenticationProvider provider = new KeycloakAuthenticationProvider();
-//        provider.setGrantedAuthoritiesMapper(new SimpleAuthorityMapper());
-//        return provider;
-//    }
-//
-//    @Bean
-//    protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {
-//        return new RegisterSessionAuthenticationStrategy(new SessionRegistryImpl());
-//    }
+
 
     @Bean
     protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {

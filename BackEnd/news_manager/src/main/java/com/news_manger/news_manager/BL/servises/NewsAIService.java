@@ -30,8 +30,7 @@ import lombok.extern.log4j.Log4j2;
 public class NewsAIService {
 
 
-//    @Value("${TinyUrlURL}")
-//    private String tinyUrl_Url;
+
 
     @Autowired
     private IChecking checking;

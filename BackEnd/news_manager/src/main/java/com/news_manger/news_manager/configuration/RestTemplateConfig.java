@@ -31,40 +31,6 @@ import java.io.IOException;
 @Import(ServletWebServerFactoryAutoConfiguration.class)
 public class RestTemplateConfig {
 
-//    @Bean
-//    @RequestScope
-//    public RestTemplate getRestTemplate() {
-//        RestTemplate restTemplate = new RestTemplate();
-//
-//        restTemplate.getInterceptors().add((outReq, bytes, clientHttpReqExec) -> {
-//            log.info("Sending request to: {} {}", outReq.getMethod(), outReq.getURI());
-//            return clientHttpReqExec.execute(outReq, bytes);
-//        });
-//
-//        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-//        if (attrs != null) {
-//            jakarta.servlet.http.HttpServletRequest inReq = attrs.getRequest();
-//
-//            if (inReq instanceof HttpServletRequestWrapper) {
-//                inReq = (HttpServletRequest) ((HttpServletRequestWrapper) inReq).getRequest();
-//            }
-//
-//            final String authHeader = inReq.getHeader(HttpHeaders.AUTHORIZATION);
-//            if (authHeader != null && !authHeader.isEmpty()) {
-//                restTemplate.getInterceptors().add((outReq, bytes, clientHttpReqExec) -> {
-//                    outReq.getHeaders().set(HttpHeaders.AUTHORIZATION, authHeader);
-//                    return clientHttpReqExec.execute(outReq, bytes);
-//                });
-//            } else {
-//                log.warn("No Authorization header found in incoming request.");
-//            }
-//        } else {
-//            log.warn("No incoming request found.");
-//        }
-//
-//        return restTemplate;
-//    }
-
     @Bean
     @Qualifier("withoutToken")
     public RestTemplate restTemplateWithoutToken(ObjectMapper objectMapper) {

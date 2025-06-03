@@ -25,7 +25,7 @@ public class LanguageToDBService implements IUser {
 
     public void saveLanguage(LanguageToDB language){
         log.info("Save language for {}",language.getLanguageKey().getUserID());
-        // userService.userNotExists(language.getLanguageKey().getEmail());
+
         if(languageRepository.existsById(language.getLanguageKey())){
             log.error("language already exist for {}!",language.getLanguageKey().getUserID());
             throw new ItemFoundException("language already exist!");

@@ -11,7 +11,7 @@ import java.io.FileInputStream;
 import java.util.Properties;
 
 @Configuration
-//@PropertySource(value = "file:${user.dir}/.env", ignoreResourceNotFound = true)
+
 @Log4j2
 public class EnvConfig {
     @Bean

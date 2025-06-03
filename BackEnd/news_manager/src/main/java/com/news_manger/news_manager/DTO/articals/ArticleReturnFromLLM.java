@@ -18,7 +18,6 @@ public class ArticleReturnFromLLM {
     private String title;
     private String summary;
     private String videoUrl;
-    //@JsonDeserialize(using= ArticalDataTimeFormatter.class)
     private String pubDate;
 
 

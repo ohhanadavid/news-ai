@@ -60,7 +60,7 @@ public class NewsAIAccessorService {
 
         log.info("getLatestNews-success");
         return ( results.isEmpty()) ? null : new ArrayList<>(List.of(results));
-        //return new ReturnData(data,results);
+
     }
 
     public ReturnData getLatestNewsFromTopic(DataForNewsWithOneCategory data) throws JsonProcessingException {
@@ -79,8 +79,6 @@ public class NewsAIAccessorService {
         if (results == null)
             throw new HttpServerErrorException( HttpStatus.INTERNAL_SERVER_ERROR);
         log.info("getLatestNewsFromTopic-success");
-        //data.put("article",Base64.getEncoder().encodeToString(results.getBytes()));
-       // producer.send(returnData,KafkaTopic.GET_LIST_NEWS_TOPIC);
 
         return new ReturnData(data,results);
     }
@@ -102,9 +100,7 @@ public class NewsAIAccessorService {
                 String result = restTemplate.getForObject(url.toUriString(), String.class);
                     results.add(result);
                 });
-        // data.put("article",String.join(results));
 
-      //  producer.send(returnData,KafkaTopic.GET_LIST_NEWS_TOPIC);
 
         return new ReturnData(data,results);
 

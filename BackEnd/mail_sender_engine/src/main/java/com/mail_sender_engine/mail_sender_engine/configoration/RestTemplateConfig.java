@@ -44,7 +44,7 @@ public class RestTemplateConfig {
         byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes(StandardCharsets.UTF_8));
         String authHeader = "Basic " + new String(encodedAuth);
         headers.set("Authorization", authHeader);
-//        headers.setBasicAuth(ACCOUNT_SID, AUTH_TOKEN);
+
         return headers;
     }
 }

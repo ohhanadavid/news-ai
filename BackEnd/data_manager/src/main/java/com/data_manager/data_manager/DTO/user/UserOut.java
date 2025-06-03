@@ -11,12 +11,6 @@ import lombok.experimental.Accessors;
 
 
 
-//@Data
-//@ToString(includeFieldNames = true)
-//@AllArgsConstructor
-//@Accessors(chain = true)
-//@NoArgsConstructor
-//@JsonInclude(JsonInclude.Include.NON_NULL)
 public interface UserOut {
 
     String getName();

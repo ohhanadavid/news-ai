@@ -19,7 +19,6 @@ public class DataLists implements Serializable {
 
 
     public DataLists(DataLists original) {
-        // Create new ArrayList and copy all elements
         this.categories = original.categories == null
                 ? null
                 : new ArrayList<>(original.categories);

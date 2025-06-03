@@ -1,6 +1,5 @@
 package com.NewsAI.newsAiGateway.configuration;
-//
-//
+
 import com.NewsAI.newsAiGateway.DTO.SendOption;
 import com.NewsAI.newsAiGateway.DTO.UserData;
 import com.NewsAI.newsAiGateway.DTO.UserRequest;
@@ -34,7 +33,6 @@ import static com.NewsAI.newsAiGateway.kafka.KafkaTopic.*;
 import static org.springframework.web.reactive.function.server.RequestPredicates.*;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
-//
 @Configuration
 @Log4j2
 public class GatewayConfig implements WebFluxConfigurer {
@@ -65,7 +63,7 @@ public class GatewayConfig implements WebFluxConfigurer {
     }
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // טיפול בקבצים סטטיים
+
         registry.addResourceHandler("/**")
                 .addResourceLocations("classpath:/static/")
                 .setCacheControl(CacheControl.maxAge(365, TimeUnit.DAYS));

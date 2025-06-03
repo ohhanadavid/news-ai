@@ -28,7 +28,6 @@ public class Article {
     private String video_url ;
     private String description;
     private String  content ;
-    //@JsonDeserialize(using= ArticalDataTimeFormatter.class)
     private String pubDate ;
     private String image_url ;
     private String source_id ;

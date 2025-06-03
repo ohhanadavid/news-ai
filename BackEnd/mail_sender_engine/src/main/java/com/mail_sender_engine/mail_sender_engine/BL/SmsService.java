@@ -14,7 +14,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 
-// copied from documentation https://www.sms4free.co.il/outcome-sms-api.html
+
 @Service
 public class SmsService {
     protected final Log logger = LogFactory.getLog(getClass());
@@ -34,9 +34,9 @@ public class SmsService {
     public boolean send(String text, String phoneNumber) {
 
         if (phoneNumber == null) return false;
-//        if (phoneNumber.startsWith("+972")) phoneNumber = phoneNumber.replaceAll("\\+972","0");
+
         MediaType mediaType = MediaType.parse("application/json");
-        //Define The URL We Wanna Post to
+
         String url = "https://api.sms4free.co.il/ApiSMS/v2/SendSMS";
         URL urlObj = null;
         try { urlObj = new URL(url); } catch (MalformedURLException e) {}
@@ -46,7 +46,7 @@ public class SmsService {
         String pass = ACCOUNT_PASS;
         try {
 
-            //create the form body as json
+
             String json = "{\"key\":\"" + key + "\",\"user\":\"" + user + "\",\"pass\":\"" + pass
                     + "\",\"sender\":\"" + "0543331719" + "\",\"recipient\":\"" + phoneNumber + "\",\"msg\":\"" + text + "\"}";
 
@@ -60,7 +60,7 @@ public class SmsService {
             String data = res.body().string();
             System.out.println(res.code());
             System.out.println(data);
-            //print result
+
             boolean success = res.code() < 300  && res.code() >= 200;
 
             return success;

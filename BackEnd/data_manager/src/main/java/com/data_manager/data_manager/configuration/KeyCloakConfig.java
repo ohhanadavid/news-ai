@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class KeyCloakConfig {
 
-    // שדות סטטיים עם Lombok @Getter
+
     @Getter private static String serverUrl;
     @Getter private static String realm;
     @Getter private static String adminUsername;

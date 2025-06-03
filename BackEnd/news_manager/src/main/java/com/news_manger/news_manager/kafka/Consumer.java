@@ -80,21 +80,6 @@ public class Consumer {
     }
 
 
-//    @KafkaListener(topics = {"getNews"})
-//    public void getNews(ConsumerRecord<?, ?> record) throws IOException {
-//        log.info("KafkaListener-getNews");
-//        Optional<?> kafkaMessage = Optional.ofNullable(record.value());
-//            if (kafkaMessage.isPresent()) {
-//
-//                Object message = kafkaMessage.get();
-//                Map<String,Object> data= om.readValue(message.toString(), Map.class);
-//                newsDataService.getNews(data);
-//            }
-//
-//
-//    }
-
-
     @KafkaListener(topics = {"getListNews"})
     public void getListNews(ConsumerRecord<?, ?> record) throws JsonProcessingException {
         log.info("KafkaListener-getListNews");
@@ -128,8 +113,7 @@ public class Consumer {
                 log.error("Unexpected message type: {}", message.getClass());
             }
 
-//            ArticleFromLLm data= om.readValue(message.toString(), ArticleFromLLm.class);
-            //  newsDataService.getFilterNews(data);
+
        }
 
 

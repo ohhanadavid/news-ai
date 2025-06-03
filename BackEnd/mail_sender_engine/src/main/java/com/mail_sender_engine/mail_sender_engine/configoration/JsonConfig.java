@@ -13,7 +13,7 @@ public class JsonConfig {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         
-        // Configure other settings if needed
+
         return objectMapper;
     }
 }

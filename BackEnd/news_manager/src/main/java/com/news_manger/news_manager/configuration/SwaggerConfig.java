@@ -18,8 +18,8 @@ public class SwaggerConfig {
     @Bean
     public GroupedOpenApi publicApi() {
         return GroupedOpenApi.builder()
-                .group("public") // Group name for Swagger UI
-                .pathsToMatch("/**") // Match all API paths
+                .group("public")
+                .pathsToMatch("/**")
                 .build();
     }
 

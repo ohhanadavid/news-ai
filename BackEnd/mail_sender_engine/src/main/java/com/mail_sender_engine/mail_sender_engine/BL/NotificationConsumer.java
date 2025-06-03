@@ -22,7 +22,7 @@ public class NotificationConsumer {
 
     @PostMapping("api.sendMail")
     @KafkaListener(topics={"api.sendMail"})
-    //public void sendEmail(@RequestBody MailData data){
+
     public void sendEmail(ConsumerRecord<?, ?> record) throws JsonProcessingException {
         log.info("api.sendMail");
         Optional<?> kafkaMessage = Optional.ofNullable(record.value());

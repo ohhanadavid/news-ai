@@ -20,7 +20,6 @@ public class ArticleReturn {
     private String summary;
     private String videoUrl;
     private String language;
-    //@JsonDeserialize(using= ArticalDataTimeFormatter.class)
     private String pubDate;
     private String description;
 

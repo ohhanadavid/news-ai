@@ -71,10 +71,6 @@ public class NewsController {
         return newsDataService.getArticleForView(jwt);
     }
 
-//    @GetMapping("tinyURL/{tiny}")
-//    public ModelAndView getTiny(@PathVariable String tiny){
-//        String url = newsDataService.tinyUrl(tiny);
-//        return new ModelAndView("redirect:" + url);
-//    }
+
 
 }

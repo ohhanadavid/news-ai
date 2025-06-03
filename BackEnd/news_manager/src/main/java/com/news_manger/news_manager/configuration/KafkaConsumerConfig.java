@@ -26,7 +26,7 @@ public class KafkaConsumerConfig {
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
 
-        // הגדרת Default Type רק ל-Listener הספציפי
+
         JsonDeserializer<Map<String,Object>> deserializer = new JsonDeserializer<>(Map.class);
         deserializer.addTrustedPackages("*");
 
